@@ -43,13 +43,15 @@ CI runs lint, type checks, and a production build on pull requests and pushes to
 
 For animations, import from `motion/react` in a `"use client"` component, or `motion/react-client` in a Server Component.
 
-## Supabase (optional, not connected)
+## Supabase (connected)
 
-Hosted Supabase setup is deferred because the account has no free project slots. The app runs and deploys without it. Client helpers and local configuration are included for when a database is needed.
+The hosted project **SmashVision x SuperiorSwarm** (`riejgyofzdvrkpwbuyab`, eu-central-1) is live and linked. The CLI is linked for migrations and type generation, and `src/lib/supabase/database.types.ts` is generated and committed. It has no tables yet.
+
+Each developer still needs their own `.env.local`, since it is git-ignored. The steps below cover that and describe the original setup for reference.
 
 ### 1. Create a project
 
-In the [Supabase dashboard](https://supabase.com/dashboard), create a project in the `hackathon-tectonic` organization when a slot becomes available. Choose a nearby region (Frankfurt is suitable), save the database password in your password manager, and wait until the project is ready. No tables are required for this starter.
+Already done for this repo, so skip to step 2. To set up a fresh one: in the [Supabase dashboard](https://supabase.com/dashboard), create a project, choose a nearby region (Frankfurt is suitable), save the database password in your password manager, and wait until the project is ready. No tables are required for this starter.
 
 Open the project's **Connect** dialog and copy its **Project URL** and **publishable key**. The project reference is the identifier in its dashboard URL: `https://supabase.com/dashboard/project/YOUR_PROJECT_REF`.
 
@@ -129,7 +131,8 @@ Web Analytics is enabled. The Speed Insights component is mounted, but the activ
 - Production: https://hackathon-tectonic.vercel.app
 - Vercel project: https://vercel.com/thomas-projects-18c8a57b/hackathon-tectonic
 - Local lint, TypeScript, production build, and live HTTP checks passed.
-- Supabase is intentionally unconnected. Its helpers and local configuration are ready for later; no hosted database or seed data has been created.
+- Supabase is connected. Project `riejgyofzdvrkpwbuyab` is linked, `db query --linked` and `bun run db:types` both succeed, and the proxy performs live session refresh. No tables or seed data have been created yet.
+- The Supabase environment variables are **not yet on Vercel**. The deployed site runs without them until they are added to the `thomas-projects-18c8a57b/hackathon-tectonic` project and it is redeployed.
 - Vercel could not connect the private GitHub repository. Grant the Vercel GitHub integration access to `VrolixThomas/hackathon_tectonic`, then connect it in the project's Git settings to enable automatic deployments. CLI deployment already works.
 - Speed Insights activation is pending resolution of Vercel's plan restriction. No plan changes have been made.
 
