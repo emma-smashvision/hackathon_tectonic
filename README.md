@@ -1,6 +1,6 @@
 # Tectonic
 
-An empty hackathon starter. The homepage is intentionally blank; there are no product features, database tables, or seed data.
+A minimal hackathon starter. The homepage displays “Welcome to SmashVision x SuperiorSwarm!”; there are no product features, database tables, or seed data.
 
 ## Stack
 
@@ -16,7 +16,7 @@ cp -n .env.example .env.local
 bun dev
 ```
 
-Open http://localhost:3000. The blank app works without environment variables; Supabase helpers need the URL and publishable key in `.env.local`.
+Open http://localhost:3000. The app works without environment variables; Supabase helpers need the URL and publishable key in `.env.local`.
 
 | Command | Purpose |
 | --- | --- |
@@ -33,7 +33,7 @@ CI runs lint, type checks, and a production build on pull requests and pushes to
 
 ## Start building
 
-- `src/app/page.tsx`: blank homepage.
+- `src/app/page.tsx`: welcome homepage.
 - `src/app/layout.tsx`: metadata, fonts, and analytics.
 - `src/app/globals.css`: Tailwind and base styles; `font-sans` uses Inter and `font-mono` uses Geist Mono.
 - `src/lib/supabase/client.ts`: Supabase client for Client Components.
@@ -112,7 +112,7 @@ bunx vercel login
 bunx vercel link
 ```
 
-Deploy the blank app without any Supabase environment variables:
+Deploy the app without any Supabase environment variables:
 
 ```sh
 bunx vercel deploy --prod
