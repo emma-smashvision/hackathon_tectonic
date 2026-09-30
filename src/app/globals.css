@@ -5,8 +5,245 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  --color-navy: #003665;
+  --color-navy-600: #0b4a82;
+  --color-navy-50: #eef4fa;
+  --color-azure: #00aeef;
+  /* Darker azure for text and focus rings on white (contrast ≥ 4.5:1). */
+  --color-azure-ink: #006fa0;
+  --color-azure-50: #e6f7fd;
+  --color-ok: #137a45;
+  --color-warn: #9a5b00;
+  --color-bad: #b42318;
+}
+
 body {
   min-height: 100dvh;
-  background: #fff;
-  color: #171717;
+  background: #f3f6f9;
+  color: #14213d;
+}
+
+/* Type and touch-target scale inside the phone, driven by the engine's density. */
+.phone {
+  --t-small: 0.75rem;
+  --t-body: 0.875rem;
+  --t-title: 1rem;
+  --t-figure: 1.625rem;
+  --tap: 2.5rem;
+}
+
+.phone[data-density="simple"] {
+  --t-small: 1rem;
+  --t-body: 1.125rem;
+  --t-title: 1.3rem;
+  --t-figure: 2.125rem;
+  --tap: 3.5rem;
+}
+
+.phone[data-density="detailed"] {
+  --t-small: 0.7rem;
+  --t-body: 0.8125rem;
+  --t-title: 0.95rem;
+  --t-figure: 1.5rem;
+  --tap: 2.25rem;
+}
+
+@utility t-small {
+  font-size: var(--t-small);
+  line-height: 1.4;
+}
+
+@utility t-body {
+  font-size: var(--t-body);
+  line-height: 1.45;
+}
+
+@utility t-title {
+  font-size: var(--t-title);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+@utility t-figure {
+  font-size: var(--t-figure);
+  line-height: 1.1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility tap {
+  min-height: var(--tap);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-azure-ink);
+  outline-offset: 2px;
+}
+
+/* The engine's presentation tokens are shared by bubbles, sheets and Kate. */
+.phone {
+  --bubble-tint: #e6f7fd;
+  --bubble-ink: #003665;
+  --narrative-weight: 450;
+}
+.phone[data-tone="reassuring"] {
+  --bubble-tint: #eef4fa;
+  --narrative-weight: 500;
+}
+.phone[data-tone="expert"] {
+  --bubble-tint: #dcecf5;
+  --narrative-weight: 400;
+}
+.core-zone {
+  display: grid;
+  gap: var(--home-gap);
+}
+.core-zone > section:first-child {
+  padding: 16px 20px;
+  box-shadow: none;
+}
+.core-zone > section:first-child p:last-child {
+  margin-top: 8px;
+}
+.home-narrative {
+  margin-block: var(--home-gap);
+  font-weight: var(--narrative-weight);
+  min-height: 2.9em;
+}
+.bubble-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 0;
+  padding-block: 8px;
+  min-height: 248px;
+}
+.bubble-position {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bubble-cluster[data-count="5"] .bubble-position:nth-child(n + 3) {
+  width: 33.333%;
+}
+.need-bubble {
+  position: relative;
+  width: min(var(--diameter, 124px), 100%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 12px;
+  color: var(--bubble-ink);
+  background: var(--bubble-tint);
+  border: 1px solid #00366512;
+  cursor: pointer;
+  text-align: center;
+  transition: background 160ms;
+}
+.need-bubble[data-primary="true"] {
+  background: #003665;
+  color: white;
+}
+.need-bubble:hover {
+  outline: 2px solid #00aeef;
+  outline-offset: 3px;
+}
+.bubble-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.bubble-label {
+  font-size: var(--t-body);
+  line-height: 1.2;
+  font-weight: 600;
+}
+.bubble-value {
+  font-size: var(--t-small);
+  line-height: 1.2;
+}
+.question-bubble {
+  background: transparent;
+  border: 2px dashed #006fa0;
+  --diameter: 132px;
+}
+.question-bubble .bubble-label {
+  font-size: var(--t-small);
+}
+.suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--home-gap);
+}
+.suggestion-chip {
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #00366524;
+  border-radius: 24px;
+  color: #003665;
+  background: white;
+  cursor: pointer;
+}
+.suggestion-chip:hover {
+  background: #e6f7fd;
+}
+.phone[data-density="simple"] .bubble-cluster {
+  min-height: 272px;
+}
+.phone[data-density="simple"] .need-bubble {
+  gap: 6px;
+}
+.phone[data-density="simple"] .bubble-icon {
+  width: 27px;
+  height: 27px;
+}
+.phone[data-density="simple"] .suggestion-chip {
+  width: 100%;
+}
+.phone-dialog {
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  border-radius: 2rem;
+  background: transparent;
+  overflow: hidden;
+  color: #003665;
+}
+.phone-dialog::backdrop {
+  background: #00366512;
+}
+.detail-sheet {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 92%;
+  background: white;
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -8px 40px #00366524;
+  padding-bottom: 12px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone *,
+  .phone *::before,
+  .phone *::after {
+    animation: none;
+    transition-duration: 0s;
+    scroll-behavior: auto;
+  }
 }

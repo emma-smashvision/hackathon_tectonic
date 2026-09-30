@@ -9,8 +9,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tectonic",
-  description: "Tectonic hackathon project",
+  title: "One KBC. Your version.",
+  description:
+    "Prototype of a personalised banking home screen driven by a signals-to-needs engine.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
