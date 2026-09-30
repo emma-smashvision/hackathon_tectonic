@@ -1,6 +1,6 @@
 # Tectonic: developer guide
 
-The jury-facing overview is in the [README](../README.md). This guide covers how the prototype works, how to run it, and how Kate and Supabase are set up.
+The jury-facing overview is in the [README](../README.md). This guide covers how the prototype works, how to run it, and how to configure optional Claude responses and deploy the app. No database or Supabase connection is used by the prototype.
 
 Our entry for the KBC challenge at the Tectonic Hackathon: **One KBC. Your version.** It is a banking home screen that rebuilds itself around each customer based on their situation, behaviour and intent.
 
@@ -24,7 +24,7 @@ Density still controls type, targets and bubble count. Simple has at most 3 larg
 
 ### Demo script
 
-1. **Tom, 29**: click *IKEA purchase*. The dashed “Planning a move?” bubble asks first. Open it to see the reason and try Not relevant, then reset. Inject IKEA, *Moving company payment* and *Rent to new city*: Moving becomes the biggest bubble, the narrative changes, and budget remains alongside it. Open Moving for the checklist and pin/hide controls.
+1. **Tom, 29**: select Tom, then reset in the engine drawer to clear the character’s preloaded moving signals. Click *IKEA purchase*. The dashed “Planning a move?” bubble asks first. Open it to see the reason and try Not relevant, then reset. Inject IKEA, *Moving company payment* and *Rent to new city*: Moving becomes the biggest bubble, the narrative changes, and budget remains alongside it. Open Moving for the checklist and pin/hide controls.
 2. **Sofie & Pieter**: tap *Can we afford a house?*. Kate summarises their €41,300 house savings and €5,300 monthly net income, explains that these alone cannot establish affordability, and offers the mortgage planner and an advisor. Use the response’s open button, or inject *Viewed mortgage simulator* / answer Yes to see the House fund bubble at 69%, then open its full slider, savings progress and document checklist.
 3. **Margaret, 74**: compare the larger text, buttons and bubbles with Karim. Her direct debits (domiciliëringen) have their own bubble. In the engine drawer, inject *Duplicate payment detected*: **Paid twice?** jumps to the top with a pulsing dot. Inject *Booked flight to Lisbon* to see travel in its simple variant, with no more than three bubbles.
 4. **Marc, 71**: frequent portfolio checks produce the detailed view despite his age, with top performer and dividends bubbles (information only). **Karim, 45** combines tax reserve and investments.
@@ -43,7 +43,7 @@ The route calls Claude through the official [`@anthropic-ai/sdk`](https://platfo
 
 **Spending cap.** The route prices each response's token usage at Opus 5.5 list rates and stops calling Claude once `KATE_BUDGET_USD` (default `5`, `0` disables Claude) is spent; Kate then uses deterministic answers. The counter is in memory, so it resets when the server restarts and is per process. For a hard account-level limit, also set a spend limit on the key's workspace in the [Claude Console](https://platform.claude.com/settings/limits).
 
-**Claude needs a server.** `bun dev` (or `next start` without `output: "export"`) serves `/api/kate`. The static export in `out/` has no API routes, so a static deployment always uses the deterministic Kate.
+**Claude needs a server.** `bun dev` serves `/api/kate`. The current production configuration exports static files to `out/`, and `bun start` serves those files without API routes. A static deployment always uses the deterministic Kate. See [Deployment](#deployment) for the changes needed to host the API.
 
 Kate’s system prompt (`KATE_SYSTEM_PROMPT` in `src/lib/kate/respond.ts`) requires:
 
@@ -58,7 +58,7 @@ Code-level defences don’t rely on the model obeying:
 
 - **Input:** user text is NFKC-normalised, and control, zero-width and bidi-override characters are stripped. Messages, history and payloads are size-capped.
 - **No forged turns:** chat history comes from the browser, so it is sent as labelled data inside one user message, never as real assistant turns.
-- **Output:** structured output requires `on_topic`. Off-topic replies are replaced by fixed text. Replies with links, emails, markup, credential words, a prompt canary or prompt-leak phrases, invented amounts or unknown widget IDs are discarded for the deterministic answer. Whole numbers up to 100 and warnings such as “never share your PIN” are allowed. React renders replies as plain text.
+- **Output:** structured output requires `on_topic`. Off-topic replies are replaced by fixed text. Replies with detected links, emails, markup, credential requests, a prompt canary or prompt-leak phrases, or unsupported amounts are discarded for the deterministic answer. An unknown or unavailable widget ID drops the optional open hint while preserving valid reply text. Whole numbers up to 100 and warnings such as “never share your PIN” are allowed. React renders replies as plain text.
 - **Diagnostics:** each fallback logs a reason label such as `unknown number`, `link`, `timeout` or `budget reached` to the server console, never the message or reply.
 
 Replies may contain an optional `{ "open": "homeBuying" }` hint. Both server and browser validate widget IDs against the engine catalog and respect hides. The UI offers a button to open the sheet; a hint cannot perform a banking action.
@@ -67,7 +67,7 @@ The route caps messages at 600 characters, history at 8 turns, request bodies at
 
 ## Stack
 
-Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Motion, Supabase PostgreSQL, Inter and Geist Mono, Bun, and Biome. This is a single app, so Turborepo is not needed. It builds as a fully static site (`output: "export"`) and deploys to DigitalOcean App Platform.
+Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Motion, the Anthropic SDK, Inter and Geist Mono, Bun, and Biome. The home uses a rules-based TypeScript engine and synthetic data. Claude is optional and only powers Kate’s chat responses. The production configuration exports a static site to `out/`.
 
 ## Local development
 
@@ -75,42 +75,24 @@ Use Node.js 24 (`nvm use`) and Bun 1.3.9.
 
 ```sh
 bun install --frozen-lockfile
-cp -n .env.example .env.local
 bun dev
 ```
 
-Open http://localhost:3000 for the prototype; it needs no environment variables. The (currently unused) word list needs the Supabase URL and publishable key in `.env.local`, plus the database migration below. Without the connection, the page displays a list-loading error.
+Open http://localhost:3000 for the prototype or http://localhost:3000/blocks for the separate building-block gallery. Neither needs a database or environment variables.
 
-## Word-list database setup
-
-Apply [the entries migration](../supabase/migrations/20260930113000_create_entries.sql) **before deploying the word-list UI**. With an account that can manage the Supabase project:
-
-```sh
-bunx supabase link --project-ref riejgyofzdvrkpwbuyab
-bun run db:push
-```
-
-Alternatively, paste the complete migration into the project's Supabase SQL Editor and run it once. If it was applied manually, use `bunx supabase migration repair 20260930113000 --status applied` after linking to record it before future CLI migrations.
-
-The `public.entries` table contains `id`, `word`, and `created_at`. The database rejects blank words and words longer than 80 characters. Row-level security permits visitors to read, add, and delete entries; updates are not granted. This is intentionally a shared public test list, not a private per-user list.
-
-To verify the connection: add a unique word on the website, reload and confirm it remains, remove it, then reload and confirm it is gone. The **Refresh** button also loads changes made by other visitors.
-
-For a repeatable API check, run `bun run db:check`. It uses the public app key to add a unique test word, read it back, delete it, and verify deletion; it never changes existing entries.
+For optional Claude responses, create `.env.local` with `cp -n .env.example .env.local`, set `ANTHROPIC_API_KEY`, and restart `bun dev`. `KATE_BUDGET_USD` optionally sets the per-process spending threshold (default `5`; `0` disables Claude). See [Kate setup and guardrails](#kate-setup-and-guardrails) for details.
 
 | Command | Purpose |
 | --- | --- |
-| `bun dev` | Start development server |
+| `bun dev` | Start the Next.js development server, including `/api/kate` |
 | `bun run check` | Run Biome and TypeScript |
-| `bun test` | Run engine, presentation and Kate tests |
+| `bun test` | Run engine, presentation, Kate, payment-input and mortgage tests |
 | `bun run lint:fix` | Apply safe lint and formatting fixes |
 | `bun run format` | Format source files |
 | `bun run build` | Export the static site to `out/` |
-| `bun start` | Serve `out/` locally |
-| `bun run db:types` | Generate types from the linked Supabase database |
-| `bun run db:push` | Apply migrations to the linked database |
+| `bun start` | Serve `out/` locally, with built-in Kate responses |
 
-CI runs lint, type checks, and a production build on pull requests and pushes to `main`.
+CI runs lint, type checks, and a production build on pull requests and pushes to `main`. It does not currently run `bun test`; run that separately when changing behaviour.
 
 ## Start building
 
@@ -128,100 +110,37 @@ The engine is a pure TypeScript pipeline: **signals → inferred needs → ranke
 - `src/components/phone/`: the phone home renderer, which uses Motion layout animations, accessible detail sheets, Kate panel, and the card shell with why/pin/hide controls.
 - `src/components/inspector/`: the engine inspector.
 - `src/components/prototype/`: the demo state, a reducer that stores pins and hides in `localStorage` wrapped in try/catch.
-- `src/app/layout.tsx`: metadata, fonts, and analytics.
+- `src/app/page.tsx`: entry point for the interactive banking prototype.
+- `src/app/layout.tsx`: metadata and fonts.
+- `src/blocks/`: the separate building-block catalogue, rendered at `/blocks`; not yet connected to the phone home.
 - `src/app/globals.css`: Tailwind, the KBC-style colour tokens, and the density-driven type and tap-target scale.
 
 To add a widget: add its ID to `AdaptiveWidgetId`, add a scoring rule in `WIDGET_RULES`, then register a component and its metadata in `src/components/widgets/registry.tsx`. To add a need: add a rule to `RULES` in `infer.ts`.
 
-The Supabase starter code is unused by the prototype but kept intact: `src/app/word-list.tsx`, `src/lib/supabase/*`, `src/proxy.ts` and `supabase/config.toml`.
-- `src/app/page.tsx`: welcome homepage.
-- `src/app/word-list.tsx`: shared word list, with loading, validation, add/remove, and error states.
-- `src/app/layout.tsx`: metadata and fonts.
-- `src/app/globals.css`: Tailwind and base styles; `font-sans` uses Inter and `font-mono` uses Geist Mono.
-- `src/lib/supabase/client.ts`: Supabase client for Client Components.
-- `supabase/config.toml`: local Supabase configuration, without seed data.
-
 For animations, import from `motion/react` in a `"use client"` component, or `motion/react-client` in a Server Component.
 
-## Supabase (connected)
+## Legacy starter files
 
-The hosted project **SmashVision x SuperiorSwarm** (`riejgyofzdvrkpwbuyab`, eu-central-1) is set up. The browser client uses `src/lib/supabase/database.types.ts`. The entries table is defined by the migration above. CLI linking is local to each checkout and is not included in Git.
+Supabase is no longer used by the app. The old `src/app/word-list.tsx`, `src/lib/supabase/`, `supabase/` migration/configuration, `scripts/check-entries.mjs`, dependencies and `db:*` commands remain from the original starter. The word list is not mounted on any page. These files and commands are not part of the prototype’s setup or deployment. The old session proxy and server client have been removed.
 
-Each developer still needs their own `.env.local`, since it is git-ignored. The steps below cover that and describe the original setup for reference.
+## Deployment
 
-### 1. Create a project
+The checked-in `next.config.ts` uses `output: "export"`, and `bun start` runs `bunx serve out`. The default build is a static demo: the home, gallery and built-in Kate responses work without a database or secrets. `/api/kate` is not available from static hosting.
 
-Already done for this repo, so skip to step 2. To set up a fresh one: in the [Supabase dashboard](https://supabase.com/dashboard), create a project, choose a nearby region (Frankfurt is suitable), save the database password in your password manager, and wait until the project is ready. Then apply the entries migration.
-
-Open the project's **Connect** dialog and copy its **Project URL** and **publishable key**. The project reference is the identifier in its dashboard URL: `https://supabase.com/dashboard/project/YOUR_PROJECT_REF`.
-
-### 2. Configure local development
-
-Create `.env.local` if it does not exist (`cp -n .env.example .env.local`), then set:
-
-```dotenv
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
-```
-
-Restart `bun dev` after changing environment variables. `.env.local` is ignored by Git. These two public values are intended for browser use; never put database passwords or secret/service-role keys in `NEXT_PUBLIC_*` variables.
-
-### 3. Link the CLI
-
-Linking lets migration and type-generation commands find the hosted database. It is separate from configuring the app's environment variables.
+Build and preview that output with:
 
 ```sh
-bunx supabase login
-bunx supabase link --project-ref riejgyofzdvrkpwbuyab
+bun run build
+bun start
 ```
 
-Enter the database password if prompted. On macOS, allow the Supabase CLI's Keychain prompt when it reads your saved login.
+For a static host such as DigitalOcean App Platform, publish `out/` after installing dependencies and running `bun run build`. No Supabase or Anthropic environment variables are needed for this mode.
 
-Verify access without creating any tables:
+To deploy Claude-backed Kate, first change the app to a server build:
 
-```sh
-bunx supabase db query --linked 'select 1 as connected;'
-```
+1. Remove `output: "export"` from `next.config.ts`.
+2. Change the `start` script in `package.json` to `next start`.
+3. Use a Node.js 24 web service with Bun available, install dependencies, and run `bun run build`.
+4. Set `ANTHROPIC_API_KEY` as a server runtime secret and optionally set `KATE_BUDGET_USD`, then run `bun start`.
 
-### 4. Configure DigitalOcean
-
-Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the App Platform component with **Build Time** scope (see [Deployment](#deployment-digitalocean)). Next.js embeds them in the static files, so redeploy after changing them.
-
-If you add Supabase Auth later, set its **Authentication → URL Configuration → Site URL** to the DigitalOcean app URL and allow the exact callback URLs your auth routes use. This starter does not include sign-in or callback routes.
-
-### 5. Add schema when needed
-
-Once the challenge is known, create migrations with `bunx supabase migration new NAME`, write SQL in the generated file, and apply it with `bun run db:push`. Run `bun run db:types` after schema changes; the Supabase client factories already use the generated `Database` type.
-
-Enable row-level security on tables exposed through the API and add policies for the access your app needs.
-
-### Local-only alternative
-
-For an optional local database, install Docker and run `bunx supabase start`. Use the local URL and publishable key it reports. No Docker installation is needed to use hosted Supabase.
-
-A local database does not consume a hosted project slot, but the deployed site cannot reach a database running only on your laptop.
-
-## Deployment (DigitalOcean)
-
-The app is exported as static files, so it runs as an App Platform **Static Site** with no server. Proxy/middleware, Server Actions, Route Handlers, and server-side Supabase clients are unavailable; talk to Supabase from Client Components, protected by row-level security.
-
-Create an app from the GitHub repository and set the component to:
-
-| Setting | Value |
-| --- | --- |
-| Resource type | Static Site |
-| Source directory | `/` |
-| Build command | `npm install -g bun@1.3.9 && bun install --frozen-lockfile && bun run build` |
-| Output directory | `out` |
-| Catch-all document | `404.html` |
-| Environment variables | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Build Time) |
-
-`.nvmrc` and `package.json` select Node.js 24. Enable autodeploy to rebuild on pushes to the selected branch.
-
-## Setup status
-
-- Supabase project `riejgyofzdvrkpwbuyab` was verified by Emma. Local app configuration uses `.env.local`; CLI linking must be done per checkout.
-- The word-list UI and entries migration are ready. Applying the hosted migration is pending access to a Supabase account that can manage Emma's project; the publishable API key cannot create tables.
-- The static export builds and serves locally. The DigitalOcean app has not been created yet.
-
-Reference: [Next.js static exports](https://nextjs.org/docs/app/guides/static-exports) and [App Platform static sites](https://docs.digitalocean.com/products/app-platform/how-to/manage-static-sites/).
+This serves the home and `/api/kate` from the same origin. Never expose the API key through a `NEXT_PUBLIC_` variable. Spending and rate limits are held in memory per process, so multiple instances do not share counters.

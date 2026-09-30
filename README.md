@@ -1,6 +1,10 @@
+[**Try the live demo →**](https://smashvision-superiorswarm-nyax3.ondigitalocean.app)
+
 # One KBC. Your version.
 
 **Our entry for the KBC challenge at the Tectonic Hackathon:** a banking home screen that rebuilds itself around each customer, based on what is happening in their life and how they actually use the app.
+
+Built by **Emma van Doren** ([SmashVision](https://smashvision.ai)) and **Thomas Vrolix** ([SuperiorSwarm](https://superiorswarm.com)).
 
 > One KBC app · 2.3M different dashboards · customised for you only
 
@@ -15,7 +19,7 @@
 - **Same app, a different home for everyone.** Balance, Transfer and Pay never move. Everything below them is chosen, sized and ordered for this customer, right now.
 - **Behaviour beats age.** A 74-year-old who zooms in gets big, calm buttons. A 71-year-old who checks his portfolio daily gets the detailed investor view. Age alone never decides.
 - **Explainable and in control.** Every personal item says *why* it's there, and can be pinned or hidden. When the evidence is weak, the app *asks* instead of assuming.
-- **Kate, a grounded assistant.** Kate answers questions about your own money in plain language, powered by Claude. She never invents figures, never gives investment advice, and refers big decisions to your human advisor.
+- **Kate, a grounded assistant.** Kate answers questions about your own money in plain language, with optional Claude responses grounded in the demo data. Checks reject unsupported amounts and unsafe output; instructions direct her to refer big decisions to your human advisor.
 
 ---
 
@@ -26,7 +30,7 @@
 | 📱 | **Adaptive home** | A calm, bubble-based home screen. Each bubble is one thing that matters to you now, sized by how much it matters, with a live figure. |
 | ⚙️ | **Personalisation engine** | Turns transactions and app behaviour into *needs* with a confidence score, then ranks what to show and picks the layout density. Fully explainable. |
 | 💬 | **Kate** | An assistant that explains your overview, powered by Claude, with safety rules in both the prompt and the code, and an offline fallback. |
-| 🧱 | **Building blocks** | A catalogue of 27 widgets in 3 sizes and 3 content depths, plus large text: the vocabulary an AI layer can use to compose each customer's home. |
+| 🧱 | **Building blocks** | A catalogue of 28 widgets in 3 sizes and 3 content depths, plus large text: the vocabulary an AI layer can use to compose each customer's home. |
 
 ---
 
@@ -59,7 +63,7 @@ The engine is a transparent pipeline, not a black box. Every step can be inspect
 flowchart LR
     A["<b>Signals</b><br/>transactions<br/>app behaviour"] --> B["<b>Needs</b><br/>each with a confidence<br/>and plain-language reasons"]
     B -->|"≥ 60%"| C["<b>Applied</b><br/>changes the home"]
-    B -->|"25–60%"| Q["<b>Question bubble</b><br/>'Planning a move?'<br/>Yes / Not relevant"]
+    B -->|"25% to <60%"| Q["<b>Question bubble</b><br/>'Planning a move?'<br/>Yes / Not relevant"]
     B -->|"< 25%"| X["ignored"]
     C --> D["<b>Ranking</b><br/>score = base<br/>+ Σ need weight × confidence<br/>+ usage"]
     Q -->|"Yes"| C
@@ -106,12 +110,12 @@ flowchart LR
       <p>Kate explains your own overview in plain language. Ask <i>"What changed this month?"</i>, <i>"Is this payment safe?"</i> or <i>"Can we afford a house?"</i>.</p>
       <p>On the right, Sofie asks about a house. Kate:</p>
       <ul>
-        <li>uses <b>only their real figures</b>: €41,300 saved of €60,000, €5,300 joint income</li>
+        <li>uses <b>their synthetic demo figures</b>: €41,300 saved of €60,000, €5,300 joint income</li>
         <li><b>won't decide affordability</b>, and says so</li>
         <li>points to their <b>human advisor</b>, and even their upcoming appointment</li>
         <li>offers a button to open the <b>house planner</b></li>
       </ul>
-      <p>Kate is powered by <b>Claude</b> (Anthropic). Without an API key or internet, she falls back to built-in answers, so the demo always works.</p>
+      <p>Kate can use <b>Claude</b> (Anthropic) through the optional server API. Without an API key or a reachable API, she uses built-in answers for common questions. The static deployment uses these built-in answers.</p>
     </td>
     <td width="36%"><img src="docs/jury/kate-house.jpg" alt="Kate answering Sofie's question 'Can we afford a house?' using their savings and income, and referring to their advisor"></td>
   </tr>
@@ -119,7 +123,7 @@ flowchart LR
 
 ### Safe by design
 
-A banking assistant has to be trustworthy, so Kate's rules are enforced twice: once in her instructions, and again in code that checks every reply before the customer sees it.
+Kate combines instructions about scope and advice with code that checks reply structure, amounts, links, credential requests and prompt leaks. These are prototype safeguards; they do not guarantee that every answer is correct or appropriate.
 
 ```mermaid
 flowchart LR
@@ -131,7 +135,7 @@ flowchart LR
     V -->|"invented number · link ·<br/>asks for a PIN · leak ·<br/>error · timeout"| F["Safe built-in answer"]
 ```
 
-| Kate will | Kate won't |
+| Intended behaviour | Restrictions in the prompt and output checks |
 | --- | --- |
 | Explain balances, spending, savings goals and payments | Invent a number that isn't in your data |
 | Compare this month with last month | Give investment advice or say what to buy or sell |
@@ -140,7 +144,7 @@ flowchart LR
 | Warn you never to share your PIN | Ask for a PIN, password or card number, or send links |
 | Answer follow-up questions | Answer off-topic questions, or follow "ignore your instructions" |
 
-We tested Kate live against prompt-injection attempts, including fake "SYSTEM OVERRIDE" messages, requests to reveal her instructions, phishing links, hidden base64 commands and a forged chat history. All were blocked. A spending cap and rate limits protect the API budget.
+Automated tests cover forged chat history, prompt-leak detection, links, credential requests, unsupported amounts, provider failures and timeouts. Spending and rate limits apply per server process; they reset on restart and are not an account-wide spending limit.
 
 ---
 
@@ -148,12 +152,12 @@ We tested Kate live against prompt-injection attempts, including fake "SYSTEM OV
 
 <p align="center"><img src="docs/jury/blocks-gallery.jpg" alt="Building blocks gallery: Balance and Quick actions blocks shown in small, medium and large sizes" width="85%"></p>
 
-The next step is to let an AI layer compose each customer's home. To make that safe, we built a fixed **catalogue of 27 blocks** it can choose from:
+The next step is to let an AI layer compose each customer's home. To make that safe, we built a fixed **catalogue of 28 blocks** it can choose from:
 
-- **6 groups:** everyday banking, life moments (house, moving), travel, wealth, prize and Kate.
+- **6 groups:** core banking, everyday banking, life moments (house, moving), travel, wealth, and prize & Kate.
 - **3 sizes** (1×1, 2×1, 2×2, like iOS widgets) and **3 content depths** (*essential*, *standard*, *expert*), plus **large text** at every depth.
 - Depth describes *content*, never the customer's age or ability.
-- An AI picks blocks by id, size and depth. Anything outside the catalogue is rejected, and the home falls back to the rules engine.
+- Planned integration: an AI would pick blocks by id, size and depth, with validation and a rules-engine fallback. This selector is not implemented; the current phone home uses the rules engine and its own widget components.
 
 The full catalogue is in [docs/building-blocks.md](docs/building-blocks.md), and the gallery runs at `/blocks`.
 
@@ -178,16 +182,18 @@ The full catalogue is in [docs/building-blocks.md](docs/building-blocks.md), and
 | Personalisation engine: signals → needs → ranking → layout | Customer data: 7 synthetic personas |
 | Explanations, pins, hides and question bubbles | Transactions: injected as demo "live signals" |
 | Kate powered by Claude, with safety checks in code and a spending cap | Actions such as calls, payments, exchanges and bookings are previews only |
-| Offline fallback: the demo runs without internet or a key | eSIM and currency exchange are *proposed services* |
+| Built-in Kate responses: no API key needed once the app is loaded | eSIM and currency exchange are *proposed services* |
 | Accessibility: density, large text, reduced motion, keyboard and screen-reader support | Building blocks are not yet wired into the phone home |
-| 49 automated tests | |
+| Automated tests for the engine, presentation, Kate, payment input and mortgage calculation (`bun test`) | |
 
 ---
 
 ## Try it
 
+Use Node.js 24 (`nvm use`) and Bun 1.3.9. No database, Supabase account or environment variables are required for the demo. Pins and hides persist in browser `localStorage`; chat and injected events stay in memory.
+
 ```sh
-bun install
+bun install --frozen-lockfile
 bun dev
 ```
 
@@ -198,7 +204,9 @@ Open http://localhost:3000.
 3. Tap **Ask Kate anything…**, or one of the suggestion pills.
 4. Open **Inside the engine** (the sliders icon) and inject a live signal, for example *IKEA purchase* for Tom, or *€2,400 to a new payee*, and watch the home rebuild.
 
-Kate uses Claude when `ANTHROPIC_API_KEY` is set in `.env.local`. Without a key, she answers from built-in responses.
+For optional Claude responses in local development, copy `.env.example` to `.env.local`, set `ANTHROPIC_API_KEY`, and restart `bun dev`. Keep the key server-side.
+
+`bun run build` exports the site to `out/`, and `bun start` serves that static output. Static hosting has no Kate API and uses built-in responses even if a key was present during the build. Claude in production requires a Next.js server deployment; see the [developer guide](docs/DEVELOPMENT.md#deployment). The app is not an offline-installable PWA.
 
 ---
 

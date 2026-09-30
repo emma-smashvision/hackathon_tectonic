@@ -25,7 +25,7 @@ Gallery: `bun dev` → http://localhost:3000/blocks
 
 ## Catalog (for the AI layer)
 
-Not yet wired into the phone home. The AI that builds each customer's home picks blocks from this list by `id`, with a `size` (`sm`, `md`, `lg`) and a `tier` (`essential`, `standard`, `expert`), plus `largeText` for accessibility. Treat any id, size or tier outside this list as invalid and fall back to the rules engine. All blocks currently render their own synthetic demo data.
+Not yet wired into the phone home. A future AI selector would pick blocks from this list by `id`, with a `size` (`sm`, `md`, `lg`) and a `tier` (`essential`, `standard`, `expert`), plus `largeText` for accessibility. That integration must validate IDs, sizes and tiers and fall back to the rules engine for invalid selections; it is not implemented yet. All blocks currently render their own synthetic demo data.
 
 The list is generated from `src/blocks/registry.ts` (`BLOCK_GROUPS`), which is the source of truth.
 
