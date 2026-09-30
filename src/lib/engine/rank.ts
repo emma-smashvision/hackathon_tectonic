@@ -36,7 +36,10 @@ export const WIDGET_RULES: Record<AdaptiveWidgetId, WidgetRule> = {
   },
   pension: { base: 0, needs: { retirement: 60 } },
   paymentCheck: { base: 0, needs: { paymentSafety: 110, simpleUi: 25 } },
-  advisor: { base: 5, needs: { homeBuying: 30, simpleUi: 30, retirement: 10 } },
+  advisor: {
+    base: 20,
+    needs: { homeBuying: 30, simpleUi: 30, retirement: 10 },
+  },
   transactions: { base: 30, needs: {} },
 };
 

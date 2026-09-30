@@ -11,6 +11,7 @@ import { initialState, loadSaved, reducer, save } from "./state";
 export function Prototype() {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const [hydrated, setHydrated] = useState(false);
+  const [resetVersion, setResetVersion] = useState(0);
 
   // Restore saved pins/hides after mount so server and client HTML match.
   useEffect(() => {
@@ -40,18 +41,21 @@ export function Prototype() {
             One KBC. Your version.
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-600">
-            A home screen that rebuilds itself around each customer:{" "}
+            A calmer home for whatever life brings. Explore how{" "}
             <strong className="text-slate-800">
-              signals → inferred needs → ranked widgets → homepage config
+              signals become needs, bubbles and a conversation with Kate
             </strong>
-            . Synthetic data only; everything runs in your browser.
+            . Synthetic data only. No banking actions are performed.
           </p>
         </header>
 
         <div className="lg:sticky lg:top-6 lg:self-start">
-          <div className="mx-auto h-[min(820px,85dvh)] w-full max-w-[400px] overflow-hidden rounded-[2.75rem] border-[10px] border-neutral-900 bg-neutral-900 shadow-2xl shadow-navy/30">
+          <div className="mx-auto h-[820px] w-[min(400px,calc(100vw-32px))] max-w-full overflow-hidden rounded-[2.75rem] border-[10px] border-neutral-900 bg-neutral-900 shadow-2xl shadow-navy/30">
             <div className="h-full overflow-hidden rounded-[2rem]">
               <PhoneHome
+                key={`${state.personaId}-${resetVersion}`}
+                decisions={current.decisions}
+                signals={current.injected.map((s) => s.id)}
                 profile={current.profile}
                 config={config}
                 personaKey={state.personaId}
@@ -86,7 +90,10 @@ export function Prototype() {
             injected={current.injected}
             onSelectPersona={(id) => dispatch({ type: "selectPersona", id })}
             onInject={(signal) => dispatch({ type: "inject", signal })}
-            onReset={() => dispatch({ type: "reset" })}
+            onReset={() => {
+              dispatch({ type: "reset" });
+              setResetVersion((v) => v + 1);
+            }}
             onUnhide={(widget) => dispatch({ type: "unhide", widget })}
           />
         </section>

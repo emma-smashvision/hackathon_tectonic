@@ -72,7 +72,7 @@ export function WidgetCard({
       aria-labelledby={titleId}
       className={`relative rounded-3xl bg-white p-4 shadow-sm ring-1 transition-shadow ${isNew ? "ring-2 ring-azure shadow-azure/20 shadow-lg" : "ring-navy/10"}`}
     >
-      <header className="mb-3 flex items-center gap-2">
+      <header className="mb-3 flex flex-wrap items-center gap-2">
         <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-navy-50 text-navy">
           <Icon name={meta.icon} />
         </span>
@@ -84,9 +84,9 @@ export function WidgetCard({
             <p className="t-small font-semibold text-azure-ink">New for you</p>
           )}
         </div>
-        <div ref={whyButton} className="flex items-center">
+        <div ref={whyButton} className="flex w-full items-center justify-end">
           <IconButton
-            label={`Why am I seeing ${meta.title}?`}
+            label={`Why am I seeing this? ${meta.title}`}
             expanded={whyOpen}
             controls={whyId}
             onClick={() => setWhyOpen((v) => !v)}
@@ -113,7 +113,7 @@ export function WidgetCard({
         <section
           id={whyId}
           aria-label={`Why you see ${meta.title}`}
-          className="absolute inset-x-3 top-16 z-20 rounded-2xl bg-navy p-4 text-white shadow-xl"
+          className="relative mb-3 rounded-2xl bg-navy p-4 text-white shadow-xl"
         >
           <div className="mb-2 flex items-start justify-between gap-2">
             <p className="t-body font-semibold">Why am I seeing this?</p>

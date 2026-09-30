@@ -281,109 +281,117 @@ export function Inspector({
         </div>
       </Panel>
 
-      <Panel title="3 · Signals" hint="What the engine sees (synthetic data).">
-        <SignalList profile={profile} />
-      </Panel>
+      <details className="space-y-4">
+        <summary className="cursor-pointer rounded-xl px-3 py-3 text-sm font-semibold text-navy ring-1 ring-navy/20">
+          Inside the engine · {config.density} / {config.tone}
+        </summary>
+        <Panel
+          title="3 · Signals"
+          hint="What the engine sees (synthetic data)."
+        >
+          <SignalList profile={profile} />
+        </Panel>
 
-      <Panel
-        title="4 · Inferred needs"
-        hint={`Applied at ≥${APPLY_THRESHOLD * 100}% (tick). ${QUESTION_THRESHOLD * 100}–${APPLY_THRESHOLD * 100}% becomes a question. Expand for reasons.`}
-      >
-        {needs.length === 0 ? (
-          <p className="text-sm text-slate-600">
-            No needs detected yet — the home stays neutral.
-          </p>
-        ) : (
-          <ul className="space-y-3">
-            {needs.map((n) => (
-              <NeedRow key={n.id} need={n} />
+        <Panel
+          title="4 · Inferred needs"
+          hint={`Applied at ≥${APPLY_THRESHOLD * 100}% (tick). ${QUESTION_THRESHOLD * 100}–${APPLY_THRESHOLD * 100}% becomes a question. Expand for reasons.`}
+        >
+          {needs.length === 0 ? (
+            <p className="text-sm text-slate-600">
+              No needs detected yet — the home stays neutral.
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {needs.map((n) => (
+                <NeedRow key={n.id} need={n} />
+              ))}
+            </ul>
+          )}
+        </Panel>
+
+        <Panel
+          title="5 · Widget ranking"
+          hint={`Score = base + Σ(need weight × confidence) + usage. Shown if ≥${MIN_SCORE} or pinned.`}
+        >
+          <ul className="space-y-1.5">
+            {config.scores.map((s) => (
+              <motion.li
+                key={s.id}
+                layout
+                className="grid grid-cols-[8.5rem_1fr_auto] items-center gap-2 text-xs"
+              >
+                <span className="truncate font-medium text-slate-800">
+                  {WIDGET_META[s.id].title}
+                </span>
+                <span className="h-2 rounded-full bg-slate-100">
+                  <motion.span
+                    className={`block h-full rounded-full ${s.shown ? "bg-navy" : "bg-slate-300"}`}
+                    initial={false}
+                    animate={{ width: `${(s.score / maxScore) * 100}%` }}
+                  />
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-9 text-right font-mono tabular-nums">
+                    {s.score}
+                  </span>
+                  {s.hidden ? (
+                    <button
+                      type="button"
+                      onClick={() => onUnhide(s.id)}
+                      className="rounded px-1.5 py-0.5 text-azure-ink underline"
+                    >
+                      unhide
+                    </button>
+                  ) : (
+                    <Chip
+                      className={
+                        s.pinned
+                          ? "bg-navy text-white"
+                          : s.shown
+                            ? "bg-emerald-100 text-emerald-900"
+                            : "bg-slate-100 text-slate-500"
+                      }
+                    >
+                      {s.pinned ? "pinned" : s.shown ? "shown" : "—"}
+                    </Chip>
+                  )}
+                </span>
+              </motion.li>
             ))}
           </ul>
-        )}
-      </Panel>
+        </Panel>
 
-      <Panel
-        title="5 · Widget ranking"
-        hint={`Score = base + Σ(need weight × confidence) + usage. Shown if ≥${MIN_SCORE} or pinned.`}
-      >
-        <ul className="space-y-1.5">
-          {config.scores.map((s) => (
-            <motion.li
-              key={s.id}
-              layout
-              className="grid grid-cols-[8.5rem_1fr_auto] items-center gap-2 text-xs"
-            >
-              <span className="truncate font-medium text-slate-800">
-                {WIDGET_META[s.id].title}
-              </span>
-              <span className="h-2 rounded-full bg-slate-100">
-                <motion.span
-                  className={`block h-full rounded-full ${s.shown ? "bg-navy" : "bg-slate-300"}`}
-                  initial={false}
-                  animate={{ width: `${(s.score / maxScore) * 100}%` }}
-                />
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-9 text-right font-mono tabular-nums">
-                  {s.score}
-                </span>
-                {s.hidden ? (
-                  <button
-                    type="button"
-                    onClick={() => onUnhide(s.id)}
-                    className="rounded px-1.5 py-0.5 text-azure-ink underline"
-                  >
-                    unhide
-                  </button>
-                ) : (
-                  <Chip
-                    className={
-                      s.pinned
-                        ? "bg-navy text-white"
-                        : s.shown
-                          ? "bg-emerald-100 text-emerald-900"
-                          : "bg-slate-100 text-slate-500"
-                    }
-                  >
-                    {s.pinned ? "pinned" : s.shown ? "shown" : "—"}
-                  </Chip>
-                )}
-              </span>
-            </motion.li>
-          ))}
-        </ul>
-      </Panel>
-
-      <Panel
-        title="6 · Homepage config"
-        hint={`Density: ${config.density} · Tone: ${config.tone} · Core zone is fixed.`}
-      >
-        <details>
-          <summary className="cursor-pointer text-sm text-azure-ink">
-            Show the JSON the app renders from
-          </summary>
-          <pre className="mt-2 max-h-72 overflow-auto rounded-lg bg-slate-950 p-3 font-mono text-[0.7rem] text-slate-100">
-            {JSON.stringify(
-              {
-                core: config.core,
-                density: config.density,
-                tone: config.tone,
-                adaptive: config.adaptive.map(
-                  ({ id, size, variant, score }) => ({
-                    id,
-                    size,
-                    variant,
-                    score,
-                  }),
-                ),
-                questions: config.questions.map((q) => q.need),
-              },
-              null,
-              2,
-            )}
-          </pre>
-        </details>
-      </Panel>
+        <Panel
+          title="6 · Homepage config"
+          hint={`Density: ${config.density} · Tone: ${config.tone} · Core zone is fixed.`}
+        >
+          <details>
+            <summary className="cursor-pointer text-sm text-azure-ink">
+              Show the JSON the app renders from
+            </summary>
+            <pre className="mt-2 max-h-72 overflow-auto rounded-lg bg-slate-950 p-3 font-mono text-[0.7rem] text-slate-100">
+              {JSON.stringify(
+                {
+                  core: config.core,
+                  density: config.density,
+                  tone: config.tone,
+                  adaptive: config.adaptive.map(
+                    ({ id, size, variant, score }) => ({
+                      id,
+                      size,
+                      variant,
+                      score,
+                    }),
+                  ),
+                  questions: config.questions.map((q) => q.need),
+                },
+                null,
+                2,
+              )}
+            </pre>
+          </details>
+        </Panel>
+      </details>
     </div>
   );
 }
