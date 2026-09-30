@@ -37,6 +37,8 @@ const QUESTIONS: Record<NeedId, string> = {
   newFixedCosts: "New monthly costs — want a budget check?",
   paymentSafety: "Want us to double-check a payment?",
   windfall: "Some extra money came in — want a few ideas?",
+  duplicatePayment: "Was a bill paid twice?",
+  directDebits: "Want an overview of your direct debits?",
 };
 
 export function questionFor(need: NeedId): string {
@@ -47,7 +49,7 @@ function round2(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-function daysBetween(fromIso: string, toIso: string): number {
+export function daysBetween(fromIso: string, toIso: string): number {
   const ms =
     Date.parse(`${toIso}T00:00:00Z`) - Date.parse(`${fromIso}T00:00:00Z`);
   return Math.round(ms / 86_400_000);
@@ -313,7 +315,87 @@ function inferWindfall(profile: Profile): Need | null {
   return need("windfall", "inferred", evidence);
 }
 
+/** The same bill, same amount, collected twice within a few days. */
+export function findDuplicatePayment(
+  profile: Profile,
+): [Transaction, Transaction] | null {
+  const bills = recent(profile, 45)
+    .filter((tx) => tx.amount < 0 && tx.category !== "transfer")
+    .sort((a, b) => a.date.localeCompare(b.date));
+  for (let i = 0; i < bills.length; i++) {
+    for (let j = i + 1; j < bills.length; j++) {
+      const a = bills[i];
+      const b = bills[j];
+      if (
+        a.merchant === b.merchant &&
+        a.amount === b.amount &&
+        daysBetween(a.date, b.date) <= 3
+      ) {
+        return [a, b];
+      }
+    }
+  }
+  return null;
+}
+
+function inferDuplicatePayment(profile: Profile): Need | null {
+  const pair = findDuplicatePayment(profile);
+  if (!pair) return null;
+  const [a, b] = pair;
+  return need("duplicatePayment", "inferred", [
+    {
+      weight: 0.9,
+      reason: `${a.merchant} ${formatEur(-a.amount, true)} was paid on ${a.date} and again on ${b.date}`,
+    },
+  ]);
+}
+
+/** Latest collection per direct-debit merchant, with any increase. */
+export function directDebitList(profile: Profile) {
+  const byMerchant = new Map<string, Transaction[]>();
+  for (const tx of [...profile.transactions].sort((a, b) =>
+    b.date.localeCompare(a.date),
+  )) {
+    if (!tx.directDebit) continue;
+    byMerchant.set(tx.merchant, [...(byMerchant.get(tx.merchant) ?? []), tx]);
+  }
+  return [...byMerchant.values()].map(([latest, ...older]) => {
+    // A second collection of the same amount is a duplicate, not the usual one.
+    const previous = older.find((o) => o.amount !== latest.amount);
+    return {
+      merchant: latest.merchant,
+      amount: -latest.amount,
+      date: latest.date,
+      increase:
+        previous && latest.amount < previous.amount
+          ? Math.round((previous.amount - latest.amount) * 100) / 100
+          : 0,
+    };
+  });
+}
+
+function inferDirectDebits(profile: Profile): Need | null {
+  const debits = directDebitList(profile);
+  if (debits.length < 3) return null;
+  const evidence: Evidence[] = [
+    {
+      weight: Math.min(0.72, debits.length * 0.12),
+      reason: `${debits.length} bills are paid by direct debit`,
+    },
+  ];
+  const up = debits.find((d) => d.increase >= 5);
+  if (up) {
+    evidence.push({
+      weight: 0.1,
+      reason: `${up.merchant} is ${formatEur(up.increase)} higher than usual`,
+    });
+  }
+  return need("directDebits", "inferred", evidence);
+}
+
 const RULES: ((profile: Profile) => Need | null)[] = [
+  inferDuplicatePayment,
+  inferDirectDebits,
   inferHomeBuying,
   inferMoving,
   inferTravel,

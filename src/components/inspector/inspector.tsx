@@ -30,6 +30,8 @@ const NEED_NAMES: Record<NeedId, string> = {
   retirement: "Retirement income",
   newFixedCosts: "New fixed costs",
   paymentSafety: "Payment safety",
+  duplicatePayment: "Possible double payment",
+  directDebits: "Direct debits overview",
   windfall: "One-off windfall",
 };
 

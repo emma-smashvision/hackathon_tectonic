@@ -4,21 +4,30 @@ Our entry for the KBC challenge at the Tectonic Hackathon: **One KBC. Your versi
 
 V1.1 is a calm, glanceable banking home with **Kate**, KBC’s assistant. It uses synthetic personas only: no real customer data or banking actions. The phone keeps balance and Pay/Transfer fixed, then shows one personal narrative and a cluster of round bubbles. The engine still combines needs and lets behaviour override age.
 
-### Bubble home
+### Bubble home (inside the phone)
 
-- A bubble’s diameter follows its engine score. Tap it for the full V1 widget, **Why am I seeing this?**, pin and hide. A native modal sheet contains keyboard focus, restores it on close, and supports Escape, a close button, its backdrop and a downward swipe on the handle.
-- Weak evidence becomes a dashed question bubble with **Yes / Not relevant**, never a claim about the customer. One question shares the bubble limit; additional questions and overflowing selected widgets go into collapsed **More for you**.
-- Density controls type, spacing, touch targets, bubble count and drift: simple has at most 3 bubbles and 56px targets; standard has at most 4; detailed at most 5. Reduced-motion preferences disable drift and layout movement. Tone changes the narrative and visual tokens. Hiding items can leave fewer bubbles.
-- Three chips use predictable labels from a fixed pool, selected by the engine’s presentation functions. They send the question straight to Kate.
-- Persona and signal controls stay visible beside the phone. Expand **Inside the engine** to inspect evidence, confidence, ranking and config. The advisor’s baseline score is 20 so a neutral home has a useful third bubble.
+The in-app home follows the InvestSuite ambient home. From top to bottom:
+
+1. **Ambient background:** breathing radial glows over dark navy. The mood follows the home: calm for Margaret, warm for a house or a move, focused for the detailed investor view, bright for travel, celebratory for a prize.
+2. **Centre:** the balance counts up, with an italic one-line narrative. **Transfer** and **Pay** stay fixed in the same place, and turn into big labelled buttons in the simple view.
+3. **Floating bubbles**, one per ranked item, each with a live figure (e.g. *69%*, *£420*, *+14%*, *2× Luminus*, *€10.000 🎉*):
+   - **Sizing and placement:** size follows the square root of the engine score. Seeded positions are relaxed until no two bubbles overlap, inside the bubble field, so they never cover the chips or the Kate dock.
+   - **Movement:** each bubble drifts on its own CSS `bubbleFloat` loop (slower in the simple view). Reduced-motion preferences stop the drift, the ambient breathing and the confetti.
+   - **Colour and dots:** figures that go up or down get a subtle green or red tint. A pulsing dot marks items that need attention; the dashed bubble is a low-confidence question.
+   - **Tapping:** the tapped bubble grows while the others dim, then morphs into its detail sheet. The sheet keeps **Why am I seeing this?**, pin and hide, and a compact bubble strip on top switches between items.
+4. **Suggestion pills** from a fixed pool, and the **Ask Kate** dock. Kate answers from scripted, offline responses only.
+5. **Below the fold:** calm glass sections, in this order: the top need's animated card (*In focus*), the next ranked widgets in full (*More for you*), and recent activity.
+
+Density still controls type, targets and bubble count. Simple has at most 3 larger, solid, high-contrast bubbles; standard has 4; detailed has 5. Character stories and features are described in [docs/personas.md](docs/personas.md), and phone screenshots are in `docs/screenshots/`.
 
 ### Demo script
 
 1. **Tom, 29**: click *IKEA purchase*. The dashed “Planning a move?” bubble asks first. Open it to see the reason and try Not relevant, then reset. Inject IKEA, *Moving company payment* and *Rent to new city*: Moving becomes the biggest bubble, the narrative changes, and budget remains alongside it. Open Moving for the checklist and pin/hide controls.
 2. **Sofie & Pieter**: tap *Can we afford a house?*. Kate summarises their €41,300 house savings and €5,300 monthly net income, explains that these alone cannot establish affordability, and offers the mortgage planner and an advisor. Use the response’s open button, or inject *Viewed mortgage simulator* / answer Yes to see the House fund bubble at 69%, then open its full slider, savings progress and document checklist.
-3. **Margaret, 74**: compare the larger text and targets with Karim. Inject *Booked flight to Lisbon*: Travel appears in its simple variant, alongside existing needs, with no more than three bubbles. Ask Kate about the trip.
-4. **Marc, 71**: frequent portfolio checks produce the detailed view despite his age. **Karim, 45** combines tax reserve and investments.
-5. Open Kate from *Ask Kate…* and try balance, *What changed this month?*, *Is this payment safe?*, or *Call my advisor*. Inject the new-payee transfer to see the payment explanation change. Switch persona to start a fresh chat; Reset also clears that persona’s current chat and demo events.
+3. **Margaret, 74**: compare the larger text, buttons and bubbles with Karim. Her direct debits (domiciliëringen) have their own bubble. In the engine drawer, inject *Duplicate payment detected*: **Paid twice?** jumps to the top with a pulsing dot. Inject *Booked flight to Lisbon* to see travel in its simple variant, with no more than three bubbles.
+4. **Marc, 71**: frequent portfolio checks produce the detailed view despite his age, with top performer and dividends bubbles (information only). **Karim, 45** combines tax reserve and investments.
+5. **Lina, 31**: her trip brings currency pockets with a mocked exchange, a travel eSIM (*proposed service*) and a mock map of fee-free ATMs. **Emma & Thomas**: the €10,000 prize lands with confetti, followed by *Start a business* and *Split & celebrate* (€5,000 each).
+6. Open Kate from *Ask Kate…* and try balance, *What changed this month?*, *Is this payment safe?*, or *Call my advisor*. Inject the new-payee transfer to see the payment explanation change. Switch persona to start a fresh chat; Reset also clears that persona’s current chat and demo events.
 
 Pins and hides persist in `localStorage`; chat stays in memory. Reset restores the selected persona. Widget actions are local illustrations; they do not call an advisor, move money, change real card settings or book meetings. Checklist state is local to its open sheet.
 

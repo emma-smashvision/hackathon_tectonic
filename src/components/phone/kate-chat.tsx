@@ -5,7 +5,6 @@ import type { AdaptiveWidgetId, Decisions, Profile } from "@/lib/engine/types";
 import {
   buildKateContext,
   fallbackReply,
-  isWidgetId,
   type KateReply,
   MAX_MESSAGE,
 } from "@/lib/kate/context";
@@ -49,40 +48,11 @@ export function useKate(
       { id: ++seq.current, role: "user", text: message },
     ]);
     setBusy(true);
-    let reply = fallbackReply(message, context);
-    try {
-      const response = await fetch("/api/kate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, personaId, signals, decisions }),
-        signal: AbortSignal.any([request.signal, AbortSignal.timeout(9000)]),
-      });
-      if (response.ok) {
-        const data: unknown = await response.json();
-        if (
-          data &&
-          typeof data === "object" &&
-          "text" in data &&
-          typeof data.text === "string" &&
-          data.text.length <= 1800
-        ) {
-          reply = {
-            text: data.text,
-            source:
-              "source" in data && data.source === "claude"
-                ? "claude"
-                : "offline",
-            ...("open" in data &&
-            isWidgetId(data.open) &&
-            !decisions.hidden.includes(data.open)
-              ? { open: data.open }
-              : {}),
-          };
-        }
-      }
-    } catch {
-      /* Offline and timeouts use the same deterministic responder. */
-    }
+    // Scripted answers only: the home is fully mocked, no model calls.
+    void personaId;
+    void signals;
+    const reply = fallbackReply(message, context);
+    await new Promise((resolve) => setTimeout(resolve, 400));
     if (request.signal.aborted) return;
     setMessages((old) => [
       ...old,

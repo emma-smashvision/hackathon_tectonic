@@ -227,3 +227,37 @@ describe("needs are explainable", () => {
     }
   });
 });
+
+describe("everyday care for Margaret", () => {
+  test("direct debits are summarised and a double payment jumps to the top", () => {
+    const base = runEngine(getPersona("margaret").profile, EMPTY_DECISIONS);
+    const debits = base.needs.find((n) => n.id === "directDebits");
+    expect(debits?.status).toBe("applied");
+    expect(debits?.reasons.some((r) => r.includes("Proximus"))).toBe(true);
+    expect(base.config.adaptive.map((s) => s.id)).toContain("directDebits");
+    const dup = runEngine(profileOf("margaret", "duplicate"), EMPTY_DECISIONS);
+    expect(dup.config.density).toBe("simple");
+    expect(dup.config.adaptive[0].id).toBe("duplicatePayment");
+    expect(dup.config.adaptive.length).toBeLessThanOrEqual(3);
+  });
+
+  test("life moments bring their own tools", () => {
+    const lina = runEngine(
+      profileOf("lina", "flight", "abroad"),
+      EMPTY_DECISIONS,
+    );
+    const ids = lina.config.adaptive.map((s) => s.id);
+    expect(ids[0]).toBe("travel");
+    expect(ids).toEqual(expect.arrayContaining(["fxAccounts", "esim"]));
+    const house = runEngine(profileOf("sofie", "mortgage"), EMPTY_DECISIONS);
+    expect(house.config.adaptive.map((s) => s.id)).toContain("appointments");
+    const marc = runEngine(getPersona("marc").profile, EMPTY_DECISIONS);
+    expect(marc.config.adaptive.map((s) => s.id)).toEqual(
+      expect.arrayContaining(["performers", "dividends"]),
+    );
+    const prize = runEngine(profileOf("emma", "prize"), EMPTY_DECISIONS);
+    expect(prize.config.adaptive.map((s) => s.id)).toEqual(
+      expect.arrayContaining(["windfall", "business", "celebrate"]),
+    );
+  });
+});

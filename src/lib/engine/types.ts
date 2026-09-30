@@ -18,7 +18,19 @@ export type AdaptiveWidgetId =
   | "paymentCheck"
   | "advisor"
   | "transactions"
-  | "windfall";
+  | "windfall"
+  | "duplicatePayment"
+  | "directDebits"
+  | "fxAccounts"
+  | "atmMap"
+  | "esim"
+  | "appointments"
+  | "houseTimeline"
+  | "houseInsurance"
+  | "performers"
+  | "dividends"
+  | "business"
+  | "celebrate";
 
 export type WidgetId = CoreWidgetId | AdaptiveWidgetId;
 
@@ -41,6 +53,7 @@ export type TxCategory =
   | "investment"
   | "tax"
   | "prize"
+  | "atm"
   | "transfer";
 
 export interface Transaction {
@@ -56,6 +69,30 @@ export interface Transaction {
   country?: string;
   /** Beneficiary never paid before. */
   newPayee?: boolean;
+  /** Collected by direct debit (domiciliëring). */
+  directDebit?: boolean;
+}
+
+export interface CurrencyPocket {
+  code: string;
+  amount: number;
+  /** Mocked rate: 1 EUR = rate units of this currency. */
+  rate: number;
+}
+
+export interface Appointment {
+  id: string;
+  title: string;
+  when: string;
+  where: string;
+  done?: boolean;
+}
+
+export interface Holding {
+  name: string;
+  value: number;
+  /** Year-to-date change, e.g. 0.14 for +14%. */
+  ytd: number;
 }
 
 export type SavingsGoalKind = "house" | "travel" | "emergency" | "other";
@@ -81,6 +118,11 @@ export interface Customer {
   portfolioValue: number;
   monthlyNetIncome: number;
   advisorName: string;
+  currencies?: CurrencyPocket[];
+  appointments?: Appointment[];
+  holdings?: Holding[];
+  /** People sharing this account, e.g. a founding team. */
+  teamSize?: number;
 }
 
 export type TrackedPage = "mortgageSimulator" | "travelInsurance" | "pension";
@@ -116,7 +158,9 @@ export type NeedId =
   | "retirement"
   | "newFixedCosts"
   | "paymentSafety"
-  | "windfall";
+  | "windfall"
+  | "duplicatePayment"
+  | "directDebits";
 
 export type NeedSource = "declared" | "inferred" | "behaviour";
 
