@@ -1,6 +1,6 @@
 # Tectonic
 
-A minimal hackathon starter. The homepage displays “Welcome to SmashVision x SuperiorSwarm!”; there are no product features, database tables, or seed data.
+A minimal hackathon starter with a shared word list for verifying Supabase. Add a word, reload the page to check persistence, and remove it when done. The list has no seed data.
 
 ## Stack
 
@@ -16,7 +16,24 @@ cp -n .env.example .env.local
 bun dev
 ```
 
-Open http://localhost:3000. The app works without environment variables; Supabase helpers need the URL and publishable key in `.env.local`.
+Open http://localhost:3000. The word list needs the Supabase URL and publishable key in `.env.local`, plus the database migration below. Without the connection, the page displays a list-loading error.
+
+## Word-list database setup
+
+Apply [the entries migration](supabase/migrations/20260930113000_create_entries.sql) **before deploying the word-list UI**. With an account that can manage the Supabase project:
+
+```sh
+bunx supabase link --project-ref riejgyofzdvrkpwbuyab
+bun run db:push
+```
+
+Alternatively, paste the complete migration into the project's Supabase SQL Editor and run it once. If it was applied manually, use `bunx supabase migration repair 20260930113000 --status applied` after linking to record it before future CLI migrations.
+
+The `public.entries` table contains `id`, `word`, and `created_at`. The database rejects blank words and words longer than 80 characters. Row-level security permits visitors to read, add, and delete entries; updates are not granted. This is intentionally a shared public test list, not a private per-user list.
+
+To verify the connection: add a unique word on the website, reload and confirm it remains, remove it, then reload and confirm it is gone. The **Refresh** button also loads changes made by other visitors.
+
+For a repeatable API check, run `bun run db:check`. It uses the public app key to add a unique test word, read it back, delete it, and verify deletion; it never changes existing entries.
 
 | Command | Purpose |
 | --- | --- |
@@ -34,6 +51,7 @@ CI runs lint, type checks, and a production build on pull requests and pushes to
 ## Start building
 
 - `src/app/page.tsx`: welcome homepage.
+- `src/app/word-list.tsx`: shared word list, with loading, validation, add/remove, and error states.
 - `src/app/layout.tsx`: metadata, fonts, and analytics.
 - `src/app/globals.css`: Tailwind and base styles; `font-sans` uses Inter and `font-mono` uses Geist Mono.
 - `src/lib/supabase/client.ts`: Supabase client for Client Components.
@@ -45,13 +63,13 @@ For animations, import from `motion/react` in a `"use client"` component, or `mo
 
 ## Supabase (connected)
 
-The hosted project **SmashVision x SuperiorSwarm** (`riejgyofzdvrkpwbuyab`, eu-central-1) is set up. Emma verified database access and committed `src/lib/supabase/database.types.ts`; the browser, server, and proxy clients use these types. It has no application tables yet. CLI linking is local to each checkout and is not included in Git.
+The hosted project **SmashVision x SuperiorSwarm** (`riejgyofzdvrkpwbuyab`, eu-central-1) is set up. The browser, server, and proxy clients use `src/lib/supabase/database.types.ts`. The entries table is defined by the migration above. CLI linking is local to each checkout and is not included in Git.
 
 Each developer still needs their own `.env.local`, since it is git-ignored. The steps below cover that and describe the original setup for reference.
 
 ### 1. Create a project
 
-Already done for this repo, so skip to step 2. To set up a fresh one: in the [Supabase dashboard](https://supabase.com/dashboard), create a project, choose a nearby region (Frankfurt is suitable), save the database password in your password manager, and wait until the project is ready. No tables are required for this starter.
+Already done for this repo, so skip to step 2. To set up a fresh one: in the [Supabase dashboard](https://supabase.com/dashboard), create a project, choose a nearby region (Frankfurt is suitable), save the database password in your password manager, and wait until the project is ready. Then apply the entries migration.
 
 Open the project's **Connect** dialog and copy its **Project URL** and **publishable key**. The project reference is the identifier in its dashboard URL: `https://supabase.com/dashboard/project/YOUR_PROJECT_REF`.
 
@@ -124,13 +142,13 @@ bunx vercel login
 bunx vercel link
 ```
 
-Deploy the app without any Supabase environment variables:
+After configuring Supabase and applying the entries migration, deploy the app:
 
 ```sh
 bunx vercel deploy --prod
 ```
 
-When connecting Supabase later, add both `NEXT_PUBLIC_SUPABASE_*` variables to the project's Development, Preview, and Production environments and redeploy.
+Both `NEXT_PUBLIC_SUPABASE_*` variables must be configured in the project's Development, Preview, and Production environments.
 
 `vercel.json` selects Next.js and a frozen Bun install; `.nvmrc` and `package.json` select Node.js 24. Link the GitHub repository in Vercel to enable deployment on pushes and preview deployments for pull requests. Public environment variables are embedded during builds, so redeploy after changing them.
 
@@ -141,7 +159,8 @@ Web Analytics is enabled. The Speed Insights component is mounted, but the activ
 - Production: https://hackathon-tectonic.vercel.app
 - Vercel project: https://vercel.com/thomas-projects-18c8a57b/hackathon-tectonic
 - Local lint, TypeScript, production build, and live HTTP checks passed.
-- Supabase project `riejgyofzdvrkpwbuyab` was verified by Emma. Local app configuration uses `.env.local`; CLI linking must be done per checkout. No application tables or seed data have been created yet.
+- Supabase project `riejgyofzdvrkpwbuyab` was verified by Emma. Local app configuration uses `.env.local`; CLI linking must be done per checkout.
+- The word-list UI and entries migration are ready. Applying the hosted migration is pending access to a Supabase account that can manage Emma's project; the publishable API key cannot create tables. The word-list UI has not yet been deployed.
 - The Supabase URL and publishable key are configured in Vercel Development, Preview, and Production and verified against Supabase. Run `bun run deploy:configure` when updating these values; a production rebuild is required for changes to take effect.
 - Vercel could not connect the private GitHub repository. Grant the Vercel GitHub integration access to `VrolixThomas/hackathon_tectonic`, then connect it in the project's Git settings to enable automatic deployments. CLI deployment already works.
 - Speed Insights activation is pending resolution of Vercel's plan restriction. No plan changes have been made.
