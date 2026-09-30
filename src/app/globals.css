@@ -5,8 +5,78 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  --color-navy: #003665;
+  --color-navy-600: #0b4a82;
+  --color-navy-50: #eef4fa;
+  --color-azure: #00aeef;
+  /* Darker azure for text and focus rings on white (contrast ≥ 4.5:1). */
+  --color-azure-ink: #006fa0;
+  --color-azure-50: #e6f7fd;
+  --color-ok: #137a45;
+  --color-warn: #9a5b00;
+  --color-bad: #b42318;
+}
+
 body {
   min-height: 100dvh;
-  background: #fff;
-  color: #171717;
+  background: #f3f6f9;
+  color: #14213d;
+}
+
+/* Type and touch-target scale inside the phone, driven by the engine's density. */
+.phone {
+  --t-small: 0.75rem;
+  --t-body: 0.875rem;
+  --t-title: 1rem;
+  --t-figure: 1.625rem;
+  --tap: 2.5rem;
+}
+
+.phone[data-density="simple"] {
+  --t-small: 1rem;
+  --t-body: 1.125rem;
+  --t-title: 1.3rem;
+  --t-figure: 2.125rem;
+  --tap: 3.5rem;
+}
+
+.phone[data-density="detailed"] {
+  --t-small: 0.7rem;
+  --t-body: 0.8125rem;
+  --t-title: 0.95rem;
+  --t-figure: 1.5rem;
+  --tap: 2.25rem;
+}
+
+@utility t-small {
+  font-size: var(--t-small);
+  line-height: 1.4;
+}
+
+@utility t-body {
+  font-size: var(--t-body);
+  line-height: 1.45;
+}
+
+@utility t-title {
+  font-size: var(--t-title);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+@utility t-figure {
+  font-size: var(--t-figure);
+  line-height: 1.1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility tap {
+  min-height: var(--tap);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-azure-ink);
+  outline-offset: 2px;
 }

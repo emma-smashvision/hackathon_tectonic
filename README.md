@@ -1,6 +1,18 @@
 # Tectonic
 
-A minimal hackathon starter with a shared word list for verifying Supabase. Add a word, reload the page to check persistence, and remove it when done. The list has no seed data.
+Our entry for the KBC challenge at the Tectonic Hackathon: **One KBC. Your version.** It is a banking home screen that rebuilds itself around each customer based on their situation, behaviour and intent.
+
+The V1 prototype runs entirely in the browser and uses synthetic data only. It has no Supabase calls, no real personal data and no secrets. The left side shows a phone mock-up of the home screen. The right side is an **engine inspector**: pick a persona, inject live signals and watch the home screen reorder itself.
+
+### Demo script
+
+1. **Tom, 29**: click *IKEA purchase*. A furniture purchase alone is weak evidence (35%), so the home asks "Planning a move?" instead of changing the layout. Then click *Moving company payment* and *Rent to new city*. The evidence adds up, the moving checklist jumps to the top and a budget card flags the new rent.
+2. **Sofie & Pieter**: their house savings goal and two mortgage-simulator views prompt "Thinking about buying a home?". Click *Viewed mortgage simulator* (or answer Yes) and "Can we buy a house?" moves to the top, with an affordability slider, goal progress, a document checklist and a button to book an advisor.
+3. **Jana, 74**: large text, frequent zooming and mis-taps produce the simple density: large type, big buttons and at most three adaptive cards. Click *Booked flight to Lisbon* and the travel card appears in its simple variant, because needs combine.
+4. **Marc, 71**: he checks his portfolio 12× a week and shows no accessibility signals, so he gets the detailed view with full investments. Behaviour overrides age.
+5. **Karim, 45**: a freelancer whose income is irregular and who invests actively. He sees a tax-reserve tracker and detailed investments.
+
+Every adaptive card has a **Why am I seeing this?** explanation, plus pin and hide buttons. Pins and hides persist in `localStorage`. **Reset** restores the current persona's data and layout.
 
 ## Stack
 
@@ -16,7 +28,7 @@ cp -n .env.example .env.local
 bun dev
 ```
 
-Open http://localhost:3000. The word list needs the Supabase URL and publishable key in `.env.local`, plus the database migration below. Without the connection, the page displays a list-loading error.
+Open http://localhost:3000 for the prototype; it needs no environment variables. The (currently unused) word list needs the Supabase URL and publishable key in `.env.local`, plus the database migration below. Without the connection, the page displays a list-loading error.
 
 ## Word-list database setup
 
@@ -39,6 +51,7 @@ For a repeatable API check, run `bun run db:check`. It uses the public app key t
 | --- | --- |
 | `bun dev` | Start development server |
 | `bun run check` | Run Biome and TypeScript |
+| `bun test` | Run the engine unit tests |
 | `bun run lint:fix` | Apply safe lint and formatting fixes |
 | `bun run format` | Format source files |
 | `bun run build` | Create production build |
@@ -50,14 +63,23 @@ CI runs lint, type checks, and a production build on pull requests and pushes to
 
 ## Start building
 
-- `src/app/page.tsx`: welcome homepage.
-- `src/app/word-list.tsx`: shared word list, with loading, validation, add/remove, and error states.
+The engine is a pure TypeScript pipeline: **signals → inferred needs → ranked components → homepage config → render**.
+
+- `src/lib/engine/types.ts`: the profile, transaction, behaviour-signal, need, widget and `HomepageConfig` types.
+- `src/lib/engine/infer.ts`: rules that turn signals into needs with a confidence (0–1), a source (`declared`, `inferred` or `behaviour`) and human-readable reasons. At 60% or above, a need changes the layout. Between 25% and 60%, it becomes a question card instead: Yes declares the need at 100%, and Not relevant suppresses it. Accessibility needs come from behaviour only (large text, zoom, mis-taps); age is never an input.
+- `src/lib/engine/rank.ts`: scores each adaptive widget as base + Σ(need weight × confidence) + usage, respects pins and hides, picks the density (`simple`, `standard` or `detailed`) and tone, and assigns each card a size and variant. The core zone (balance, pay and transfer) is fixed.
+- `src/lib/engine/personas.ts` and `signals.ts`: synthetic personas and the injectable live signals.
+- `src/lib/engine/engine.test.ts`: `bun test` coverage for combining needs, behaviour overriding age, low confidence becoming a question, pins and hides, and the fixed core zone.
+- `src/components/widgets/`: the widget library. Every widget has a simple and a detailed variant. Currency and eSIM are marked as *proposed services*.
+- `src/components/phone/`: the phone home renderer, which uses Motion layout animations, and the card shell with the why/pin/hide controls.
+- `src/components/inspector/`: the engine inspector.
+- `src/components/prototype/`: the demo state, a reducer that stores pins and hides in `localStorage` wrapped in try/catch.
 - `src/app/layout.tsx`: metadata, fonts, and analytics.
-- `src/app/globals.css`: Tailwind and base styles; `font-sans` uses Inter and `font-mono` uses Geist Mono.
-- `src/lib/supabase/client.ts`: Supabase client for Client Components.
-- `src/lib/supabase/server.ts`: Supabase client for Server Components, Server Actions, and Route Handlers.
-- `src/proxy.ts`: refreshes Supabase session cookies once environment variables are configured. It does not restrict routes or implement sign-in.
-- `supabase/config.toml`: local Supabase configuration, without seed data.
+- `src/app/globals.css`: Tailwind, the KBC-style colour tokens, and the density-driven type and tap-target scale.
+
+To add a widget: add its ID to `AdaptiveWidgetId`, add a scoring rule in `WIDGET_RULES`, then register a component and its metadata in `src/components/widgets/registry.tsx`. To add a need: add a rule to `RULES` in `infer.ts`.
+
+The Supabase starter code is unused by the prototype but kept intact: `src/app/word-list.tsx`, `src/lib/supabase/*`, `src/proxy.ts` and `supabase/config.toml`.
 
 For animations, import from `motion/react` in a `"use client"` component, or `motion/react-client` in a Server Component.
 
