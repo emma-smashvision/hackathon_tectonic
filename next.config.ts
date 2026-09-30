@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Build a fully static site into out/ for DigitalOcean App Platform.
+  output: "export",
 };
 
 export default nextConfig;

@@ -43,7 +43,7 @@ The route caps messages at 600 characters, request bodies at 16 KiB (including s
 
 ## Stack
 
-Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Motion, Supabase PostgreSQL, Vercel Analytics and Speed Insights, Inter and Geist Mono, Bun, and Biome. This is a single app, so Turborepo is not needed.
+Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Motion, Supabase PostgreSQL, Inter and Geist Mono, Bun, and Biome. This is a single app, so Turborepo is not needed. It builds as a fully static site (`output: "export"`) and deploys to DigitalOcean App Platform.
 
 ## Local development
 
@@ -81,8 +81,8 @@ For a repeatable API check, run `bun run db:check`. It uses the public app key t
 | `bun test` | Run engine, presentation and Kate tests |
 | `bun run lint:fix` | Apply safe lint and formatting fixes |
 | `bun run format` | Format source files |
-| `bun run build` | Create production build |
-| `bun start` | Serve production build |
+| `bun run build` | Export the static site to `out/` |
+| `bun start` | Serve `out/` locally |
 | `bun run db:types` | Generate types from the linked Supabase database |
 | `bun run db:push` | Apply migrations to the linked database |
 
@@ -110,12 +110,18 @@ The engine is a pure TypeScript pipeline: **signals → inferred needs → ranke
 To add a widget: add its ID to `AdaptiveWidgetId`, add a scoring rule in `WIDGET_RULES`, then register a component and its metadata in `src/components/widgets/registry.tsx`. To add a need: add a rule to `RULES` in `infer.ts`.
 
 The Supabase starter code is unused by the prototype but kept intact: `src/app/word-list.tsx`, `src/lib/supabase/*`, `src/proxy.ts` and `supabase/config.toml`.
+- `src/app/page.tsx`: welcome homepage.
+- `src/app/word-list.tsx`: shared word list, with loading, validation, add/remove, and error states.
+- `src/app/layout.tsx`: metadata and fonts.
+- `src/app/globals.css`: Tailwind and base styles; `font-sans` uses Inter and `font-mono` uses Geist Mono.
+- `src/lib/supabase/client.ts`: Supabase client for Client Components.
+- `supabase/config.toml`: local Supabase configuration, without seed data.
 
 For animations, import from `motion/react` in a `"use client"` component, or `motion/react-client` in a Server Component.
 
 ## Supabase (connected)
 
-The hosted project **SmashVision x SuperiorSwarm** (`riejgyofzdvrkpwbuyab`, eu-central-1) is set up. The browser, server, and proxy clients use `src/lib/supabase/database.types.ts`. The entries table is defined by the migration above. CLI linking is local to each checkout and is not included in Git.
+The hosted project **SmashVision x SuperiorSwarm** (`riejgyofzdvrkpwbuyab`, eu-central-1) is set up. The browser client uses `src/lib/supabase/database.types.ts`. The entries table is defined by the migration above. CLI linking is local to each checkout and is not included in Git.
 
 Each developer still needs their own `.env.local`, since it is git-ignored. The steps below cover that and describe the original setup for reference.
 
@@ -153,27 +159,11 @@ Verify access without creating any tables:
 bunx supabase db query --linked 'select 1 as connected;'
 ```
 
-### 4. Connect Vercel
+### 4. Configure DigitalOcean
 
-With both Supabase values saved in `.env.local` and the Vercel CLI logged in, run:
+Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the App Platform component with **Build Time** scope (see [Deployment](#deployment-digitalocean)). Next.js embeds them in the static files, so redeploy after changing them.
 
-```sh
-bun run deploy:configure
-```
-
-This reads only the two public Supabase values from `.env.local`, verifies them against Supabase, adds or updates them in Development, Preview, and Production for `hackathon-tectonic`, then deploys to production. It stops before changing Vercel if the credential check fails. It requires Node.js 24, Bun, and network access. It never uploads the other values in `.env.local` as Vercel environment variables.
-
-For manual setup:
-
-In the [Vercel project settings](https://vercel.com/thomas-projects-18c8a57b/hackathon-tectonic/settings/environment-variables), add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` with the same values. Select **Development**, **Preview**, and **Production** for both. Using one database across environments is sufficient for this starter; use separate projects later if you need isolation.
-
-Deploy again so Next.js picks up the values:
-
-```sh
-bunx vercel deploy --prod
-```
-
-If you add Supabase Auth later, set its **Authentication → URL Configuration → Site URL** to `https://hackathon-tectonic.vercel.app` and allow the exact local and deployed callback URLs your auth routes use. This starter does not include sign-in or callback routes.
+If you add Supabase Auth later, set its **Authentication → URL Configuration → Site URL** to the DigitalOcean app URL and allow the exact callback URLs your auth routes use. This starter does not include sign-in or callback routes.
 
 ### 5. Add schema when needed
 
@@ -185,36 +175,29 @@ Enable row-level security on tables exposed through the API and add policies for
 
 For an optional local database, install Docker and run `bunx supabase start`. Use the local URL and publishable key it reports. No Docker installation is needed to use hosted Supabase.
 
-A local database does not consume a hosted project slot, but Vercel cannot reach a database running only on your laptop.
+A local database does not consume a hosted project slot, but the deployed site cannot reach a database running only on your laptop.
 
-## Vercel
+## Deployment (DigitalOcean)
 
-```sh
-bunx vercel login
-bunx vercel link
-```
+The app is exported as static files, so it runs as an App Platform **Static Site** with no server. Proxy/middleware, Server Actions, Route Handlers, and server-side Supabase clients are unavailable; talk to Supabase from Client Components, protected by row-level security.
 
-After configuring Supabase and applying the entries migration, deploy the app:
+Create an app from the GitHub repository and set the component to:
 
-```sh
-bunx vercel deploy --prod
-```
+| Setting | Value |
+| --- | --- |
+| Resource type | Static Site |
+| Source directory | `/` |
+| Build command | `npm install -g bun@1.3.9 && bun install --frozen-lockfile && bun run build` |
+| Output directory | `out` |
+| Catch-all document | `404.html` |
+| Environment variables | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Build Time) |
 
-Both `NEXT_PUBLIC_SUPABASE_*` variables must be configured in the project's Development, Preview, and Production environments.
-
-`vercel.json` selects Next.js and a frozen Bun install; `.nvmrc` and `package.json` select Node.js 24. Link the GitHub repository in Vercel to enable deployment on pushes and preview deployments for pull requests. Public environment variables are embedded during builds, so redeploy after changing them.
-
-Web Analytics is enabled. The Speed Insights component is mounted, but the activation API returned a plan restriction; review availability in the Vercel dashboard. If you add authentication later, configure the production site URL and required callback URLs in Supabase.
+`.nvmrc` and `package.json` select Node.js 24. Enable autodeploy to rebuild on pushes to the selected branch.
 
 ## Setup status
 
-- Production: https://hackathon-tectonic.vercel.app
-- Vercel project: https://vercel.com/thomas-projects-18c8a57b/hackathon-tectonic
-- Local lint, TypeScript, production build, and live HTTP checks passed.
 - Supabase project `riejgyofzdvrkpwbuyab` was verified by Emma. Local app configuration uses `.env.local`; CLI linking must be done per checkout.
-- The word-list UI and entries migration are ready. Applying the hosted migration is pending access to a Supabase account that can manage Emma's project; the publishable API key cannot create tables. The word-list UI has not yet been deployed.
-- The Supabase URL and publishable key are configured in Vercel Development, Preview, and Production and verified against Supabase. Run `bun run deploy:configure` when updating these values; a production rebuild is required for changes to take effect.
-- Vercel could not connect the private GitHub repository. Grant the Vercel GitHub integration access to `VrolixThomas/hackathon_tectonic`, then connect it in the project's Git settings to enable automatic deployments. CLI deployment already works.
-- Speed Insights activation is pending resolution of Vercel's plan restriction. No plan changes have been made.
+- The word-list UI and entries migration are ready. Applying the hosted migration is pending access to a Supabase account that can manage Emma's project; the publishable API key cannot create tables.
+- The static export builds and serves locally. The DigitalOcean app has not been created yet.
 
-Reference: [Supabase's Next.js setup](https://supabase.com/docs/guides/auth/server-side/nextjs), [Vercel Analytics](https://vercel.com/docs/analytics/quickstart), and [Speed Insights](https://vercel.com/docs/speed-insights/quickstart).
+Reference: [Next.js static exports](https://nextjs.org/docs/app/guides/static-exports) and [App Platform static sites](https://docs.digitalocean.com/products/app-platform/how-to/manage-static-sites/).
