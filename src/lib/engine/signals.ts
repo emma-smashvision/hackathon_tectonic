@@ -18,8 +18,12 @@ function addTx(
   tx: Omit<Transaction, "id" | "date">,
 ): Profile {
   const id = `live-${profile.transactions.length + 1}-${tx.category}`;
+  // A live transaction moves money, so the current-account balance follows it.
+  const balance =
+    Math.round((profile.customer.balance + tx.amount) * 100) / 100;
   return {
     ...profile,
+    customer: { ...profile.customer, balance },
     transactions: [{ id, date: profile.today, ...tx }, ...profile.transactions],
   };
 }
@@ -139,6 +143,10 @@ export const INJECTIONS: SignalInjection[] = [
       next.setUTCDate(next.getUTCDate() + 1);
       return {
         ...p,
+        customer: {
+          ...p.customer,
+          balance: Math.round((p.customer.balance + bill.amount) * 100) / 100,
+        },
         transactions: [
           {
             ...bill,
