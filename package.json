@@ -42,5 +42,8 @@
   "trustedDependencies": [
     "sharp",
     "unrs-resolver"
-  ]
+  ],
+  "overrides": {
+    "@noble/curves": "2.3.0"
+  }
 }
