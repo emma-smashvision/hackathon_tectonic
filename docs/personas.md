@@ -8,7 +8,7 @@ Principles that apply to every character:
 - **Behaviour beats demographics:** age never decides the interface on its own. A simple UI comes from behaviour signals (large text, zoom, mis-taps); a detailed UI comes from usage (daily portfolio checks).
 - **Above the fold = key info + quick actions:** the balance, a one-line narrative, and floating bubbles with a live figure each. Scrolling down shows the full widgets in calm glass sections.
 - **Explainable:** every personalised item has "Why am I seeing this?", pin and hide.
-- **Mocked for now:** the rules engine and persona data are the mock source, and Kate answers from scripted responses. The LLM / Jev layer that decides how each account is built comes later.
+- **Mocked for now:** the rules engine and persona data are the mock source. Kate answers with Claude when an API key is configured, grounded in the persona's synthetic data, and from scripted responses otherwise. The LLM / Jev layer that decides how each account is built comes later.
 
 ## How the home reads
 
