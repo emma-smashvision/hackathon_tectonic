@@ -5,7 +5,6 @@ import type { AdaptiveWidgetId, Decisions, Profile } from "@/lib/engine/types";
 import {
   buildKateContext,
   fallbackReply,
-  isWidgetId,
   type KateReply,
   MAX_HISTORY,
   MAX_MESSAGE,
