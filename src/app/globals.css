@@ -87,6 +87,7 @@ body {
 .story-avatar {
   width: 128px;
   height: 128px;
+  object-fit: cover;
   margin-bottom: 20px;
   border-radius: 36px;
   border: 1px solid #7fd6f740;
@@ -235,6 +236,7 @@ body {
 }
 .cast-avatar img {
   border-radius: 50%;
+  object-fit: cover;
 }
 .cast-avatar:hover {
   opacity: 0.9;
