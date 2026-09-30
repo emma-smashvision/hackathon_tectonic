@@ -38,14 +38,14 @@ export interface Persona {
 
 export const PERSONAS: Persona[] = [
   {
-    id: "jana",
-    label: "Jana, 74",
+    id: "margaret",
+    label: "Margaret, 74",
     tagline: "Retired, prefers large text and a calm screen",
     profile: {
       today: DEMO_TODAY,
       customer: {
-        id: "jana",
-        firstName: "Jana",
+        id: "margaret",
+        firstName: "Margaret",
         age: 74,
         city: "Brugge",
         occupation: "retired",
@@ -74,6 +74,53 @@ export const PERSONAS: Persona[] = [
         zoomUsage: 0.45,
         errorRate: 0.14,
         largeTextEnabled: true,
+      },
+    },
+  },
+  {
+    id: "lina",
+    label: "Lina, 31",
+    tagline: "Loves city trips, Lisbon is next",
+    profile: {
+      today: DEMO_TODAY,
+      customer: {
+        id: "lina",
+        firstName: "Lina",
+        age: 31,
+        city: "Hasselt",
+        occupation: "employee",
+        household: "Lives with her partner",
+        balance: 5_640.3,
+        savings: 22_800,
+        savingsGoals: [
+          {
+            id: "lina-g1",
+            label: "City trips",
+            kind: "travel",
+            target: 3_000,
+            saved: 2_150,
+          },
+        ],
+        portfolioValue: 0,
+        monthlyNetIncome: 3_300,
+        advisorName: "Els Martens",
+      },
+      transactions: [
+        tx("jn1", 2, "Delhaize Hasselt", -54.8, "groceries", {
+          city: "Hasselt",
+        }),
+        tx("jn2", 4, "Savings — City trips", -150, "transfer"),
+        tx("jn3", 8, "Proximus", -62, "utilities"),
+        tx("jn4", 11, "Bistro Bonaparte", -46, "restaurant", {
+          city: "Hasselt",
+        }),
+        tx("jn5", 24, "Salary — Stad Hasselt", 3_300, "salary"),
+        tx("jn6", 38, "Proximus", -62, "utilities"),
+        tx("jn7", 54, "Salary — Stad Hasselt", 3_300, "salary"),
+      ],
+      behaviour: {
+        ...QUIET_BEHAVIOUR,
+        widgetTaps: { transactions: 16, budget: 14 },
       },
     },
   },
@@ -255,6 +302,52 @@ export const PERSONAS: Persona[] = [
         portfolioViewsPerWeek: 12,
         zoomUsage: 0.05,
         errorRate: 0.03,
+      },
+    },
+  },
+  {
+    id: "emma",
+    label: "Emma & Thomas",
+    tagline: "Just won a hackathon — and €10,000",
+    profile: {
+      today: DEMO_TODAY,
+      customer: {
+        id: "emma",
+        firstName: "Emma",
+        age: 27,
+        city: "Gent",
+        occupation: "employee",
+        household: "Emma & Thomas (joint account)",
+        balance: 3_480.6,
+        savings: 4_900,
+        savingsGoals: [
+          {
+            id: "emma-g1",
+            label: "Rainy-day buffer",
+            kind: "emergency",
+            target: 8_000,
+            saved: 4_900,
+          },
+        ],
+        portfolioValue: 0,
+        monthlyNetIncome: 5_050,
+        advisorName: "Sarah Claes",
+      },
+      transactions: [
+        tx("e1", 1, "Club-Mate & pizza, Gent", -64.5, "restaurant", {
+          city: "Gent",
+        }),
+        tx("e2", 3, "Colruyt Gent", -72.3, "groceries", { city: "Gent" }),
+        tx("e3", 5, "Landlord Van Damme", -1_150, "rent", { city: "Gent" }),
+        tx("e4", 7, "GitHub Copilot", -10, "subscription"),
+        tx("e5", 24, "Salary — Emma", 2_600, "salary"),
+        tx("e6", 24, "Salary — Thomas", 2_450, "salary"),
+        tx("e7", 35, "Landlord Van Damme", -1_150, "rent", { city: "Gent" }),
+        tx("e8", 37, "GitHub Copilot", -10, "subscription"),
+      ],
+      behaviour: {
+        ...QUIET_BEHAVIOUR,
+        widgetTaps: { transactions: 14, budget: 16 },
       },
     },
   },

@@ -118,6 +118,17 @@ export const INJECTIONS: SignalInjection[] = [
       }),
   },
   {
+    id: "prize",
+    label: "€10,000 hackathon prize",
+    group: "Transactions",
+    apply: (p) =>
+      addTx(p, {
+        merchant: "Tectonic Hackathon — winners' prize",
+        amount: 10_000,
+        category: "prize",
+      }),
+  },
+  {
     id: "newPayee",
     label: "€2,400 to a new payee",
     group: "Transactions",

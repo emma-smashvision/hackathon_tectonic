@@ -30,6 +30,7 @@ export type Action =
   | { type: "selectPersona"; id: string }
   | { type: "inject"; signal: string }
   | { type: "reset" }
+  | { type: "scenario"; persona: string; signals: string[] }
   | { type: "togglePin"; widget: AdaptiveWidgetId }
   | { type: "hide"; widget: AdaptiveWidgetId }
   | { type: "unhide"; widget: AdaptiveWidgetId }
@@ -87,6 +88,28 @@ export function reducer(state: State, action: Action): State {
           { key, id: injection.id, label: injection.label },
         ],
       }));
+    }
+    case "scenario": {
+      // Start the persona fresh, keep its saved layout, then replay the story.
+      let next: State = {
+        ...state,
+        personaId: action.persona,
+        personas: {
+          ...state.personas,
+          [action.persona]: {
+            ...fresh(action.persona),
+            decisions: {
+              ...EMPTY_DECISIONS,
+              pinned: state.personas[action.persona].decisions.pinned,
+              hidden: state.personas[action.persona].decisions.hidden,
+            },
+          },
+        },
+      };
+      for (const signal of action.signals) {
+        next = reducer(next, { type: "inject", signal });
+      }
+      return next;
     }
     case "reset":
       return updateCurrent(state, () => fresh(state.personaId));

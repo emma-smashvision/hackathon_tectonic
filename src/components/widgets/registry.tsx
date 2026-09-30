@@ -14,6 +14,7 @@ import {
   TransactionsWidget,
 } from "./support";
 import type { WidgetProps } from "./types";
+import { WindfallWidget } from "./windfall";
 
 export interface WidgetMeta {
   title: string;
@@ -33,6 +34,7 @@ export const WIDGET_META: Record<WidgetId, WidgetMeta> = {
   paymentCheck: { title: "Is this payment safe?", icon: "shield" },
   advisor: { title: "Call my advisor", icon: "phone" },
   transactions: { title: "Recent transactions", icon: "list" },
+  windfall: { title: "What to do with your prize?", icon: "trophy" },
 };
 
 export const ADAPTIVE_COMPONENTS: Record<
@@ -49,4 +51,5 @@ export const ADAPTIVE_COMPONENTS: Record<
   paymentCheck: PaymentCheckWidget,
   advisor: AdvisorWidget,
   transactions: TransactionsWidget,
+  windfall: WindfallWidget,
 };

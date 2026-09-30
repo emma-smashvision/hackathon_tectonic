@@ -16,7 +16,7 @@ V1.1 is a calm, glanceable banking home with **Kate**, KBC’s assistant. It use
 
 1. **Tom, 29**: click *IKEA purchase*. The dashed “Planning a move?” bubble asks first. Open it to see the reason and try Not relevant, then reset. Inject IKEA, *Moving company payment* and *Rent to new city*: Moving becomes the biggest bubble, the narrative changes, and budget remains alongside it. Open Moving for the checklist and pin/hide controls.
 2. **Sofie & Pieter**: tap *Can we afford a house?*. Kate summarises their €41,300 house savings and €5,300 monthly net income, explains that these alone cannot establish affordability, and offers the mortgage planner and an advisor. Use the response’s open button, or inject *Viewed mortgage simulator* / answer Yes to see the House fund bubble at 69%, then open its full slider, savings progress and document checklist.
-3. **Jana, 74**: compare the larger text and targets with Karim. Inject *Booked flight to Lisbon*: Travel appears in its simple variant, alongside existing needs, with no more than three bubbles. Ask Kate about the trip.
+3. **Margaret, 74**: compare the larger text and targets with Karim. Inject *Booked flight to Lisbon*: Travel appears in its simple variant, alongside existing needs, with no more than three bubbles. Ask Kate about the trip.
 4. **Marc, 71**: frequent portfolio checks produce the detailed view despite his age. **Karim, 45** combines tax reserve and investments.
 5. Open Kate from *Ask Kate…* and try balance, *What changed this month?*, *Is this payment safe?*, or *Call my advisor*. Inject the new-payee transfer to see the payment explanation change. Switch persona to start a fresh chat; Reset also clears that persona’s current chat and demo events.
 

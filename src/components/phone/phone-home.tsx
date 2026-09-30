@@ -16,10 +16,11 @@ import type {
   NeedId,
   Profile,
 } from "@/lib/engine/types";
+import { formatEur } from "@/lib/format";
 import { Button, Icon } from "../ui";
-import { BalanceWidget, QuickPayWidget } from "../widgets/core";
 import { ADAPTIVE_COMPONENTS, WIDGET_META } from "../widgets/registry";
 import { DetailSheet } from "./detail-sheet";
+import { ACCENTS, HeroCard } from "./hero";
 import { KateChat, useKate } from "./kate-chat";
 import { WidgetCard } from "./widget-card";
 
@@ -57,11 +58,6 @@ export function PhoneHome({
   const home = presentHomepage(profile, config);
   const theme = PRESENTATION[config.density];
   const kate = useKate(profile, decisions, personaKey, signals);
-  const coreProps = {
-    profile,
-    density: config.density,
-    variant: "simple" as const,
-  };
   const openWidget = (id: AdaptiveWidgetId) => {
     if (!decisions.hidden.includes(id)) setOverlay({ kind: "widget", id });
   };
@@ -81,7 +77,6 @@ export function PhoneHome({
     overlay?.kind === "question"
       ? config.questions.find((q) => q.need === overlay.need)
       : undefined;
-  const count = home.bubbles.length + home.questions.length;
   const styles = {
     "--t-body": `${theme.font}px`,
     "--home-gap": `${theme.gap}px`,
@@ -90,131 +85,169 @@ export function PhoneHome({
     "--drift-duration": `${theme.drift}s`,
   } as CSSProperties;
 
+  const [hero, ...tiles] = home.bubbles;
+  const ask = home.questions[0];
+  const c = profile.customer;
+
   return (
     <div
-      className="phone relative flex h-full flex-col bg-[#f5f8fb]"
+      className="phone app relative flex h-full flex-col"
       data-density={config.density}
       data-tone={config.tone}
       style={styles}
     >
       <div
         aria-hidden="true"
-        className="flex shrink-0 items-center justify-between px-6 pt-3 pb-1 text-xs font-semibold text-navy"
+        className="flex shrink-0 items-center justify-between px-6 pt-3 pb-1 text-xs font-semibold text-white"
       >
         <span>9:41</span>
-        <span className="h-4 w-20 rounded-full bg-neutral-900" />
+        <span className="h-4 w-20 rounded-full bg-black" />
         <span>5G ▮▮▮</span>
       </div>
-      <div className="home-scroll min-h-0 flex-1 overflow-y-auto px-4 pb-3">
-        <header className="flex items-center justify-between py-2">
-          <span className="text-xl font-black tracking-tight text-navy">
-            KBC<span className="text-azure">.</span>
-          </span>
-          <span className="t-small text-navy/70">
-            {config.density === "simple"
-              ? "Simple view"
-              : config.density === "detailed"
-                ? "Detailed view"
-                : "Your home"}
+      <div className="home-scroll min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+        <header className="app-header">
+          <div className="min-w-0">
+            <p className="app-hello">Hi {c.firstName}</p>
+            <p className="app-narrative" aria-live="polite">
+              {home.narrative}
+            </p>
+          </div>
+          <span className="app-avatar" aria-hidden="true">
+            {c.firstName[0]}
           </span>
         </header>
-        <div className="core-zone" data-zone="core">
-          <BalanceWidget {...coreProps} />
-          <QuickPayWidget {...coreProps} />
-        </div>
-        <p className="home-narrative t-body text-navy" aria-live="polite">
-          {home.narrative}
-        </p>
+
+        <section className="app-balance" data-zone="core" aria-label="Balance">
+          <div>
+            <p className="t-small text-white/60">Current account</p>
+            <p className="t-figure text-white">{formatEur(c.balance, true)}</p>
+            <p className="t-small text-white/60">
+              Savings{" "}
+              <span className="font-semibold text-white">
+                {formatEur(c.savings)}
+              </span>
+            </p>
+          </div>
+          <div className="app-actions">
+            <button type="button" className="app-action">
+              <span>
+                <Icon name="send" />
+              </span>
+              Transfer
+            </button>
+            <button type="button" className="app-action">
+              <span>
+                <Icon name="qr" />
+              </span>
+              Pay
+            </button>
+          </div>
+        </section>
+
         <LayoutGroup id={personaKey}>
-          <section
-            className="bubble-cluster"
-            data-zone="adaptive"
-            data-count={count}
-            aria-label="Your overview"
-          >
-            <AnimatePresence initial={false} mode="popLayout">
-              {home.bubbles.map((bubble, index) => (
-                <motion.div
-                  key={bubble.id}
-                  layout
-                  className="bubble-position"
-                  transition={{ duration: reduced ? 0 : 0.45 }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <motion.button
-                    type="button"
-                    className="need-bubble"
-                    data-primary={index === 0}
-                    style={
-                      { "--diameter": `${bubble.diameter}px` } as CSSProperties
-                    }
-                    aria-label={`${bubble.label}: ${bubble.value}${bubble.pinned ? ", pinned" : ""}. Open details`}
-                    onClick={() => openWidget(bubble.id)}
-                    animate={
-                      reduced ? { y: 0 } : { y: [0, -theme.amplitude, 0] }
-                    }
-                    transition={{
-                      duration: theme.drift,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: index * 0.6,
-                    }}
-                  >
-                    <Icon
-                      name={WIDGET_META[bubble.id].icon}
-                      className="bubble-icon"
-                    />
-                    <span className="bubble-label">{bubble.label}</span>
-                    <span className="bubble-value">{bubble.value}</span>
-                    {bubble.pinned && (
-                      <Icon
-                        name="pin"
-                        className="absolute right-3 top-3 size-3"
-                      />
-                    )}
-                  </motion.button>
-                </motion.div>
-              ))}
-              {home.questions.map((q) => (
-                <motion.div
-                  key={`q-${q.need}`}
-                  layout
-                  className="bubble-position"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: reduced ? 0 : 0.3 }}
-                >
+          <section data-zone="adaptive" aria-label="For you now">
+            {(hero || ask) && <p className="app-section">For you now</p>}
+            <AnimatePresence mode="popLayout" initial={false}>
+              {hero && (
+                <HeroCard
+                  key={hero.id}
+                  id={hero.id}
+                  profile={profile}
+                  onOpen={() => openWidget(hero.id)}
+                />
+              )}
+            </AnimatePresence>
+
+            {ask && (
+              <motion.div
+                layout
+                className="app-question"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <p className="t-body flex items-start gap-2 font-semibold text-white">
+                  <Icon name="sparkle" className="mt-0.5 size-4 shrink-0" />
+                  {ask.question}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    className="need-bubble question-bubble"
-                    aria-label={q.question}
+                    className="app-pill app-pill-primary"
+                    onClick={() => onAnswer(ask.need, true)}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    type="button"
+                    className="app-pill"
+                    onClick={() => onAnswer(ask.need, false)}
+                  >
+                    Not relevant
+                  </button>
+                  <button
+                    type="button"
+                    className="app-pill app-pill-ghost"
                     onClick={() =>
-                      setOverlay({ kind: "question", need: q.need })
+                      setOverlay({ kind: "question", need: ask.need })
                     }
                   >
-                    <Icon name="sparkle" className="bubble-icon" />
-                    <span className="bubble-label">{q.question}</span>
-                    <span className="bubble-value">You tell us</span>
+                    Why?
                   </button>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+
+            {tiles.length > 0 && (
+              <div className="app-tiles" data-count={tiles.length}>
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {tiles.map((tile, index) => (
+                    <motion.button
+                      key={tile.id}
+                      layout
+                      type="button"
+                      className="app-tile"
+                      style={{ "--accent": ACCENTS[tile.id] } as CSSProperties}
+                      aria-label={`${tile.label}: ${tile.value}${tile.pinned ? ", pinned" : ""}. Open details`}
+                      onClick={() => openWidget(tile.id)}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{
+                        duration: reduced ? 0 : 0.35,
+                        delay: reduced ? 0 : 0.15 + index * 0.08,
+                      }}
+                    >
+                      <span className="app-tile-icon">
+                        <Icon name={WIDGET_META[tile.id].icon} />
+                      </span>
+                      <span className="app-tile-label">{tile.label}</span>
+                      <span className="app-tile-value">{tile.value}</span>
+                      {tile.pinned && (
+                        <Icon
+                          name="pin"
+                          className="absolute top-3 right-3 size-3.5 text-white/60"
+                        />
+                      )}
+                    </motion.button>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
           </section>
         </LayoutGroup>
-        {count === 0 && (
-          <p className="t-body py-5 text-navy/70">
+
+        {!hero && !ask && (
+          <p className="t-body py-5 text-white/70">
             A little space for you. Ask Kate whenever you need a hand.
           </p>
         )}
-        <section className="suggestion-chips" aria-label="Suggestions for Kate">
+
+        <section className="app-chips" aria-label="Suggestions for Kate">
           {home.chips.map((id) => (
             <button
               type="button"
               key={id}
-              className="suggestion-chip t-small"
+              className="app-chip t-small"
               onClick={() => {
                 setOverlay({ kind: "kate" });
                 void kate.ask(CHIP_POOL[id]);
@@ -225,53 +258,57 @@ export function PhoneHome({
             </button>
           ))}
         </section>
+
         {(home.more.length > 0 || home.moreQuestions.length > 0) && (
-          <details className="mt-3 border-t border-navy/10 pt-2">
-            <summary className="tap t-small cursor-pointer content-center text-navy">
+          <details className="app-more">
+            <summary className="tap t-small cursor-pointer content-center">
               More for you ({home.more.length + home.moreQuestions.length})
             </summary>
             <div className="grid gap-1">
               {home.more.map((s) => (
-                <Button
+                <button
                   key={s.id}
-                  tone="ghost"
-                  className="justify-start"
+                  type="button"
+                  className="tap t-body flex items-center gap-3 rounded-xl px-2 text-left hover:bg-white/5"
                   onClick={() => openWidget(s.id)}
                 >
                   <Icon name={WIDGET_META[s.id].icon} />
                   {WIDGET_META[s.id].title}
-                </Button>
+                </button>
               ))}
               {home.moreQuestions.map((q) => (
-                <Button
+                <button
                   key={q.need}
-                  tone="ghost"
+                  type="button"
+                  className="tap t-body rounded-xl px-2 text-left hover:bg-white/5"
                   onClick={() => setOverlay({ kind: "question", need: q.need })}
                 >
                   {q.question}
-                </Button>
+                </button>
               ))}
             </div>
           </details>
         )}
         {hiddenCount > 0 && (
-          <Button tone="ghost" className="mt-2 w-full" onClick={onUnhideAll}>
+          <button
+            type="button"
+            className="tap t-small mt-2 w-full rounded-xl text-white/70 hover:bg-white/5"
+            onClick={onUnhideAll}
+          >
             Show {hiddenCount} hidden {hiddenCount === 1 ? "item" : "items"}
-          </Button>
+          </button>
         )}
       </div>
-      <div className="shrink-0 border-t border-navy/10 bg-white p-3">
+      <div className="app-dock shrink-0 p-3">
         <button
           data-kate-trigger
           type="button"
-          className="kate-bar tap t-body flex w-full items-center gap-3 rounded-full bg-azure-50 px-4 text-left text-navy"
+          className="app-kate tap t-body"
           aria-haspopup="dialog"
           onClick={() => setOverlay({ kind: "kate" })}
         >
-          <span className="flex size-8 items-center justify-center rounded-full bg-navy text-sm font-semibold text-white">
-            k
-          </span>
-          <span className="flex-1">Ask Kate…</span>
+          <span className="app-kate-orb" aria-hidden="true" />
+          <span className="flex-1">Ask Kate anything…</span>
           <Icon name="sparkle" />
         </button>
       </div>

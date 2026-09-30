@@ -20,10 +20,28 @@ function adaptiveIds(profile: Profile, decisions = EMPTY_DECISIONS) {
   return runEngine(profile, decisions).config.adaptive.map((s) => s.id);
 }
 
+describe("windfall", () => {
+  test("a hackathon prize puts the windfall ideas on top, with the advisor nearby", () => {
+    const { config, needs } = runEngine(
+      profileOf("emma", "prize"),
+      EMPTY_DECISIONS,
+    );
+    expect(needs.find((n) => n.id === "windfall")?.status).toBe("applied");
+    expect(config.adaptive[0].id).toBe("windfall");
+    expect(config.adaptive.some((s) => s.id === "advisor")).toBe(true);
+  });
+
+  test("without a prize there is no windfall need", () => {
+    expect(
+      inferNeeds(getPersona("emma").profile).some((n) => n.id === "windfall"),
+    ).toBe(false);
+  });
+});
+
 describe("needs combine", () => {
   test("simple UI + travelling shows travel in the simple variant", () => {
     const { config, needs } = runEngine(
-      profileOf("jana", "flight"),
+      profileOf("margaret", "flight"),
       EMPTY_DECISIONS,
     );
     expect(needs.find((n) => n.id === "travel")?.status).toBe("applied");
@@ -83,7 +101,12 @@ describe("behaviour overrides age", () => {
   });
 
   test("frequent portfolio checks keep investments detailed on a simple screen", () => {
-    const profile = profileOf("jana", "portfolio", "portfolio", "portfolio");
+    const profile = profileOf(
+      "margaret",
+      "portfolio",
+      "portfolio",
+      "portfolio",
+    );
     const withPortfolio: Profile = {
       ...profile,
       customer: { ...profile.customer, portfolioValue: 90_000 },
@@ -159,7 +182,7 @@ describe("customer control", () => {
     const decisions = decide({
       pinned: ["pension", "budget", "advisor", "paymentCheck"],
     });
-    const ids = adaptiveIds(getPersona("jana").profile, decisions);
+    const ids = adaptiveIds(getPersona("margaret").profile, decisions);
     expect(ids.slice(0, 4)).toEqual(decisions.pinned);
   });
 });
