@@ -1207,3 +1207,144 @@ body {
     scroll-behavior: auto;
   }
 }
+
+/* Rules engine / Claude switch in the stage header */
+.composer-switch {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #7fd6f733;
+  border-radius: 999px;
+  background: #ffffff0a;
+}
+.composer-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ffffffb3;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.composer-switch button:hover {
+  color: #fff;
+}
+.composer-switch button[aria-pressed="true"] {
+  background: #fff;
+  color: #0b1c2e;
+}
+.composer-switch button:focus-visible {
+  outline: 2px solid #00aeef;
+  outline-offset: 2px;
+}
+
+/* Claude-composed home inside the phone */
+.composed {
+  margin-top: 20px;
+}
+.composed-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #00aeef1f;
+  color: #7fd6f7;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.composed-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--block-gap);
+}
+.composed-skeleton {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.composed-skeleton span {
+  width: 170px;
+  height: 170px;
+  border-radius: 24px;
+  background: linear-gradient(
+    100deg,
+    #ffffff08 30%,
+    #ffffff17 50%,
+    #ffffff08 70%
+  );
+  background-size: 200% 100%;
+  animation: composedShimmer 1.4s linear infinite;
+}
+.composed-skeleton span[data-size="md"],
+.composed-skeleton span[data-size="lg"] {
+  width: 100%;
+}
+.composed-skeleton span[data-size="lg"] {
+  height: 240px;
+}
+@keyframes composedShimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .composed-skeleton span {
+    animation: none;
+  }
+}
+.composed-why {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 14px;
+  border-radius: 14px;
+  color: #ffffffcc;
+}
+.composed-why:hover {
+  background: #ffffff0d;
+}
+.composed-reasons {
+  display: grid;
+  gap: 10px;
+  overflow: hidden;
+  margin: 4px 0 8px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #0b1c2ecc;
+  border: 1px solid #ffffff14;
+  color: #ffffffd9;
+  list-style: none;
+}
+.composed-reasons li {
+  display: grid;
+  gap: 2px;
+}
+.composed-reasons strong {
+  color: #fff;
+}
+.composed-note {
+  padding-top: 8px;
+  border-top: 1px solid #ffffff14;
+  color: #ffffff99;
+}
+.composed-fallback {
+  margin-top: 16px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #ffb54714;
+  color: #ffd08a;
+  text-align: center;
+}
+.composed .suggestion-grid {
+  margin-top: 12px;
+}

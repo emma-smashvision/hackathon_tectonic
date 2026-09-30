@@ -28,6 +28,7 @@ import {
   fieldBubbles,
   morphId,
 } from "./bubble-field";
+import { ComposedHome, useComposition } from "./composed-home";
 import { DetailSheet } from "./detail-sheet";
 import { HeroCard } from "./hero";
 import { KateChat, useKate } from "./kate-chat";
@@ -53,6 +54,7 @@ export function PhoneHome({
   onUnhideAll,
   hiddenCount,
   onAnswer,
+  composer = "rules",
 }: {
   profile: Profile;
   config: HomepageConfig;
@@ -64,6 +66,8 @@ export function PhoneHome({
   onUnhideAll: () => void;
   hiddenCount: number;
   onAnswer: (need: NeedId, relevant: boolean) => void;
+  /** Who decides the home below the fixed core: the rules engine or Claude. */
+  composer?: "rules" | "claude";
 }) {
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [focus, setFocus] = useState<string | null>(null);
@@ -72,6 +76,14 @@ export function PhoneHome({
   const home = presentHomepage(profile, config);
   const theme = PRESENTATION[config.density];
   const kate = useKate(profile, decisions, personaKey, signals);
+  const composed = useComposition(
+    composer === "claude",
+    personaKey,
+    signals,
+    decisions,
+  );
+  const claudeHome =
+    composed.status === "loading" || composed.status === "ready";
   const bubbles = fieldBubbles(home, config.density);
   const c = profile.customer;
   const simple = config.density === "simple";
@@ -187,7 +199,9 @@ export function PhoneHome({
               Current account · savings {formatEur(c.savings)}
             </p>
             <p className="ai-message" aria-live="polite">
-              {home.narrative}
+              {composed.status === "ready"
+                ? composed.composition.message
+                : home.narrative}
             </p>
             <div className="app-actions center-actions">
               <button type="button" className="app-action">
@@ -205,105 +219,129 @@ export function PhoneHome({
             </div>
           </section>
 
-          <BubbleField
-            bubbles={bubbles}
-            density={config.density}
-            focus={focus}
-            hideFocused={morph !== null}
-            onTap={tapBubble}
-          />
-
-          <section
-            className="suggestion-grid"
-            aria-label="Suggestions for Kate"
-          >
-            {home.chips.map((id, i) => (
-              <motion.button
-                type="button"
-                key={id}
-                className="suggestion-pill t-small"
-                data-wide={i === home.chips.length - 1 && i % 2 === 0}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setOverlay({ kind: "kate" });
-                  void kate.ask(CHIP_POOL[id]);
-                }}
-              >
-                {CHIP_POOL[id]}
-              </motion.button>
-            ))}
-          </section>
-
-          <div className="glass-feed">
-            {lead && (
-              <>
-                <p className="app-section">In focus</p>
-                <HeroCard
-                  id={lead.id}
-                  profile={profile}
-                  onOpen={() => openWidget(lead.id)}
-                />
-              </>
-            )}
-            {feed.length > 0 && (
-              <>
-                <p className="app-section">More for you</p>
-                <div className="grid gap-3">
-                  {feed.map((s) => {
-                    const Section = ADAPTIVE_COMPONENTS[s.id];
-                    return (
-                      <motion.div
-                        key={s.id}
-                        layout
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                      >
-                        <WidgetCard
-                          slot={s}
-                          isNew={false}
-                          onTogglePin={() => onTogglePin(s.id)}
-                          onHide={() => onHide(s.id)}
-                        >
-                          <Section
-                            profile={profile}
-                            variant={s.variant}
-                            density={config.density}
-                          />
-                        </WidgetCard>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-            {home.moreQuestions.map((q) => (
-              <button
-                key={q.need}
-                type="button"
-                className="tap t-body mt-3 w-full rounded-2xl border border-dashed border-white/30 px-4 text-left text-white/85 hover:bg-white/5"
-                onClick={() => setOverlay({ kind: "question", need: q.need })}
-              >
-                {q.question}
-              </button>
-            ))}
-            <p className="app-section">Recent activity</p>
-            <div className="glass-panel">
-              <TransactionsWidget
-                profile={profile}
+          {claudeHome ? (
+            <ComposedHome
+              state={composed}
+              firstName={c.firstName}
+              onAsk={(question) => {
+                setOverlay({ kind: "kate" });
+                void kate.ask(question);
+              }}
+            />
+          ) : (
+            <>
+              {composed.status === "fallback" && (
+                <p className="composed-fallback t-small" role="status">
+                  Claude isn't available right now, so this is the standard
+                  home.
+                </p>
+              )}
+              <BubbleField
+                bubbles={bubbles}
                 density={config.density}
-                variant={config.density === "detailed" ? "detailed" : "simple"}
+                focus={focus}
+                hideFocused={morph !== null}
+                onTap={tapBubble}
               />
-            </div>
-            {hiddenCount > 0 && (
-              <button
-                type="button"
-                className="tap t-small mt-2 w-full rounded-xl text-white/70 hover:bg-white/5"
-                onClick={onUnhideAll}
+
+              <section
+                className="suggestion-grid"
+                aria-label="Suggestions for Kate"
               >
-                Show {hiddenCount} hidden {hiddenCount === 1 ? "item" : "items"}
-              </button>
-            )}
-          </div>
+                {home.chips.map((id, i) => (
+                  <motion.button
+                    type="button"
+                    key={id}
+                    className="suggestion-pill t-small"
+                    data-wide={i === home.chips.length - 1 && i % 2 === 0}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setOverlay({ kind: "kate" });
+                      void kate.ask(CHIP_POOL[id]);
+                    }}
+                  >
+                    {CHIP_POOL[id]}
+                  </motion.button>
+                ))}
+              </section>
+
+              <div className="glass-feed">
+                {lead && (
+                  <>
+                    <p className="app-section">In focus</p>
+                    <HeroCard
+                      id={lead.id}
+                      profile={profile}
+                      onOpen={() => openWidget(lead.id)}
+                    />
+                  </>
+                )}
+                {feed.length > 0 && (
+                  <>
+                    <p className="app-section">More for you</p>
+                    <div className="grid gap-3">
+                      {feed.map((s) => {
+                        const Section = ADAPTIVE_COMPONENTS[s.id];
+                        return (
+                          <motion.div
+                            key={s.id}
+                            layout
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                          >
+                            <WidgetCard
+                              slot={s}
+                              isNew={false}
+                              onTogglePin={() => onTogglePin(s.id)}
+                              onHide={() => onHide(s.id)}
+                            >
+                              <Section
+                                profile={profile}
+                                variant={s.variant}
+                                density={config.density}
+                              />
+                            </WidgetCard>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+                {home.moreQuestions.map((q) => (
+                  <button
+                    key={q.need}
+                    type="button"
+                    className="tap t-body mt-3 w-full rounded-2xl border border-dashed border-white/30 px-4 text-left text-white/85 hover:bg-white/5"
+                    onClick={() =>
+                      setOverlay({ kind: "question", need: q.need })
+                    }
+                  >
+                    {q.question}
+                  </button>
+                ))}
+                <p className="app-section">Recent activity</p>
+                <div className="glass-panel">
+                  <TransactionsWidget
+                    profile={profile}
+                    density={config.density}
+                    variant={
+                      config.density === "detailed" ? "detailed" : "simple"
+                    }
+                  />
+                </div>
+                {hiddenCount > 0 && (
+                  <button
+                    type="button"
+                    className="tap t-small mt-2 w-full rounded-xl text-white/70 hover:bg-white/5"
+                    onClick={onUnhideAll}
+                  >
+                    Show {hiddenCount} hidden{" "}
+                    {hiddenCount === 1 ? "item" : "items"}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="app-dock relative z-[2] shrink-0 p-3">

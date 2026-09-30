@@ -5,16 +5,14 @@ import {
   reconstructProfile,
 } from "@/lib/kate/context";
 import {
-  budgetFromEnv,
   createRateLimiter,
-  createSpendTracker,
   readLimitedJson,
+  sharedBudget,
 } from "@/lib/kate/limits";
 import { respond } from "@/lib/kate/respond";
 
 export const runtime = "nodejs";
 const allow = createRateLimiter();
-const budget = createSpendTracker(budgetFromEnv());
 export async function POST(request: Request) {
   const headers = { "Cache-Control": "no-store" };
   const key =
@@ -52,7 +50,7 @@ export async function POST(request: Request) {
   const reply = await respond(input.message, context, {
     apiKey: process.env.ANTHROPIC_API_KEY,
     history: input.history,
-    budget,
+    budget: sharedBudget(),
   });
   return Response.json(reply, { headers });
 }

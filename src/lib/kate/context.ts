@@ -55,13 +55,18 @@ export function cleanText(text: string) {
     .trim();
 }
 
-export function parseKateRequest(value: unknown): KateRequest | null {
+export interface DemoState {
+  personaId: string;
+  signals: string[];
+  decisions: Decisions;
+}
+
+/** Validate the allowlisted demo state (persona, injected events, layout decisions). */
+export function parseDemoState(value: unknown): DemoState | null {
   if (!value || typeof value !== "object") return null;
   const v = value as Record<string, unknown>;
   if (
-    typeof v.message !== "string" ||
-    !cleanText(v.message) ||
-    v.message.length > MAX_MESSAGE ||
+    typeof v.personaId !== "string" ||
     !PERSONAS.some((p) => p.id === v.personaId)
   )
     return null;
@@ -88,6 +93,28 @@ export function parseKateRequest(value: unknown): KateRequest | null {
     })
   )
     return null;
+  return {
+    personaId: v.personaId,
+    signals: [...(v.signals as string[])],
+    decisions: {
+      pinned: [...d.pinned],
+      hidden: [...d.hidden],
+      declared: [...d.declared],
+      dismissed: [...d.dismissed],
+    },
+  };
+}
+
+export function parseKateRequest(value: unknown): KateRequest | null {
+  const state = parseDemoState(value);
+  if (!state) return null;
+  const v = value as Record<string, unknown>;
+  if (
+    typeof v.message !== "string" ||
+    !cleanText(v.message) ||
+    v.message.length > MAX_MESSAGE
+  )
+    return null;
   const history = v.history ?? [];
   if (
     !Array.isArray(history) ||
@@ -105,14 +132,7 @@ export function parseKateRequest(value: unknown): KateRequest | null {
     return null;
   return {
     message: cleanText(v.message),
-    personaId: v.personaId as string,
-    signals: v.signals as string[],
-    decisions: {
-      pinned: [...d.pinned],
-      hidden: [...d.hidden],
-      declared: [...d.declared],
-      dismissed: [...d.dismissed],
-    },
+    ...state,
     history: history.map((turn: KateTurn) => ({
       role: turn.role,
       text: cleanText(turn.text),
@@ -121,7 +141,7 @@ export function parseKateRequest(value: unknown): KateRequest | null {
 }
 
 /** Only allowlisted demo events are replayed; client-supplied balances are never used. */
-export function reconstructProfile(request: KateRequest): Profile {
+export function reconstructProfile(request: DemoState): Profile {
   return request.signals.reduce(
     (profile, id) => getInjection(id).apply(profile),
     getPersona(request.personaId).profile,
@@ -166,6 +186,8 @@ export function buildKateContext(
       .filter((s) => !s.hidden)
       .map((s) => ({ id: s.id, ...bubbleMetric(s.id, profile) })),
     tone: config.tone,
+    /** From behaviour (large text, zoom, mis-taps, usage), never from age. */
+    density: config.density,
   };
 }
 export type KateContext = ReturnType<typeof buildKateContext>;

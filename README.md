@@ -27,6 +27,7 @@
 | ⚙️ | **Personalisation engine** | Turns transactions and app behaviour into *needs* with a confidence score, then ranks what to show and picks the layout density. Fully explainable. |
 | 💬 | **Kate** | An assistant that explains your overview, powered by Claude, with safety rules in both the prompt and the code, and an offline fallback. |
 | 🧱 | **Building blocks** | A catalogue of 27 widgets in 3 sizes and 3 content depths, plus large text: the vocabulary an AI layer can use to compose each customer's home. |
+| ✦ | **Claude composes the home** | An opt-in switch: Claude picks and orders the building blocks for each customer and writes their personal message. The rules engine stays the default. |
 
 ---
 
@@ -144,18 +145,32 @@ We tested Kate live against prompt-injection attempts, including fake "SYSTEM OV
 
 ---
 
-## Building blocks for an AI-composed home
+## Building blocks, composed by Claude
+
+The rules engine is predictable and explainable, and it's the default. With the **Rules engine | ✦ Claude** switch at the top of the demo, Claude designs each customer's home instead.
+
+![Marc's home composed by Claude: a personal message about his pension and dividend, then his portfolio as the lead block](docs/jury/claude-stage-marc.jpg)
+
+<table>
+  <tr>
+    <td>
+      <p>Claude receives the customer's own data (needs, transactions, savings goals, how they use the app) and our <b>catalogue of 27 building blocks</b>. It decides:</p>
+      <ul>
+        <li><b>which blocks</b> appear, and in what order</li>
+        <li>each block's <b>size</b> (1×1, 2×1 or 2×2, like iOS widgets) and <b>content depth</b> (<i>essential</i>, <i>standard</i> or <i>expert</i>)</li>
+        <li>the <b>personal message</b> under the balance</li>
+        <li>three <b>questions to ask Kate</b></li>
+        <li>a <b>reason for every block</b>, shown under <i>Why this home?</i></li>
+      </ul>
+      <p>The same safety rules as Kate apply. Every text is checked in code for invented amounts, links and credential requests. If anything fails, or Claude is unavailable, the customer gets the standard home. Depth still comes from behaviour, never age: Margaret's layout uses large text and at most three blocks.</p>
+    </td>
+    <td width="36%"><img src="docs/jury/claude-why-marc.jpg" alt="'Why this home?' for Marc: one reason per block, each quoting his own figures, and three Kate questions written by Claude"></td>
+  </tr>
+</table>
 
 <p align="center"><img src="docs/jury/blocks-gallery.jpg" alt="Building blocks gallery: Balance and Quick actions blocks shown in small, medium and large sizes" width="85%"></p>
 
-The next step is to let an AI layer compose each customer's home. To make that safe, we built a fixed **catalogue of 27 blocks** it can choose from:
-
-- **6 groups:** everyday banking, life moments (house, moving), travel, wealth, prize and Kate.
-- **3 sizes** (1×1, 2×1, 2×2, like iOS widgets) and **3 content depths** (*essential*, *standard*, *expert*), plus **large text** at every depth.
-- Depth describes *content*, never the customer's age or ability.
-- An AI picks blocks by id, size and depth. Anything outside the catalogue is rejected, and the home falls back to the rules engine.
-
-The full catalogue is in [docs/building-blocks.md](docs/building-blocks.md), and the gallery runs at `/blocks`.
+The full catalogue is in [docs/building-blocks.md](docs/building-blocks.md), and the gallery runs at `/blocks`. Blocks currently show their own demo figures; wiring each block to the customer's live data is the next step.
 
 ---
 
@@ -179,8 +194,9 @@ The full catalogue is in [docs/building-blocks.md](docs/building-blocks.md), and
 | Explanations, pins, hides and question bubbles | Transactions: injected as demo "live signals" |
 | Kate powered by Claude, with safety checks in code and a spending cap | Actions such as calls, payments, exchanges and bookings are previews only |
 | Offline fallback: the demo runs without internet or a key | eSIM and currency exchange are *proposed services* |
-| Accessibility: density, large text, reduced motion, keyboard and screen-reader support | Building blocks are not yet wired into the phone home |
-| 49 automated tests | |
+| Claude composing the home from the building blocks, with checks and a fallback | Building blocks show their own demo figures, not yet the customer's |
+| Accessibility: density, large text, reduced motion, keyboard and screen-reader support | |
+| 58 automated tests | |
 
 ---
 
@@ -197,8 +213,9 @@ Open http://localhost:3000.
 2. Tap a **bubble**, then **ⓘ** to see why it's there. Try **pin** and **hide**.
 3. Tap **Ask Kate anything…**, or one of the suggestion pills.
 4. Open **Inside the engine** (the sliders icon) and inject a live signal, for example *IKEA purchase* for Tom, or *€2,400 to a new payee*, and watch the home rebuild.
+5. Flip the switch at the top to **✦ Claude** and pick a character: Claude composes their home from the building blocks. Tap **Why this home?**.
 
-Kate uses Claude when `ANTHROPIC_API_KEY` is set in `.env.local`. Without a key, she answers from built-in responses.
+Kate and the Claude-composed home use Claude when `ANTHROPIC_API_KEY` is set in `.env.local`. Without a key, Kate answers from built-in responses and the switch shows the standard home.
 
 ---
 

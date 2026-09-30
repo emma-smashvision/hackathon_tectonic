@@ -94,3 +94,10 @@ export function budgetFromEnv(value = process.env.KATE_BUDGET_USD) {
     ? limit
     : 5;
 }
+
+/** One spend cap per server process, shared by every Claude route. */
+export function sharedBudget(): SpendTracker {
+  const store = globalThis as { __kateBudget?: SpendTracker };
+  store.__kateBudget ??= createSpendTracker(budgetFromEnv());
+  return store.__kateBudget;
+}

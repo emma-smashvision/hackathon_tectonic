@@ -81,6 +81,37 @@ const FORBIDDEN_OUTPUT: [string, RegExp][] = [
   ],
 ];
 
+/** Label of the first forbidden pattern in `text`, if any. */
+export function forbiddenReason(text: string): string | null {
+  return FORBIDDEN_OUTPUT.find(([, p]) => p.test(text))?.[0] ?? null;
+}
+
+/**
+ * True when `text` quotes an amount that is not in `context`.
+ * "1.050", "1,050" and 1050 are the same figure, so compare values: each
+ * token is read both as English and as European (€ 4.870,10) notation.
+ * Small whole numbers ("2 times", "30 days") are not amounts and pass.
+ */
+export function hasUnknownNumber(text: string, context: unknown): boolean {
+  const values = (s: string) =>
+    (s.match(/\d+(?:[.,]\d+)*/g) ?? []).map((n) => [
+      Number(n.replace(/,/g, "")),
+      Number(n.replace(/\./g, "").replace(",", ".")),
+    ]);
+  const allowed = new Set(values(JSON.stringify(context)).flat());
+  const known = (n: number) =>
+    allowed.has(n) || (Number.isInteger(n) && n <= 100);
+  return values(text).some((candidates) => !candidates.some(known));
+}
+
+/** Every customer-facing model text passes this: forbidden content, then invented amounts. */
+export function checkText(text: string, context: unknown): string | null {
+  return (
+    forbiddenReason(text) ??
+    (hasUnknownNumber(text, context) ? "unknown number" : null)
+  );
+}
+
 /**
  * Reject malformed answers, forbidden content and amounts absent from the
  * supplied context. `onReject` receives a reason label, never the content.
@@ -104,22 +135,10 @@ export function parseModelReply(
       value.text.length > MAX_REPLY
     )
       return reject("malformed output");
-    const forbidden = FORBIDDEN_OUTPUT.find(([, p]) => p.test(value.text));
-    if (forbidden) return reject(forbidden[0]);
+    const forbidden = forbiddenReason(value.text);
+    if (forbidden) return reject(forbidden);
     if (!value.on_topic) return { text: OFF_TOPIC_TEXT, source: "claude" };
-    // "1.050", "1,050" and 1050 are the same figure, so compare values:
-    // each token is read both as English and as European (€ 4.870,10) notation.
-    // Small whole numbers ("2 times", "30 days") are not amounts and pass.
-    const values = (s: string) =>
-      (s.match(/\d+(?:[.,]\d+)*/g) ?? []).map((n) => [
-        Number(n.replace(/,/g, "")),
-        Number(n.replace(/\./g, "").replace(",", ".")),
-      ]);
-    const allowed = new Set(values(JSON.stringify(context)).flat());
-    const known = (n: number) =>
-      allowed.has(n) || (Number.isInteger(n) && n <= 100);
-    if (values(value.text).some((candidates) => !candidates.some(known)))
-      return reject("unknown number");
+    if (hasUnknownNumber(value.text, context)) return reject("unknown number");
     return {
       text: value.text,
       source: "claude",

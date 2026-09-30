@@ -26,6 +26,8 @@ export function Prototype() {
   const [scenarioId, setScenarioId] = useState<string | null>(null);
   const [touring, setTouring] = useState(false);
   const [engineOpen, setEngineOpen] = useState(false);
+  // The rules engine is the default; Claude composing the home is opt-in.
+  const [composer, setComposer] = useState<"rules" | "claude">("rules");
 
   // Restore saved pins/hides after mount so server and client HTML match.
   useEffect(() => {
@@ -85,6 +87,24 @@ export function Prototype() {
           <span className="stage-kicker">
             One KBC · 2.3M different dashboards - customized for you only
           </span>
+          <fieldset className="composer-switch">
+            <legend className="sr-only">Who composes the home</legend>
+            <button
+              type="button"
+              aria-pressed={composer === "rules"}
+              onClick={() => setComposer("rules")}
+            >
+              Rules engine
+            </button>
+            <button
+              type="button"
+              aria-pressed={composer === "claude"}
+              onClick={() => setComposer("claude")}
+            >
+              <Icon name="sparkle" className="size-3.5" />
+              Claude
+            </button>
+          </fieldset>
         </header>
 
         <section className="stage-story" aria-live="polite">
@@ -151,6 +171,7 @@ export function Prototype() {
                 profile={current.profile}
                 config={config}
                 personaKey={state.personaId}
+                composer={composer}
                 hiddenCount={current.decisions.hidden.length}
                 onTogglePin={(widget) =>
                   dispatch({ type: "togglePin", widget })

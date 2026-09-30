@@ -65,6 +65,18 @@ Replies may contain an optional `{ "open": "homeBuying" }` hint. Both server and
 
 The route caps messages at 600 characters, history at 8 turns, request bodies at 32 KiB (including streamed bodies), and demo injections at 100. An in-memory limiter permits 12 requests per client and 60 total per minute per process; malformed and oversized requests are rejected. The limiter is suitable for this local demo, not distributed production abuse protection. Prompt rules and numeric validation are prototype safeguards, not a production financial-advice compliance system.
 
+### Claude-composed home (opt-in)
+
+The **Rules engine | ✦ Claude** switch in the stage header (default: rules) lets Claude compose the home below the fixed core. `PhoneHome` takes `composer="claude"`, and `useComposition` in `src/components/phone/composed-home.tsx` posts the demo state to `/api/compose`.
+
+- **Route** (`src/app/api/compose/route.ts`): validates the persona, signals and decisions with `parseDemoState`, rebuilds the same server-side context as Kate, rate-limits, and caches successful layouts per demo state (in memory, up to 100).
+- **Model call** (`src/lib/compose/compose.ts`): `claude-opus-5-5` at `low` effort with structured output. The schema's `id` is an enum of the catalogue, generated from `BLOCK_GROUPS` minus the fixed core (`core-balance`, `core-quick-actions`) and Kate's own block (`prize-kate`). Claude returns a message, 2–6 blocks with size, tier and reason, and up to three Kate questions.
+- **Validation** (`parseComposition`): unknown or duplicate ids are dropped, sizes are clamped to what each block supports, and a lone half-width block is widened. Every text passes Kate's `checkText` (forbidden content, invented amounts); any failure rejects the whole layout. Simple density renders blocks with large text.
+- **Fallback**: no key, budget reached, refusal, timeout (30 s), an API error or invalid output all return `{ source: "rules" }`. The phone then shows the standard home with a short notice. Reasons are logged as `[compose] rules home: …`, without content.
+- **Rendering**: blocks keep their gallery sizes; `FitBlock` scales each one with CSS `zoom` to a full-width or half-width slot in the phone.
+- **Budget**: Kate and compose share one `KATE_BUDGET_USD` cap per process (`sharedBudget()`).
+- **Limitation**: blocks render their own demo data, so a block's figures can differ from the persona's. Claude's message and reasons only quote the persona's data.
+
 ## Stack
 
 Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Motion, Supabase PostgreSQL, Inter and Geist Mono, Bun, and Biome. This is a single app, so Turborepo is not needed. It builds as a fully static site (`output: "export"`) and deploys to DigitalOcean App Platform.
