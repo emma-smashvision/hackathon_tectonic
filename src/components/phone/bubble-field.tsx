@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import {
   BUBBLE_FIELD,
@@ -189,15 +189,78 @@ export function BubbleStrip({
   active: string | null;
   onTap: (bubble: FieldBubble) => void;
 }) {
+  const strip = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
+  const [edges, setEdges] = useState({ start: false, end: false });
+  const bubbleKeys = bubbles.map((bubble) => bubble.key).join("|");
+
+  useEffect(() => {
+    const element = strip.current;
+    if (!element || !bubbleKeys) return;
+    const wheel = (event: WheelEvent) => {
+      if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY))
+        return;
+      event.preventDefault();
+      const unit =
+        event.deltaMode === 1
+          ? 16
+          : event.deltaMode === 2
+            ? element.clientWidth
+            : 1;
+      element.scrollBy({ left: event.deltaY * unit, behavior: "instant" });
+    };
+    let listening = false;
+    const measure = () => {
+      const max = element.scrollWidth - element.clientWidth;
+      const overflowing = max > 1;
+      setEdges({
+        start: element.scrollLeft > 1,
+        end: element.scrollLeft < max - 1,
+      });
+      if (overflowing === listening) return;
+      listening = overflowing;
+      if (listening)
+        element.addEventListener("wheel", wheel, { passive: false });
+      else element.removeEventListener("wheel", wheel);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    for (const child of element.children) observer.observe(child);
+    element.addEventListener("scroll", measure, { passive: true });
+    measure();
+    return () => {
+      observer.disconnect();
+      element.removeEventListener("scroll", measure);
+      element.removeEventListener("wheel", wheel);
+    };
+  }, [bubbleKeys]);
+
+  useEffect(() => {
+    if (!active) return;
+    strip.current?.querySelector('[aria-current="true"]')?.scrollIntoView({
+      inline: "center",
+      block: "nearest",
+      behavior: reduced ? "auto" : "smooth",
+    });
+  }, [active, reduced]);
+
   return (
-    <nav aria-label="Switch between your items" className="bubble-strip">
+    <nav
+      ref={strip}
+      aria-label="Switch between your items"
+      className="bubble-strip"
+      data-overflow={edges.start || edges.end}
+      data-fade-start={edges.start}
+      data-fade-end={edges.end}
+    >
       {bubbles.map((b) => (
         <motion.button
           key={b.key}
           type="button"
           className="bubble-strip-item"
           aria-current={b.key === active ? "true" : undefined}
-          whileTap={{ scale: 0.9 }}
+          title={b.label}
+          whileTap={reduced ? undefined : { scale: 0.9 }}
           onClick={() => onTap(b)}
         >
           <Icon name={b.icon} className="size-4 shrink-0" />

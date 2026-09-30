@@ -31,12 +31,14 @@ import {
 import { DetailSheet } from "./detail-sheet";
 import { HeroCard } from "./hero";
 import { KateChat, useKate } from "./kate-chat";
+import { MoneyFlow } from "./money-flow";
 import { WidgetCard } from "./widget-card";
 
 type Overlay =
   | { kind: "widget"; id: AdaptiveWidgetId; morph?: string }
   | { kind: "question"; need: NeedId; morph?: string }
   | { kind: "kate" }
+  | { kind: "transfer" | "pay" }
   | null;
 
 /** How long a tapped bubble stays highlighted before its sheet opens. */
@@ -124,8 +126,7 @@ export function PhoneHome({
     overlay?.kind === "question"
       ? config.questions.find((q) => q.need === overlay.need)
       : undefined;
-  const morph =
-    overlay && overlay.kind !== "kate" ? (overlay.morph ?? null) : null;
+  const morph = overlay && "morph" in overlay ? (overlay.morph ?? null) : null;
   const [lead, ...rest] = config.adaptive;
   const feed = rest.filter((s) => s.id !== "transactions").slice(0, 4);
   const styles = {
@@ -190,13 +191,23 @@ export function PhoneHome({
               {home.narrative}
             </p>
             <div className="app-actions center-actions">
-              <button type="button" className="app-action">
+              <button
+                type="button"
+                className="app-action"
+                aria-haspopup="dialog"
+                onClick={() => setOverlay({ kind: "transfer" })}
+              >
                 <span>
                   <Icon name="send" />
                 </span>
                 Transfer
               </button>
-              <button type="button" className="app-action">
+              <button
+                type="button"
+                className="app-action"
+                aria-haspopup="dialog"
+                onClick={() => setOverlay({ kind: "pay" })}
+              >
                 <span>
                   <Icon name="qr" />
                 </span>
@@ -326,15 +337,20 @@ export function PhoneHome({
           <DetailSheet
             key={overlay.kind}
             title={
-              overlay.kind === "kate"
-                ? "Kate"
-                : overlay.kind === "question"
-                  ? "A quick question"
-                  : "Your overview"
+              overlay.kind === "transfer"
+                ? "Transfer"
+                : overlay.kind === "pay"
+                  ? "Pay"
+                  : overlay.kind === "kate"
+                    ? "Kate"
+                    : overlay.kind === "question"
+                      ? "A quick question"
+                      : "Your overview"
             }
             onClose={close}
             strip={
-              overlay.kind !== "kate" && bubbles.length > 1 ? (
+              (overlay.kind === "widget" || overlay.kind === "question") &&
+              bubbles.length > 1 ? (
                 <BubbleStrip
                   bubbles={bubbles}
                   active={morph}
@@ -358,6 +374,9 @@ export function PhoneHome({
               style={{ borderRadius: 24 }}
               transition={{ type: "spring", stiffness: 260, damping: 30 }}
             >
+              {(overlay.kind === "transfer" || overlay.kind === "pay") && (
+                <MoneyFlow kind={overlay.kind} onClose={close} />
+              )}
               {overlay.kind === "kate" && (
                 <KateChat
                   messages={kate.messages}
