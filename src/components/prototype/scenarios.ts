@@ -82,7 +82,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "prize",
     persona: "emma",
-    badge: "trophy",
+    avatar: "/characters/emma-thomas.webp",
     name: "Emma & Thomas",
     role: "Just won the hackathon",
     noticed: ["€10,000 in: hackathon prize", "One-off, not a salary"],
