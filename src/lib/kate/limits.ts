@@ -49,3 +49,48 @@ export async function readLimitedJson(
   }
   return JSON.parse(new TextDecoder().decode(buffer));
 }
+
+/** Claude Opus 5.5 list prices in USD per token (input, cache write, cache read, output). */
+const PRICE = {
+  input: 4e-6,
+  cacheWrite: 5e-6,
+  cacheRead: 0.2e-6,
+  output: 20e-6,
+};
+export interface Usage {
+  input_tokens: number;
+  output_tokens: number;
+  cache_creation_input_tokens?: number | null;
+  cache_read_input_tokens?: number | null;
+}
+
+/**
+ * Per-process spending cap. Claude is skipped once recorded spend reaches the
+ * limit; concurrent in-flight requests can overshoot by at most their own cost.
+ */
+export function createSpendTracker(limitUsd: number) {
+  let spent = 0;
+  return {
+    allows: () => spent < limitUsd,
+    record(usage: Usage) {
+      spent +=
+        usage.input_tokens * PRICE.input +
+        (usage.cache_creation_input_tokens ?? 0) * PRICE.cacheWrite +
+        (usage.cache_read_input_tokens ?? 0) * PRICE.cacheRead +
+        usage.output_tokens * PRICE.output;
+    },
+    spent: () => spent,
+  };
+}
+export type SpendTracker = ReturnType<typeof createSpendTracker>;
+
+/** KATE_BUDGET_USD from the environment, defaulting to $5 per server process. */
+export function budgetFromEnv(value = process.env.KATE_BUDGET_USD) {
+  const limit = Number(value);
+  return value !== undefined &&
+    value !== "" &&
+    Number.isFinite(limit) &&
+    limit >= 0
+    ? limit
+    : 5;
+}
