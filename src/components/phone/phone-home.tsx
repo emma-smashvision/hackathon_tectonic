@@ -6,7 +6,7 @@ import {
   motion,
   useReducedMotion,
 } from "motion/react";
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { CHIP_POOL, PRESENTATION, presentHomepage } from "@/lib/engine/present";
 import type {
   AdaptiveSlot,
@@ -18,17 +18,29 @@ import type {
 } from "@/lib/engine/types";
 import { formatEur } from "@/lib/format";
 import { Button, Icon } from "../ui";
-import { ADAPTIVE_COMPONENTS, WIDGET_META } from "../widgets/registry";
+import { ADAPTIVE_COMPONENTS } from "../widgets/registry";
+import { TransactionsWidget } from "../widgets/support";
+import { AmbientBackground, Confetti, CountUp } from "./ambient";
+import {
+  BubbleField,
+  BubbleStrip,
+  type FieldBubble,
+  fieldBubbles,
+  morphId,
+} from "./bubble-field";
 import { DetailSheet } from "./detail-sheet";
-import { ACCENTS, HeroCard } from "./hero";
+import { HeroCard } from "./hero";
 import { KateChat, useKate } from "./kate-chat";
 import { WidgetCard } from "./widget-card";
 
 type Overlay =
-  | { kind: "widget"; id: AdaptiveWidgetId }
-  | { kind: "question"; need: NeedId }
+  | { kind: "widget"; id: AdaptiveWidgetId; morph?: string }
+  | { kind: "question"; need: NeedId; morph?: string }
   | { kind: "kate" }
   | null;
+
+/** How long a tapped bubble stays highlighted before its sheet opens. */
+const FOCUS_MS = 220;
 
 export function PhoneHome({
   profile,
@@ -54,19 +66,54 @@ export function PhoneHome({
   onAnswer: (need: NeedId, relevant: boolean) => void;
 }) {
   const [overlay, setOverlay] = useState<Overlay>(null);
+  const [focus, setFocus] = useState<string | null>(null);
+  const focusTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const reduced = useReducedMotion();
   const home = presentHomepage(profile, config);
   const theme = PRESENTATION[config.density];
   const kate = useKate(profile, decisions, personaKey, signals);
-  const openWidget = (id: AdaptiveWidgetId) => {
-    if (!decisions.hidden.includes(id)) setOverlay({ kind: "widget", id });
+  const bubbles = fieldBubbles(home, config.density);
+  const c = profile.customer;
+  const simple = config.density === "simple";
+  const prize = profile.transactions.find((t) => t.category === "prize");
+  const celebrating = home.mood === "celebratory";
+
+  // Confetti when a live prize signal lands (skipped with reduced motion).
+  const [confetti, setConfetti] = useState(false);
+  const livePrize = prize?.id.startsWith("live-") ? prize.id : null;
+  useEffect(() => {
+    if (livePrize) setConfetti(true);
+  }, [livePrize]);
+  useEffect(() => () => clearTimeout(focusTimer.current), []);
+
+  const openWidget = (id: AdaptiveWidgetId, morph?: string) => {
+    if (!decisions.hidden.includes(id))
+      setOverlay({ kind: "widget", id, morph });
   };
+  const close = () => {
+    setOverlay(null);
+    setFocus(null);
+  };
+  /** Highlight the tapped bubble, dim the rest, then morph it into its sheet. */
+  const tapBubble = (bubble: FieldBubble) => {
+    clearTimeout(focusTimer.current);
+    setFocus(bubble.key);
+    const open = () => {
+      if (bubble.kind === "widget" && bubble.id)
+        openWidget(bubble.id, bubble.key);
+      else if (bubble.need)
+        setOverlay({ kind: "question", need: bubble.need, morph: bubble.key });
+    };
+    if (reduced) open();
+    else focusTimer.current = setTimeout(open, FOCUS_MS);
+  };
+
   const selected = overlay?.kind === "widget" ? overlay.id : null;
   const slot: AdaptiveSlot | undefined = selected
     ? (config.adaptive.find((s) => s.id === selected) ?? {
         id: selected,
         size: "lg",
-        variant: config.density === "simple" ? "simple" : "detailed",
+        variant: simple ? "simple" : "detailed",
         score: config.scores.find((s) => s.id === selected)?.score ?? 0,
         pinned: decisions.pinned.includes(selected),
         reasons: ["You opened this with Kate"],
@@ -77,318 +124,309 @@ export function PhoneHome({
     overlay?.kind === "question"
       ? config.questions.find((q) => q.need === overlay.need)
       : undefined;
+  const morph =
+    overlay && overlay.kind !== "kate" ? (overlay.morph ?? null) : null;
+  const [lead, ...rest] = config.adaptive;
+  const feed = rest.filter((s) => s.id !== "transactions").slice(0, 4);
   const styles = {
     "--t-body": `${theme.font}px`,
-    "--home-gap": `${theme.gap}px`,
     "--tap": `${theme.target}px`,
-    "--bubble-count": theme.bubbles,
-    "--drift-duration": `${theme.drift}s`,
   } as CSSProperties;
-
-  const [hero, ...tiles] = home.bubbles;
-  const ask = home.questions[0];
-  const c = profile.customer;
 
   return (
     <div
       className="phone app relative flex h-full flex-col"
       data-density={config.density}
       data-tone={config.tone}
+      data-mood={home.mood}
       style={styles}
     >
+      <AmbientBackground mood={home.mood} />
       <div
         aria-hidden="true"
-        className="flex shrink-0 items-center justify-between px-6 pt-3 pb-1 text-xs font-semibold text-white"
+        className="relative z-[2] flex shrink-0 items-center justify-between px-6 pt-3 pb-1 text-xs font-semibold text-white"
       >
         <span>9:41</span>
         <span className="h-4 w-20 rounded-full bg-black" />
         <span>5G ▮▮▮</span>
       </div>
-      <div className="home-scroll min-h-0 flex-1 overflow-y-auto px-4 pb-4">
-        <header className="app-header">
-          <div className="min-w-0">
-            <p className="app-hello">Hi {c.firstName}</p>
-            <p className="app-narrative" aria-live="polite">
+
+      <LayoutGroup id={personaKey}>
+        <div className="home-scroll relative z-[1] min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+          <header className="flex items-center justify-between pt-2">
+            <span className="greeting-tag">Hi, {c.firstName}</span>
+            <span className="app-avatar" aria-hidden="true">
+              {c.firstName[0]}
+            </span>
+          </header>
+
+          <AnimatePresence>
+            {celebrating && prize && (
+              <motion.p
+                key="celebrate"
+                className="celebrate-pill t-small"
+                initial={{ opacity: 0, y: -8, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 18 }}
+              >
+                🎉 {formatEur(prize.amount)} from your prize just arrived
+              </motion.p>
+            )}
+          </AnimatePresence>
+
+          <section
+            className="center-hero"
+            data-zone="core"
+            aria-label="Balance"
+          >
+            <p className="center-value">
+              <CountUp value={c.balance} format={(n) => formatEur(n, true)} />
+            </p>
+            <p className="center-label">
+              Current account · savings {formatEur(c.savings)}
+            </p>
+            <p className="ai-message" aria-live="polite">
               {home.narrative}
             </p>
-          </div>
-          <span className="app-avatar" aria-hidden="true">
-            {c.firstName[0]}
-          </span>
-        </header>
+            <div className="app-actions center-actions">
+              <button type="button" className="app-action">
+                <span>
+                  <Icon name="send" />
+                </span>
+                Transfer
+              </button>
+              <button type="button" className="app-action">
+                <span>
+                  <Icon name="qr" />
+                </span>
+                Pay
+              </button>
+            </div>
+          </section>
 
-        <section className="app-balance" data-zone="core" aria-label="Balance">
-          <div>
-            <p className="t-small text-white/60">Current account</p>
-            <p className="t-figure text-white">{formatEur(c.balance, true)}</p>
-            <p className="t-small text-white/60">
-              Savings{" "}
-              <span className="font-semibold text-white">
-                {formatEur(c.savings)}
-              </span>
-            </p>
-          </div>
-          <div className="app-actions">
-            <button type="button" className="app-action">
-              <span>
-                <Icon name="send" />
-              </span>
-              Transfer
-            </button>
-            <button type="button" className="app-action">
-              <span>
-                <Icon name="qr" />
-              </span>
-              Pay
-            </button>
-          </div>
-        </section>
+          <BubbleField
+            bubbles={bubbles}
+            density={config.density}
+            focus={focus}
+            hideFocused={morph !== null}
+            onTap={tapBubble}
+          />
 
-        <LayoutGroup id={personaKey}>
-          <section data-zone="adaptive" aria-label="For you now">
-            {(hero || ask) && <p className="app-section">For you now</p>}
-            <AnimatePresence mode="popLayout" initial={false}>
-              {hero && (
+          <section
+            className="suggestion-grid"
+            aria-label="Suggestions for Kate"
+          >
+            {home.chips.map((id, i) => (
+              <motion.button
+                type="button"
+                key={id}
+                className="suggestion-pill t-small"
+                data-wide={i === home.chips.length - 1 && i % 2 === 0}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setOverlay({ kind: "kate" });
+                  void kate.ask(CHIP_POOL[id]);
+                }}
+              >
+                {CHIP_POOL[id]}
+              </motion.button>
+            ))}
+          </section>
+
+          <div className="glass-feed">
+            {lead && (
+              <>
+                <p className="app-section">In focus</p>
                 <HeroCard
-                  key={hero.id}
-                  id={hero.id}
+                  id={lead.id}
                   profile={profile}
-                  onOpen={() => openWidget(hero.id)}
+                  onOpen={() => openWidget(lead.id)}
+                />
+              </>
+            )}
+            {feed.length > 0 && (
+              <>
+                <p className="app-section">More for you</p>
+                <div className="grid gap-3">
+                  {feed.map((s) => {
+                    const Section = ADAPTIVE_COMPONENTS[s.id];
+                    return (
+                      <motion.div
+                        key={s.id}
+                        layout
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        <WidgetCard
+                          slot={s}
+                          isNew={false}
+                          onTogglePin={() => onTogglePin(s.id)}
+                          onHide={() => onHide(s.id)}
+                        >
+                          <Section
+                            profile={profile}
+                            variant={s.variant}
+                            density={config.density}
+                          />
+                        </WidgetCard>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+            {home.moreQuestions.map((q) => (
+              <button
+                key={q.need}
+                type="button"
+                className="tap t-body mt-3 w-full rounded-2xl border border-dashed border-white/30 px-4 text-left text-white/85 hover:bg-white/5"
+                onClick={() => setOverlay({ kind: "question", need: q.need })}
+              >
+                {q.question}
+              </button>
+            ))}
+            <p className="app-section">Recent activity</p>
+            <div className="glass-panel">
+              <TransactionsWidget
+                profile={profile}
+                density={config.density}
+                variant={config.density === "detailed" ? "detailed" : "simple"}
+              />
+            </div>
+            {hiddenCount > 0 && (
+              <button
+                type="button"
+                className="tap t-small mt-2 w-full rounded-xl text-white/70 hover:bg-white/5"
+                onClick={onUnhideAll}
+              >
+                Show {hiddenCount} hidden {hiddenCount === 1 ? "item" : "items"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="app-dock relative z-[2] shrink-0 p-3">
+          <button
+            data-kate-trigger
+            type="button"
+            className="app-kate tap t-body"
+            aria-haspopup="dialog"
+            onClick={() => setOverlay({ kind: "kate" })}
+          >
+            <span className="app-kate-orb" aria-hidden="true" />
+            <span className="flex-1">Ask Kate anything…</span>
+            <Icon name="sparkle" />
+          </button>
+        </div>
+
+        {confetti && <Confetti onDone={() => setConfetti(false)} />}
+
+        {overlay && (
+          <DetailSheet
+            key={overlay.kind}
+            title={
+              overlay.kind === "kate"
+                ? "Kate"
+                : overlay.kind === "question"
+                  ? "A quick question"
+                  : "Your overview"
+            }
+            onClose={close}
+            strip={
+              overlay.kind !== "kate" && bubbles.length > 1 ? (
+                <BubbleStrip
+                  bubbles={bubbles}
+                  active={morph}
+                  onTap={(b) => {
+                    setFocus(b.key);
+                    if (b.kind === "widget" && b.id) openWidget(b.id, b.key);
+                    else if (b.need)
+                      setOverlay({
+                        kind: "question",
+                        need: b.need,
+                        morph: b.key,
+                      });
+                  }}
+                />
+              ) : undefined
+            }
+          >
+            <motion.div
+              layoutId={morph ? morphId(morph) : undefined}
+              className="sheet-morph"
+              style={{ borderRadius: 24 }}
+              transition={{ type: "spring", stiffness: 260, damping: 30 }}
+            >
+              {overlay.kind === "kate" && (
+                <KateChat
+                  messages={kate.messages}
+                  busy={kate.busy}
+                  onSend={(message) => {
+                    void kate.ask(message);
+                  }}
+                  onOpen={(id) => openWidget(id)}
                 />
               )}
-            </AnimatePresence>
-
-            {ask && (
-              <motion.div
-                layout
-                className="app-question"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <p className="t-body flex items-start gap-2 font-semibold text-white">
-                  <Icon name="sparkle" className="mt-0.5 size-4 shrink-0" />
-                  {ask.question}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    className="app-pill app-pill-primary"
-                    onClick={() => onAnswer(ask.need, true)}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    type="button"
-                    className="app-pill"
-                    onClick={() => onAnswer(ask.need, false)}
-                  >
-                    Not relevant
-                  </button>
-                  <button
-                    type="button"
-                    className="app-pill app-pill-ghost"
-                    onClick={() =>
-                      setOverlay({ kind: "question", need: ask.need })
-                    }
-                  >
-                    Why?
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {tiles.length > 0 && (
-              <div className="app-tiles" data-count={tiles.length}>
-                <AnimatePresence mode="popLayout" initial={false}>
-                  {tiles.map((tile, index) => (
-                    <motion.button
-                      key={tile.id}
-                      layout
-                      type="button"
-                      className="app-tile"
-                      style={{ "--accent": ACCENTS[tile.id] } as CSSProperties}
-                      aria-label={`${tile.label}: ${tile.value}${tile.pinned ? ", pinned" : ""}. Open details`}
-                      onClick={() => openWidget(tile.id)}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{
-                        duration: reduced ? 0 : 0.35,
-                        delay: reduced ? 0 : 0.15 + index * 0.08,
+              {question && (
+                <div className="space-y-4 p-2">
+                  <h3 className="t-title text-navy">{question.question}</h3>
+                  <details className="t-small text-navy/80">
+                    <summary className="tap cursor-pointer content-center">
+                      Why am I seeing this?
+                    </summary>
+                    <ul className="list-disc space-y-2 pl-4">
+                      {question.reasons.map((r) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
+                    <p className="mt-2">
+                      This is a possibility, not a conclusion.
+                    </p>
+                  </details>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      onClick={() => {
+                        onAnswer(question.need, true);
+                        close();
                       }}
                     >
-                      <span className="app-tile-icon">
-                        <Icon name={WIDGET_META[tile.id].icon} />
-                      </span>
-                      <span className="app-tile-label">{tile.label}</span>
-                      <span className="app-tile-value">{tile.value}</span>
-                      {tile.pinned && (
-                        <Icon
-                          name="pin"
-                          className="absolute top-3 right-3 size-3.5 text-white/60"
-                        />
-                      )}
-                    </motion.button>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
-          </section>
-        </LayoutGroup>
-
-        {!hero && !ask && (
-          <p className="t-body py-5 text-white/70">
-            A little space for you. Ask Kate whenever you need a hand.
-          </p>
-        )}
-
-        <section className="app-chips" aria-label="Suggestions for Kate">
-          {home.chips.map((id) => (
-            <button
-              type="button"
-              key={id}
-              className="app-chip t-small"
-              onClick={() => {
-                setOverlay({ kind: "kate" });
-                void kate.ask(CHIP_POOL[id]);
-              }}
-            >
-              <Icon name="sparkle" className="size-4 shrink-0" />
-              {CHIP_POOL[id]}
-            </button>
-          ))}
-        </section>
-
-        {(home.more.length > 0 || home.moreQuestions.length > 0) && (
-          <details className="app-more">
-            <summary className="tap t-small cursor-pointer content-center">
-              More for you ({home.more.length + home.moreQuestions.length})
-            </summary>
-            <div className="grid gap-1">
-              {home.more.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  className="tap t-body flex items-center gap-3 rounded-xl px-2 text-left hover:bg-white/5"
-                  onClick={() => openWidget(s.id)}
-                >
-                  <Icon name={WIDGET_META[s.id].icon} />
-                  {WIDGET_META[s.id].title}
-                </button>
-              ))}
-              {home.moreQuestions.map((q) => (
-                <button
-                  key={q.need}
-                  type="button"
-                  className="tap t-body rounded-xl px-2 text-left hover:bg-white/5"
-                  onClick={() => setOverlay({ kind: "question", need: q.need })}
-                >
-                  {q.question}
-                </button>
-              ))}
-            </div>
-          </details>
-        )}
-        {hiddenCount > 0 && (
-          <button
-            type="button"
-            className="tap t-small mt-2 w-full rounded-xl text-white/70 hover:bg-white/5"
-            onClick={onUnhideAll}
-          >
-            Show {hiddenCount} hidden {hiddenCount === 1 ? "item" : "items"}
-          </button>
-        )}
-      </div>
-      <div className="app-dock shrink-0 p-3">
-        <button
-          data-kate-trigger
-          type="button"
-          className="app-kate tap t-body"
-          aria-haspopup="dialog"
-          onClick={() => setOverlay({ kind: "kate" })}
-        >
-          <span className="app-kate-orb" aria-hidden="true" />
-          <span className="flex-1">Ask Kate anything…</span>
-          <Icon name="sparkle" />
-        </button>
-      </div>
-      {overlay && (
-        <DetailSheet
-          key={overlay.kind}
-          title={
-            overlay.kind === "kate"
-              ? "Kate"
-              : overlay.kind === "question"
-                ? "A quick question"
-                : "Your overview"
-          }
-          onClose={() => setOverlay(null)}
-        >
-          {overlay.kind === "kate" && (
-            <KateChat
-              messages={kate.messages}
-              busy={kate.busy}
-              onSend={(message) => {
-                void kate.ask(message);
-              }}
-              onOpen={openWidget}
-            />
-          )}
-          {question && (
-            <div className="space-y-4 p-2">
-              <h3 className="t-title text-navy">{question.question}</h3>
-              <details className="t-small text-navy/80">
-                <summary className="tap cursor-pointer content-center">
-                  Why am I seeing this?
-                </summary>
-                <ul className="list-disc space-y-2 pl-4">
-                  {question.reasons.map((r) => (
-                    <li key={r}>{r}</li>
-                  ))}
-                </ul>
-                <p className="mt-2">This is a possibility, not a conclusion.</p>
-              </details>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  onClick={() => {
-                    onAnswer(question.need, true);
-                    setOverlay(null);
+                      Yes
+                    </Button>
+                    <Button
+                      tone="secondary"
+                      onClick={() => {
+                        onAnswer(question.need, false);
+                        close();
+                      }}
+                    >
+                      Not relevant
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {slot && Widget && (
+                <WidgetCard
+                  key={slot.id}
+                  slot={slot}
+                  isNew={false}
+                  onTogglePin={() => onTogglePin(slot.id)}
+                  onHide={() => {
+                    onHide(slot.id);
+                    close();
                   }}
                 >
-                  Yes
-                </Button>
-                <Button
-                  tone="secondary"
-                  onClick={() => {
-                    onAnswer(question.need, false);
-                    setOverlay(null);
-                  }}
-                >
-                  Not relevant
-                </Button>
-              </div>
-            </div>
-          )}
-          {slot && Widget && (
-            <WidgetCard
-              key={slot.id}
-              slot={slot}
-              isNew={false}
-              onTogglePin={() => onTogglePin(slot.id)}
-              onHide={() => {
-                onHide(slot.id);
-                setOverlay(null);
-              }}
-            >
-              <Widget
-                profile={profile}
-                variant={slot.variant}
-                density={config.density}
-              />
-            </WidgetCard>
-          )}
-        </DetailSheet>
-      )}
+                  <Widget
+                    profile={profile}
+                    variant={slot.variant}
+                    density={config.density}
+                  />
+                </WidgetCard>
+              )}
+            </motion.div>
+          </DetailSheet>
+        )}
+      </LayoutGroup>
     </div>
   );
 }

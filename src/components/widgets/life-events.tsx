@@ -6,7 +6,13 @@ import { formatEur } from "@/lib/format";
 import { Button, Icon, Progress, ProposedBadge } from "../ui";
 import { type WidgetProps, within } from "./types";
 
-function Checklist({ items, label }: { items: string[]; label: string }) {
+export function Checklist({
+  items,
+  label,
+}: {
+  items: string[];
+  label: string;
+}) {
   const [done, setDone] = useState<string[]>([]);
   const toggle = (item: string) =>
     setDone((d) =>

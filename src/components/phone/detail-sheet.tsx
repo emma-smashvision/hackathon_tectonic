@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useDragControls, useReducedMotion } from "motion/react";
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { Icon } from "../ui";
 
 /** Native modal dialog supplies inert background, focus containment and Escape. */
@@ -9,10 +9,13 @@ export function DetailSheet({
   title,
   onClose,
   children,
+  strip,
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  /** Optional compact row shown above the sheet, e.g. the bubble strip. */
+  strip?: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -20,7 +23,9 @@ export function DetailSheet({
   close.current = onClose;
   const reduced = useReducedMotion();
   const drag = useDragControls();
-  useEffect(() => {
+  // Layout effect: the dialog is open and positioned before shared-layout
+  // animations measure it on the next frame.
+  useLayoutEffect(() => {
     const element = dialog.current;
     const phone = element?.closest(".phone");
     if (!element || !phone) return;
@@ -87,11 +92,16 @@ export function DetailSheet({
         tabIndex={-1}
         onClick={onClose}
       />
+      {strip}
       <motion.section
         className="detail-sheet"
-        initial={{ y: reduced ? 0 : 80, opacity: 0 }}
+        initial={{ y: reduced ? 0 : 140, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: reduced ? 0 : 0.25 }}
+        transition={
+          reduced
+            ? { duration: 0 }
+            : { type: "spring", stiffness: 340, damping: 30, mass: 0.9 }
+        }
         drag={reduced ? false : "y"}
         dragControls={drag}
         dragListener={false}

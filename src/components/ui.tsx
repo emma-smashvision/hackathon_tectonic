@@ -106,7 +106,14 @@ type IconName =
   | "play"
   | "pause"
   | "sliders"
-  | "trophy";
+  | "trophy"
+  | "map"
+  | "signal"
+  | "umbrella"
+  | "arrows"
+  | "doc"
+  | "piggy"
+  | "key";
 
 const PATHS: Record<IconName, ReactNode> = {
   info: (
@@ -196,6 +203,38 @@ const PATHS: Record<IconName, ReactNode> = {
   sliders: <path d="M4 7h10M18 7h2M4 17h4M12 17h8M16 5v4M10 15v4" />,
   sparkle: (
     <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z" />
+  ),
+  map: (
+    <>
+      <path d="M9 4L3 6.5v13.5L9 17.5l6 2.5 6-2.5V4l-6 2.5L9 4z" />
+      <path d="M9 4v13.5M15 6.5V20" />
+    </>
+  ),
+  signal: <path d="M5 20v-3M10 20v-7M15 20V9M20 20V4" />,
+  umbrella: (
+    <>
+      <path d="M3 12a9 9 0 0 1 18 0H3z" />
+      <path d="M12 12v6a2 2 0 0 1-4 0M12 3v1" />
+    </>
+  ),
+  arrows: <path d="M4 8h14l-3-3M20 16H6l3 3" />,
+  doc: (
+    <>
+      <path d="M7 3h7l4 4v14H7V3z" />
+      <path d="M14 3v4h4M10 12h5M10 16h5" />
+    </>
+  ),
+  piggy: (
+    <>
+      <path d="M5 11.5C5 8.5 8 6.5 12 6.5c1.2 0 2.3.2 3.3.5L18 5.5V9c1 .8 1.6 1.7 1.9 2.5H21v3h-1.4a6 6 0 0 1-1.6 2V19h-3v-1.3a9 9 0 0 1-3 .3 8 8 0 0 1-2-.3V19H7v-2.2c-1.3-1.2-2-2.9-2-5.3z" />
+      <path d="M15.5 10.5h.01" />
+    </>
+  ),
+  key: (
+    <>
+      <circle cx="8" cy="15" r="4" />
+      <path d="M11 12l8-8M16 7l2 2M14 9l1.5 1.5" />
+    </>
   ),
 };
 
