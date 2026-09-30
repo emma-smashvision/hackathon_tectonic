@@ -20,6 +20,8 @@ function tx(
   return { id, date: daysAgo(ago), merchant, amount, category, ...extra };
 }
 
+const debit = { directDebit: true };
+
 const QUIET_BEHAVIOUR: BehaviourSignals = {
   widgetTaps: {},
   zoomUsage: 0,
@@ -63,10 +65,20 @@ export const PERSONAS: Persona[] = [
         }),
         tx("j2", 4, "Delhaize Brugge", -61.2, "groceries", { city: "Brugge" }),
         tx("j3", 29, "Federale Pensioendienst", 1_890, "pension_income"),
-        tx("j4", 9, "Luminus", -94, "utilities"),
+        tx("j4", 9, "Luminus", -94, "utilities", debit),
         tx("j5", 12, "Transfer to Lieve (granddaughter)", -50, "transfer"),
         tx("j6", 59, "Federale Pensioendienst", 1_890, "pension_income"),
-        tx("j7", 40, "Luminus", -94, "utilities"),
+        tx("j7", 40, "Luminus", -94, "utilities", debit),
+        tx("j8", 5, "Proximus", -46.99, "subscription", debit),
+        tx("j9", 35, "Proximus", -34.99, "subscription", debit),
+        tx("j10", 15, "Farys water", -38, "utilities", debit),
+        tx("j11", 45, "Farys water", -38, "utilities", debit),
+        tx("j12", 18, "Telenet TV", -42, "subscription", debit),
+        tx("j13", 48, "Telenet TV", -42, "subscription", debit),
+        tx("j14", 21, "Ethias home insurance", -31.5, "insurance", debit),
+        tx("j15", 51, "Ethias home insurance", -31.5, "insurance", debit),
+        tx("j16", 11, "Het Nieuwsblad", -29, "subscription", debit),
+        tx("j17", 41, "Het Nieuwsblad", -29, "subscription", debit),
       ],
       behaviour: {
         ...QUIET_BEHAVIOUR,
@@ -104,6 +116,10 @@ export const PERSONAS: Persona[] = [
         portfolioValue: 0,
         monthlyNetIncome: 3_300,
         advisorName: "Els Martens",
+        currencies: [
+          { code: "GBP", amount: 420, rate: 0.84 },
+          { code: "USD", amount: 310, rate: 1.09 },
+        ],
       },
       transactions: [
         tx("jn1", 2, "Delhaize Hasselt", -54.8, "groceries", {
@@ -194,6 +210,27 @@ export const PERSONAS: Persona[] = [
         portfolioValue: 0,
         monthlyNetIncome: 5_300,
         advisorName: "Leen Wouters",
+        appointments: [
+          {
+            id: "a1",
+            title: "Mortgage advisor meeting",
+            when: "Thu 1 Oct, 10:00",
+            where: "KBC Mechelen",
+          },
+          {
+            id: "a2",
+            title: "Second viewing, Kerkstraat 12",
+            when: "Sat 3 Oct, 14:00",
+            where: "Immo Dewaele",
+          },
+          {
+            id: "a3",
+            title: "Intro with the estate agent",
+            when: "Mon 21 Sep",
+            where: "Immo Dewaele",
+            done: true,
+          },
+        ],
       },
       transactions: [
         tx("s1", 2, "Albert Heijn Mechelen", -86.4, "groceries", {
@@ -232,6 +269,11 @@ export const PERSONAS: Persona[] = [
         portfolioValue: 184_250,
         monthlyNetIncome: 5_150,
         advisorName: "Pieter Janssens",
+        holdings: [
+          { name: "Tech fund", value: 50_250, ytd: 0.18 },
+          { name: "World ETF", value: 92_000, ytd: 0.12 },
+          { name: "Bond fund", value: 42_000, ytd: -0.01 },
+        ],
       },
       transactions: [
         tx(
@@ -252,6 +294,7 @@ export const PERSONAS: Persona[] = [
         ),
         tx("k5", 33, "Tax prepayment Q3", -3_100, "tax"),
         tx("k6", 36, "Monthly investment plan", -500, "investment"),
+        tx("k9", 15, "Dividend — World ETF", 236, "investment"),
         tx("k7", 48, "Invoice 2026-028 — Havenlab", 8_900, "freelance_income"),
         tx(
           "k8",
@@ -287,6 +330,13 @@ export const PERSONAS: Persona[] = [
         portfolioValue: 420_800,
         monthlyNetIncome: 2_650,
         advisorName: "Katrien Maes",
+        holdings: [
+          { name: "World ETF", value: 160_200, ytd: 0.14 },
+          { name: "Euro Stoxx fund", value: 98_400, ytd: 0.06 },
+          { name: "Bond fund", value: 90_000, ytd: 0.02 },
+          { name: "Ageas", value: 30_200, ytd: 0.04 },
+          { name: "Solvay", value: 42_000, ytd: -0.09 },
+        ],
       },
       transactions: [
         tx("m1", 1, "Monthly investment plan", -1_000, "investment"),
@@ -332,6 +382,7 @@ export const PERSONAS: Persona[] = [
         portfolioValue: 0,
         monthlyNetIncome: 5_050,
         advisorName: "Sarah Claes",
+        teamSize: 2,
       },
       transactions: [
         tx("e1", 1, "Club-Mate & pizza, Gent", -64.5, "restaurant", {

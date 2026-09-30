@@ -129,6 +129,28 @@ export const INJECTIONS: SignalInjection[] = [
       }),
   },
   {
+    id: "duplicate",
+    label: "Duplicate payment detected",
+    group: "Transactions",
+    apply: (p) => {
+      const bill = p.transactions.find((t) => t.directDebit);
+      if (!bill) return p;
+      const next = new Date(`${bill.date}T00:00:00Z`);
+      next.setUTCDate(next.getUTCDate() + 1);
+      return {
+        ...p,
+        transactions: [
+          {
+            ...bill,
+            id: `live-${p.transactions.length + 1}-duplicate`,
+            date: next.toISOString().slice(0, 10),
+          },
+          ...p.transactions,
+        ],
+      };
+    },
+  },
+  {
     id: "newPayee",
     label: "€2,400 to a new payee",
     group: "Transactions",

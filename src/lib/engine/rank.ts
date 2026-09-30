@@ -42,6 +42,18 @@ export const WIDGET_RULES: Record<AdaptiveWidgetId, WidgetRule> = {
   },
   transactions: { base: 30, needs: {} },
   windfall: { base: 0, needs: { windfall: 110 } },
+  duplicatePayment: { base: 0, needs: { duplicatePayment: 130 } },
+  directDebits: { base: 0, needs: { directDebits: 50, simpleUi: 5 } },
+  fxAccounts: { base: 0, needs: { travel: 60 } },
+  esim: { base: 0, needs: { travel: 45 } },
+  atmMap: { base: 0, needs: { travel: 40 } },
+  appointments: { base: 0, needs: { homeBuying: 70 } },
+  houseTimeline: { base: 0, needs: { homeBuying: 60 } },
+  houseInsurance: { base: 0, needs: { homeBuying: 30 } },
+  performers: { base: 0, needs: { investor: 70 } },
+  dividends: { base: 0, needs: { investor: 45 } },
+  business: { base: 0, needs: { windfall: 60 } },
+  celebrate: { base: 0, needs: { windfall: 50 } },
 };
 
 const ADAPTIVE_WIDGETS = Object.keys(WIDGET_RULES) as AdaptiveWidgetId[];
@@ -67,6 +79,8 @@ const NEED_LABELS: Record<NeedId, string> = {
   newFixedCosts: "new fixed costs",
   paymentSafety: "payment safety",
   windfall: "deciding what to do with a one-off sum",
+  duplicatePayment: "a possible double payment",
+  directDebits: "your direct debits",
 };
 
 function round1(value: number): number {
