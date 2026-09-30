@@ -11,6 +11,7 @@
     "format": "biome format --write .",
     "typecheck": "next typegen && tsc --noEmit",
     "check": "bun run lint && bun run typecheck",
+    "test": "bun test",
     "deploy:configure": "node scripts/configure-vercel.mjs",
     "db:types": "supabase gen types typescript --linked > src/lib/supabase/database.types.ts",
     "db:push": "supabase db push",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
     "@tailwindcss/postcss": "^4",
+    "@types/bun": "^1.4.2",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
