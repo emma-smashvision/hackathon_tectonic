@@ -2,6 +2,7 @@
 
 import { animate, motion, useReducedMotion } from "motion/react";
 import { type CSSProperties, useEffect, useState } from "react";
+import { bubbleMetric } from "@/lib/engine/present";
 import type { AdaptiveWidgetId, Profile } from "@/lib/engine/types";
 import { formatEur } from "@/lib/format";
 import { Icon } from "../ui";
@@ -23,6 +24,18 @@ export const ACCENTS: Record<AdaptiveWidgetId, string> = {
   paymentCheck: "#f87171",
   advisor: "#22d3ee",
   transactions: "#94a3b8",
+  duplicatePayment: "#fbbf24",
+  directDebits: "#60a5fa",
+  fxAccounts: "#38bdf8",
+  atmMap: "#2dd4bf",
+  esim: "#a78bfa",
+  appointments: "#3ddc97",
+  houseTimeline: "#34d399",
+  houseInsurance: "#22d3ee",
+  performers: "#34d399",
+  dividends: "#a3e635",
+  business: "#f472b6",
+  celebrate: "#f5b73b",
 };
 
 type Visual =
@@ -234,12 +247,22 @@ export function heroFor(id: AdaptiveWidgetId, profile: Profile): Hero {
         cta: "See all",
       };
     }
+    default: {
+      const metric = bubbleMetric(id, profile);
+      return {
+        kicker: WIDGET_META[id].title,
+        figure: metric.value,
+        caption: metric.label,
+        visual: { kind: "none" },
+        cta: "Open",
+      };
+    }
   }
 }
 
 function CountUp({ value }: { value: number }) {
   const reduced = useReducedMotion();
-  const [shown, setShown] = useState(reduced ? value : 0);
+  const [shown, setShown] = useState(0);
   useEffect(() => {
     if (reduced) {
       setShown(value);
