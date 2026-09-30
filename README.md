@@ -45,7 +45,7 @@ For animations, import from `motion/react` in a `"use client"` component, or `mo
 
 ## Supabase (connected)
 
-The hosted project **SmashVision x SuperiorSwarm** (`riejgyofzdvrkpwbuyab`, eu-central-1) is live and linked. The CLI is linked for migrations and type generation, and `src/lib/supabase/database.types.ts` is generated and committed. It has no tables yet.
+The hosted project **SmashVision x SuperiorSwarm** (`riejgyofzdvrkpwbuyab`, eu-central-1) is set up. Emma verified database access and committed `src/lib/supabase/database.types.ts`; the browser, server, and proxy clients use these types. It has no application tables yet. CLI linking is local to each checkout and is not included in Git.
 
 Each developer still needs their own `.env.local`, since it is git-ignored. The steps below cover that and describe the original setup for reference.
 
@@ -72,7 +72,7 @@ Linking lets migration and type-generation commands find the hosted database. It
 
 ```sh
 bunx supabase login
-bunx supabase link --project-ref YOUR_PROJECT_REF
+bunx supabase link --project-ref riejgyofzdvrkpwbuyab
 ```
 
 Enter the database password if prompted. On macOS, allow the Supabase CLI's Keychain prompt when it reads your saved login.
@@ -84,6 +84,16 @@ bunx supabase db query --linked 'select 1 as connected;'
 ```
 
 ### 4. Connect Vercel
+
+With both Supabase values saved in `.env.local` and the Vercel CLI logged in, run:
+
+```sh
+bun run deploy:configure
+```
+
+This reads only the two public Supabase values from `.env.local`, verifies them against Supabase, adds or updates them in Development, Preview, and Production for `hackathon-tectonic`, then deploys to production. It stops before changing Vercel if the credential check fails. It requires Node.js 24, Bun, and network access. It never uploads the other values in `.env.local` as Vercel environment variables.
+
+For manual setup:
 
 In the [Vercel project settings](https://vercel.com/thomas-projects-18c8a57b/hackathon-tectonic/settings/environment-variables), add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` with the same values. Select **Development**, **Preview**, and **Production** for both. Using one database across environments is sufficient for this starter; use separate projects later if you need isolation.
 
@@ -97,7 +107,7 @@ If you add Supabase Auth later, set its **Authentication â†’ URL Configuration â
 
 ### 5. Add schema when needed
 
-Once the challenge is known, create migrations with `bunx supabase migration new NAME`, write SQL in the generated file, and apply it with `bun run db:push`. Run `bun run db:types` and pass the generated `Database` type to the Supabase client factories when adding typed queries.
+Once the challenge is known, create migrations with `bunx supabase migration new NAME`, write SQL in the generated file, and apply it with `bun run db:push`. Run `bun run db:types` after schema changes; the Supabase client factories already use the generated `Database` type.
 
 Enable row-level security on tables exposed through the API and add policies for the access your app needs.
 
@@ -131,8 +141,8 @@ Web Analytics is enabled. The Speed Insights component is mounted, but the activ
 - Production: https://hackathon-tectonic.vercel.app
 - Vercel project: https://vercel.com/thomas-projects-18c8a57b/hackathon-tectonic
 - Local lint, TypeScript, production build, and live HTTP checks passed.
-- Supabase is connected. Project `riejgyofzdvrkpwbuyab` is linked, `db query --linked` and `bun run db:types` both succeed, and the proxy performs live session refresh. No tables or seed data have been created yet.
-- The Supabase environment variables are **not yet on Vercel**. The deployed site runs without them until they are added to the `thomas-projects-18c8a57b/hackathon-tectonic` project and it is redeployed.
+- Supabase project `riejgyofzdvrkpwbuyab` was verified by Emma. Local app configuration uses `.env.local`; CLI linking must be done per checkout. No application tables or seed data have been created yet.
+- The Supabase URL and publishable key are configured in Vercel Development, Preview, and Production and verified against Supabase. Run `bun run deploy:configure` when updating these values; a production rebuild is required for changes to take effect.
 - Vercel could not connect the private GitHub repository. Grant the Vercel GitHub integration access to `VrolixThomas/hackathon_tectonic`, then connect it in the project's Git settings to enable automatic deployments. CLI deployment already works.
 - Speed Insights activation is pending resolution of Vercel's plan restriction. No plan changes have been made.
 
