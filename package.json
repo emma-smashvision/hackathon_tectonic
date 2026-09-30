@@ -5,13 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "bunx serve out",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "typecheck": "next typegen && tsc --noEmit",
     "check": "bun run lint && bun run typecheck",
-    "deploy:configure": "node scripts/configure-vercel.mjs",
     "db:types": "supabase gen types typescript --linked > src/lib/supabase/database.types.ts",
     "db:push": "supabase db push",
     "db:check": "node scripts/check-entries.mjs"
@@ -19,13 +18,10 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
     "motion": "^13.4.6",
     "next": "16.3.7",
     "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "server-only": "^0.0.1"
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
