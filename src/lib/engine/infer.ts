@@ -36,6 +36,7 @@ const QUESTIONS: Record<NeedId, string> = {
   retirement: "Want to keep an eye on your pension?",
   newFixedCosts: "New monthly costs — want a budget check?",
   paymentSafety: "Want us to double-check a payment?",
+  windfall: "Some extra money came in — want a few ideas?",
 };
 
 export function questionFor(need: NeedId): string {
@@ -301,6 +302,17 @@ function inferPaymentSafety(profile: Profile): Need | null {
   return need("paymentSafety", "inferred", evidence);
 }
 
+/** A one-off sum (a prize, not a salary) deserves a moment of thought. */
+function inferWindfall(profile: Profile): Need | null {
+  const evidence = ofCategory(recent(profile, 30), "prize")
+    .filter((tx) => tx.amount >= 1000)
+    .map((tx) => ({
+      weight: 0.9,
+      reason: `One-off ${formatEur(tx.amount)} received: ${tx.merchant}`,
+    }));
+  return need("windfall", "inferred", evidence);
+}
+
 const RULES: ((profile: Profile) => Need | null)[] = [
   inferHomeBuying,
   inferMoving,
@@ -311,6 +323,7 @@ const RULES: ((profile: Profile) => Need | null)[] = [
   inferRetirement,
   inferNewFixedCosts,
   inferPaymentSafety,
+  inferWindfall,
 ];
 
 /** Derive needs purely from signals, before customer decisions. */

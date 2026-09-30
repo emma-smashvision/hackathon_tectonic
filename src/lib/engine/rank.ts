@@ -38,9 +38,10 @@ export const WIDGET_RULES: Record<AdaptiveWidgetId, WidgetRule> = {
   paymentCheck: { base: 0, needs: { paymentSafety: 110, simpleUi: 25 } },
   advisor: {
     base: 20,
-    needs: { homeBuying: 30, simpleUi: 30, retirement: 10 },
+    needs: { homeBuying: 30, simpleUi: 30, retirement: 10, windfall: 20 },
   },
   transactions: { base: 30, needs: {} },
+  windfall: { base: 0, needs: { windfall: 110 } },
 };
 
 const ADAPTIVE_WIDGETS = Object.keys(WIDGET_RULES) as AdaptiveWidgetId[];
@@ -65,6 +66,7 @@ const NEED_LABELS: Record<NeedId, string> = {
   retirement: "your pension",
   newFixedCosts: "new fixed costs",
   paymentSafety: "payment safety",
+  windfall: "deciding what to do with a one-off sum",
 };
 
 function round1(value: number): number {

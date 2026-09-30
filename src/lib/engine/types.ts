@@ -17,7 +17,8 @@ export type AdaptiveWidgetId =
   | "pension"
   | "paymentCheck"
   | "advisor"
-  | "transactions";
+  | "transactions"
+  | "windfall";
 
 export type WidgetId = CoreWidgetId | AdaptiveWidgetId;
 
@@ -39,6 +40,7 @@ export type TxCategory =
   | "foreign_card"
   | "investment"
   | "tax"
+  | "prize"
   | "transfer";
 
 export interface Transaction {
@@ -113,7 +115,8 @@ export type NeedId =
   | "simpleUi"
   | "retirement"
   | "newFixedCosts"
-  | "paymentSafety";
+  | "paymentSafety"
+  | "windfall";
 
 export type NeedSource = "declared" | "inferred" | "behaviour";
 

@@ -33,6 +33,7 @@ const NEED_IDS = [
   "retirement",
   "newFixedCosts",
   "paymentSafety",
+  "windfall",
 ];
 export function isWidgetId(value: unknown): value is AdaptiveWidgetId {
   return typeof value === "string" && Object.hasOwn(WIDGET_RULES, value);
@@ -145,6 +146,17 @@ export function fallbackReply(
     source: "offline",
     ...(open && context.widgets.some((w) => w.id === open) ? { open } : {}),
   });
+  if (/prize|10k|10,000|10\.000|won|windfall|what can we do/.test(q)) {
+    const prize = context.recentTransactions.find(
+      (t) => t.category === "prize",
+    );
+    return reply(
+      prize
+        ? `Congratulations! ${formatEur(prize.amount)} came in from ${prize.merchant}. There is no rush. You could set part aside for a holiday, top up your buffer, or explore investing with ${p.advisorName}. I cannot recommend investments; the split is yours to choose.`
+        : "There is no recent one-off prize in the available data.",
+      "windfall",
+    );
+  }
   if (/invest|portfolio|stock|buy.*shares|sell|crypto/.test(q))
     return reply(
       `Your portfolio value is ${f.portfolio}. I can explain your overview, but cannot recommend investments or buying or selling. Talk to ${p.advisorName} for investment decisions.`,

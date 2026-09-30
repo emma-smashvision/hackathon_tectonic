@@ -6,7 +6,7 @@ import { Button, Icon, Progress } from "../ui";
 import { addDays, daysSince, type WidgetProps, within } from "./types";
 
 /** Deterministic synthetic price history, so renders are stable. */
-function history(value: number, points = 30): number[] {
+export function history(value: number, points = 30): number[] {
   return Array.from({ length: points }, (_, i) => {
     const t = i / (points - 1);
     const wave = Math.sin(i * 0.9) * 0.012 + Math.sin(i * 0.31) * 0.02;
@@ -103,7 +103,7 @@ function nextDeadline(today: string): string {
   return `${year + 1}-04-10`;
 }
 
-const RESERVE_RATE = 0.4;
+export const RESERVE_RATE = 0.4;
 
 export function TaxReserveWidget({ profile, variant }: WidgetProps) {
   const income = within(profile.transactions, profile.today, 90).filter(

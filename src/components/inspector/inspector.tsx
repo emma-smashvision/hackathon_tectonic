@@ -30,6 +30,7 @@ const NEED_NAMES: Record<NeedId, string> = {
   retirement: "Retirement income",
   newFixedCosts: "New fixed costs",
   paymentSafety: "Payment safety",
+  windfall: "One-off windfall",
 };
 
 const SOURCE_STYLE: Record<NeedSource, string> = {

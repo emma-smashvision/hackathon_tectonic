@@ -41,6 +41,7 @@ export const CHIP_POOL = {
   advisor: "Call my advisor",
   travel: "What about my trip?",
   investments: "Show my portfolio",
+  windfall: "What can we do with the €10k?",
 } as const;
 export type ChipId = keyof typeof CHIP_POOL;
 
@@ -111,6 +112,13 @@ export function bubbleMetric(id: AdaptiveWidgetId, profile: Profile) {
       return { label: "Your advisor", value: c.advisorName.split(" ")[0] };
     case "transactions":
       return { label: "Activity", value: `${recent.length} payments` };
+    case "windfall": {
+      const prize = recent.find((t) => t.category === "prize");
+      return {
+        label: "Your prize",
+        value: prize ? formatEur(prize.amount) : "3 ideas",
+      };
+    }
   }
 }
 
@@ -126,6 +134,7 @@ export function selectChips(config: HomepageConfig): ChipId[] {
     config.adaptive.some((s) => s.id === id) ||
     config.questions.some((q) => q.need === id);
   const candidates: ChipId[] = [];
+  if (relevant("windfall")) candidates.push("windfall");
   if (relevant("homeBuying")) candidates.push("house");
   if (relevant("travel")) candidates.push("travel");
   if (relevant("paymentCheck")) candidates.push("safety");
@@ -138,6 +147,8 @@ export function selectChips(config: HomepageConfig): ChipId[] {
 
 export function narrative(profile: Profile, config: HomepageConfig): string {
   const name = profile.customer.firstName;
+  if (config.adaptive.some((s) => s.id === "windfall"))
+    return `Congratulations, ${name}! No rush — here are a few ways to make that prize work for you.`;
   if (config.adaptive.some((s) => s.id === "moving"))
     return `${name}, your move is taking shape — your checklist and money are here together.`;
   if (config.adaptive.some((s) => s.id === "homeBuying"))

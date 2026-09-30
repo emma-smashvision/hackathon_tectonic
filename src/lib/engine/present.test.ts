@@ -36,7 +36,7 @@ describe("glanceable presentation", () => {
   });
   test("simple mode caps bubbles including questions, even with many pins", () => {
     const profile = getInjection("ikea").apply(
-      getInjection("flight").apply(getPersona("jana").profile),
+      getInjection("flight").apply(getPersona("margaret").profile),
     );
     const { config } = runEngine(profile, {
       ...EMPTY_DECISIONS,
@@ -66,7 +66,7 @@ describe("glanceable presentation", () => {
       expect(config.core).toEqual(["balance", "quickPay"]);
     }
     expect(home("sofie").home.chips).toContain("house");
-    expect(home("jana", "flight").home.chips).toContain("travel");
+    expect(home("margaret", "flight").home.chips).toContain("travel");
   });
   test("figures use profile data and sizing follows score, not pin order", () => {
     expect(bubbleMetric("homeBuying", getPersona("sofie").profile).value).toBe(

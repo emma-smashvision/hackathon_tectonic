@@ -13,7 +13,8 @@
       "!.next",
       "!dist",
       "!build",
-      "!src/lib/supabase/database.types.ts"
+      "!src/lib/supabase/database.types.ts",
+      "!public/characters"
     ]
   },
   "formatter": {

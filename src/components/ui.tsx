@@ -101,7 +101,12 @@ type IconName =
   | "list"
   | "send"
   | "qr"
-  | "sparkle";
+  | "sparkle"
+  | "user"
+  | "play"
+  | "pause"
+  | "sliders"
+  | "trophy";
 
 const PATHS: Record<IconName, ReactNode> = {
   info: (
@@ -174,6 +179,21 @@ const PATHS: Record<IconName, ReactNode> = {
       <path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2" />
     </>
   ),
+  user: (
+    <>
+      <circle cx="12" cy="8.5" r="3.5" />
+      <path d="M5 20a7 7 0 0 1 14 0" />
+    </>
+  ),
+  trophy: (
+    <>
+      <path d="M8 4h8v5a4 4 0 0 1-8 0V4z" />
+      <path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4v3h-4z" />
+    </>
+  ),
+  play: <path d="M8 5.5v13l10-6.5-10-6.5z" />,
+  pause: <path d="M8 5v14M16 5v14" />,
+  sliders: <path d="M4 7h10M18 7h2M4 17h4M12 17h8M16 5v4M10 15v4" />,
   sparkle: (
     <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z" />
   ),
