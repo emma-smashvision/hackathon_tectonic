@@ -261,3 +261,23 @@ describe("everyday care for Margaret", () => {
     );
   });
 });
+
+describe("live transactions move the balance", () => {
+  test("the €10,000 prize lands in Emma's current account", () => {
+    const before = getPersona("emma").profile.customer.balance;
+    expect(profileOf("emma", "prize").customer.balance).toBe(before + 10_000);
+  });
+
+  test("spending and a duplicate bill lower the balance", () => {
+    const tom = getPersona("tom").profile.customer.balance;
+    expect(profileOf("tom", "ikea").customer.balance).toBeCloseTo(tom - 349, 2);
+    const margaret = getPersona("margaret").profile;
+    const bill = margaret.transactions.find((t) => t.directDebit);
+    if (bill) {
+      expect(profileOf("margaret", "duplicate").customer.balance).toBeCloseTo(
+        margaret.customer.balance + bill.amount,
+        2,
+      );
+    }
+  });
+});
