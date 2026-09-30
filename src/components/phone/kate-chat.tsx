@@ -7,7 +7,9 @@ import {
   fallbackReply,
   isWidgetId,
   type KateReply,
+  MAX_HISTORY,
   MAX_MESSAGE,
+  MAX_REPLY,
 } from "@/lib/kate/context";
 import { Button, Icon } from "../ui";
 import { WIDGET_META } from "../widgets/registry";
@@ -44,6 +46,9 @@ export function useKate(
     const request = new AbortController();
     controller.current = request;
     const context = buildKateContext(profile, decisions);
+    const history = messages
+      .slice(-MAX_HISTORY)
+      .map(({ role, text }) => ({ role, text }));
     setMessages((old) => [
       ...old.slice(-19),
       { id: ++seq.current, role: "user", text: message },
@@ -54,8 +59,14 @@ export function useKate(
       const response = await fetch("/api/kate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, personaId, signals, decisions }),
-        signal: AbortSignal.any([request.signal, AbortSignal.timeout(9000)]),
+        body: JSON.stringify({
+          message,
+          personaId,
+          signals,
+          decisions,
+          history,
+        }),
+        signal: AbortSignal.any([request.signal, AbortSignal.timeout(17_000)]),
       });
       if (response.ok) {
         const data: unknown = await response.json();
@@ -64,7 +75,7 @@ export function useKate(
           typeof data === "object" &&
           "text" in data &&
           typeof data.text === "string" &&
-          data.text.length <= 1800
+          data.text.length <= MAX_REPLY
         ) {
           reply = {
             text: data.text,
