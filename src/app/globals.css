@@ -1123,22 +1123,44 @@ body {
 
 .bubble-strip {
   position: absolute;
-  top: 44px;
+  top: 56px;
   left: 0;
   right: 0;
   z-index: 1;
   display: flex;
-  justify-content: safe center;
+  justify-content: flex-start;
   gap: 8px;
-  padding: 0 12px;
+  padding: 6px 16px;
+  scroll-padding-inline: 16px;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
+.bubble-strip[data-overflow="false"] {
+  justify-content: center;
+}
+.bubble-strip[data-fade-start="true"] {
+  mask-image: linear-gradient(to right, transparent, black 12px);
+}
+.bubble-strip[data-fade-end="true"] {
+  mask-image: linear-gradient(to left, transparent, black 12px);
+}
+.bubble-strip[data-fade-start="true"][data-fade-end="true"] {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 12px,
+    black calc(100% - 12px),
+    transparent
+  );
+}
 .bubble-strip-item {
   display: flex;
-  min-height: 40px;
-  max-width: 9rem;
+  height: max(44px, var(--tap));
+  max-width: min(15rem, calc(100% - 32px));
+  scroll-snap-align: start;
   flex-shrink: 0;
   align-items: center;
   gap: 6px;
@@ -1146,8 +1168,8 @@ body {
   border-radius: 999px;
   border: 1px solid #ffffff2e;
   background: #0b1424d9;
-  color: #ffffff8c;
-  font-size: 0.75rem;
+  color: #ffffffd9;
+  font-size: var(--t-small);
   font-weight: 500;
   backdrop-filter: blur(10px);
 }
@@ -1183,6 +1205,12 @@ body {
   overflow: hidden;
   color: #003665;
 }
+.phone-dialog-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#070b14b3, #070b14f5 56px, #070b14d9);
+  backdrop-filter: blur(12px);
+}
 .phone-dialog::backdrop {
   background: #00366512;
 }
@@ -1197,6 +1225,126 @@ body {
   border-radius: 28px 28px 0 0;
   box-shadow: 0 -8px 40px #00366524;
   padding-bottom: 12px;
+}
+.phone-dialog[data-has-strip="true"] .detail-sheet {
+  max-height: calc(100% - 56px - max(44px, var(--tap)) - 24px);
+}
+.phone .money-flow {
+  display: grid;
+  gap: 14px;
+  padding: 8px;
+  font-size: var(--t-body);
+  line-height: 1.45;
+}
+.phone .money-heading {
+  font-size: var(--t-title);
+  font-weight: 700;
+}
+.phone .money-demo {
+  padding: 10px 12px;
+  background: #e5f5fc;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.phone .money-flow form,
+.phone .money-options {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.phone .money-flow label {
+  font-weight: 600;
+}
+.phone .money-flow input,
+.phone .money-flow select,
+.phone .money-flow button {
+  min-width: 0;
+  width: 100%;
+  min-height: max(44px, var(--tap));
+  border: 1px solid #00366540;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  color: #003665;
+  background: #f5f8fa;
+}
+.phone .money-flow button {
+  cursor: pointer;
+  font-weight: 600;
+}
+.phone .money-flow button:hover {
+  background: #e5f5fc;
+}
+.phone .money-flow .money-primary {
+  background: #003665;
+  color: white;
+}
+.phone .money-options button {
+  text-align: left;
+}
+.phone .money-option-hint {
+  display: block;
+  font-size: var(--t-small);
+  font-weight: 400;
+  margin-top: 4px;
+}
+.phone .money-flow .money-amount {
+  font-size: 1.75em;
+  font-variant-numeric: tabular-nums;
+}
+.phone .money-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.phone .money-hint {
+  font-size: var(--t-small);
+  overflow-wrap: anywhere;
+}
+.phone .money-error {
+  color: #a31d27;
+  font-weight: 600;
+}
+.phone .money-summary {
+  display: grid;
+  gap: 16px;
+}
+.phone .money-summary dt {
+  font-size: var(--t-small);
+}
+.phone .money-summary dd {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.phone .money-camera {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  padding: 16px;
+  border: 3px dashed #48728f;
+  border-radius: 20px;
+  background: #edf3f7;
+  text-align: center;
+}
+.phone .money-qr-symbol {
+  font-size: 90px;
+  line-height: 1.2;
+}
+.phone .money-success {
+  display: grid;
+  gap: 18px;
+  text-align: center;
+}
+.phone .money-success svg {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto;
+}
+.phone[data-density="simple"] .money-flow input,
+.phone[data-density="simple"] .money-flow select,
+.phone[data-density="simple"] .money-flow button {
+  min-height: 56px;
+  font-size: max(18px, var(--t-body));
 }
 @media (prefers-reduced-motion: reduce) {
   .phone *,

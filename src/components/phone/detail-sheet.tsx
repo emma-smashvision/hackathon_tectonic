@@ -63,6 +63,7 @@ export function DetailSheet({
       ref={dialog}
       aria-label={title}
       className="phone-dialog"
+      data-has-strip={Boolean(strip)}
       onKeyDown={(e) => {
         if (e.key !== "Tab") return;
         const items = [
@@ -87,7 +88,7 @@ export function DetailSheet({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-navy/25"
+        className="phone-dialog-scrim"
         aria-label="Dismiss overlay"
         tabIndex={-1}
         onClick={onClose}
