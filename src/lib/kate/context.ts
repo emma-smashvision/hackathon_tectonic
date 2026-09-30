@@ -11,12 +11,19 @@ import {
 import { formatEur } from "../format";
 
 export const MAX_MESSAGE = 600;
-export const MAX_PAYLOAD = 16_384;
+export const MAX_REPLY = 1800;
+export const MAX_HISTORY = 8;
+export const MAX_PAYLOAD = 32_768;
+export interface KateTurn {
+  role: "user" | "kate";
+  text: string;
+}
 export interface KateRequest {
   message: string;
   personaId: string;
   signals: string[];
   decisions: Decisions;
+  history: KateTurn[];
 }
 export interface KateReply {
   text: string;
@@ -39,12 +46,21 @@ export function isWidgetId(value: unknown): value is AdaptiveWidgetId {
   return typeof value === "string" && Object.hasOwn(WIDGET_RULES, value);
 }
 
+/** Drop control, zero-width and bidi-override characters used to hide injected text. */
+export function cleanText(text: string) {
+  return text
+    .normalize("NFKC")
+    .replace(/\p{Cc}/gu, " ") // control characters
+    .replace(/\p{Cf}/gu, "") // zero-width, bidi overrides, BOM
+    .trim();
+}
+
 export function parseKateRequest(value: unknown): KateRequest | null {
   if (!value || typeof value !== "object") return null;
   const v = value as Record<string, unknown>;
   if (
     typeof v.message !== "string" ||
-    !v.message.trim() ||
+    !cleanText(v.message) ||
     v.message.length > MAX_MESSAGE ||
     !PERSONAS.some((p) => p.id === v.personaId)
   )
@@ -72,8 +88,23 @@ export function parseKateRequest(value: unknown): KateRequest | null {
     })
   )
     return null;
+  const history = v.history ?? [];
+  if (
+    !Array.isArray(history) ||
+    history.length > MAX_HISTORY ||
+    !history.every(
+      (turn) =>
+        turn &&
+        typeof turn === "object" &&
+        (turn.role === "user" || turn.role === "kate") &&
+        typeof turn.text === "string" &&
+        cleanText(turn.text) &&
+        turn.text.length <= (turn.role === "user" ? MAX_MESSAGE : MAX_REPLY),
+    )
+  )
+    return null;
   return {
-    message: v.message.trim(),
+    message: cleanText(v.message),
     personaId: v.personaId as string,
     signals: v.signals as string[],
     decisions: {
@@ -82,6 +113,10 @@ export function parseKateRequest(value: unknown): KateRequest | null {
       declared: [...d.declared],
       dismissed: [...d.dismissed],
     },
+    history: history.map((turn: KateTurn) => ({
+      role: turn.role,
+      text: cleanText(turn.text),
+    })),
   };
 }
 

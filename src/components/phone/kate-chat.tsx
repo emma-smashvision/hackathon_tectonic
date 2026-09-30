@@ -6,7 +6,9 @@ import {
   buildKateContext,
   fallbackReply,
   type KateReply,
+  MAX_HISTORY,
   MAX_MESSAGE,
+  MAX_REPLY,
 } from "@/lib/kate/context";
 import { Button, Icon } from "../ui";
 import { WIDGET_META } from "../widgets/registry";
@@ -43,16 +45,54 @@ export function useKate(
     const request = new AbortController();
     controller.current = request;
     const context = buildKateContext(profile, decisions);
+    const history = messages
+      .slice(-MAX_HISTORY)
+      .map(({ role, text }) => ({ role, text }));
     setMessages((old) => [
       ...old.slice(-19),
       { id: ++seq.current, role: "user", text: message },
     ]);
     setBusy(true);
-    // Scripted answers only: the home is fully mocked, no model calls.
-    void personaId;
-    void signals;
-    const reply = fallbackReply(message, context);
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    let reply = fallbackReply(message, context);
+    try {
+      const response = await fetch("/api/kate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          personaId,
+          signals,
+          decisions,
+          history,
+        }),
+        signal: AbortSignal.any([request.signal, AbortSignal.timeout(17_000)]),
+      });
+      if (response.ok) {
+        const data: unknown = await response.json();
+        if (
+          data &&
+          typeof data === "object" &&
+          "text" in data &&
+          typeof data.text === "string" &&
+          data.text.length <= MAX_REPLY
+        ) {
+          reply = {
+            text: data.text,
+            source:
+              "source" in data && data.source === "claude"
+                ? "claude"
+                : "offline",
+            ...("open" in data &&
+            isWidgetId(data.open) &&
+            !decisions.hidden.includes(data.open)
+              ? { open: data.open }
+              : {}),
+          };
+        }
+      }
+    } catch {
+      /* Offline and timeouts use the same deterministic responder. */
+    }
     if (request.signal.aborted) return;
     setMessages((old) => [
       ...old,
