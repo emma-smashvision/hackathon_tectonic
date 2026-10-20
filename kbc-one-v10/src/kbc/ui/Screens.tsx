@@ -15,7 +15,8 @@ import { YOURS_LIMIT } from "../compose";
 import { eur } from "../format";
 import { Icon } from "./icons";
 // v7-kate: preview UI stays in its own component.
-import { KatePreview, KATE_QUICK_CHIPS } from "./KatePreview";
+import { KatePreview } from "./KatePreview";
+import type { KateThread } from "./kateThreads";
 
 const SCORE_STEP = { later: 2, now: 3, urgent: 4 } as const;
 
@@ -274,29 +275,33 @@ export function Rich({ text }: { text: string }) {
 }
 
 export function KateSheet({
+  threadId,
+  threads,
+  onSelectThread,
+  onNewChat,
   messages,
   busy,
   context,
   onSend,
   onApply,
   onClose,
-  onClear,
   onStop,
   onDropContext,
   suggestions,
-  looks,
 }: {
+  threadId: string;
+  threads: KateThread[];
+  onSelectThread: (id: string) => void;
+  onNewChat: () => void;
   messages: ChatMsg[];
   busy: boolean;
   context: Placed | null;
   onSend: (text: string) => void;
   onApply: (p: Proposal, id: number) => void | Promise<void>;
   onClose: () => void;
-  onClear: () => void;
   onStop: () => void;
   onDropContext: () => void;
   suggestions: string[];
-  looks: ReactNode;
 }) {
   const [text, setText] = useState("");
   const log = useRef<HTMLDivElement>(null);
@@ -306,7 +311,11 @@ export function KateSheet({
   useEffect(() => {
     const el = log.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages.length, last?.text, busy]);
+  }, [threadId, messages.length, last?.text, busy]);
+  useEffect(() => {
+    setText("");
+    document.getElementById(`kate-tab-${threadId}`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [threadId]);
   useEffect(() => {
     input.current?.focus({ preventScroll: true });
   }, []);
@@ -333,11 +342,6 @@ export function KateSheet({
               {busy ? "typing…" : "Only uses your own KBC accounts"}
             </small>
           </span>
-          {messages.length > 0 && !busy && (
-            <button type="button" className="chip" onClick={onClear}>
-              New chat
-            </button>
-          )}
           <button
             type="button"
             className="iconbtn"
@@ -347,7 +351,41 @@ export function KateSheet({
             <Icon name="x" size={16} />
           </button>
         </header>
-        {looks}
+        <div className="kate-thread-strip">
+          <div className="kate-thread-tabs" role="tablist" aria-label="Kate chats" aria-orientation="horizontal">
+            {threads.map((thread, index) => (
+              <button
+                key={thread.id}
+                id={`kate-tab-${thread.id}`}
+                type="button"
+                role="tab"
+                className="chip kate-thread-tab"
+                title={thread.title}
+                aria-selected={thread.id === threadId}
+                aria-controls="kate-conversation"
+                tabIndex={thread.id === threadId ? 0 : -1}
+                onClick={() => onSelectThread(thread.id)}
+                onKeyDown={(event) => {
+                  const next = event.key === "ArrowRight" ? (index + 1) % threads.length
+                    : event.key === "ArrowLeft" ? (index - 1 + threads.length) % threads.length
+                    : event.key === "Home" ? 0 : event.key === "End" ? threads.length - 1 : -1;
+                  if (next < 0) return;
+                  event.preventDefault();
+                  onSelectThread(threads[next].id);
+                  document.getElementById(`kate-tab-${threads[next].id}`)?.focus();
+                }}
+              >
+                {thread.title}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="chip kate-new-chat" onClick={() => {
+            onNewChat();
+            setText("");
+            input.current?.focus({ preventScroll: true });
+          }}>+ New chat</button>
+        </div>
+        <div id="kate-conversation" className="kate-conversation" role="tabpanel" aria-labelledby={`kate-tab-${threadId}`}>
         {context && (
           <div className="ctx">
             <Icon name={context.icon} size={18} />
@@ -371,8 +409,8 @@ export function KateSheet({
               <Rich
                 text={
                   context
-                    ? `What would you like to know or change about **${context.title}**?`
-                    : "Hi! Ask me about your money, or tell me what to do: send, split, save, or change how your home looks."
+                    ? `What would you like to know about **${context.title}**?`
+                    : "Hi! Ask me about your money, or tell me what to do: send, split, or save."
                 }
               />
             </div>
@@ -413,8 +451,6 @@ export function KateSheet({
             </div>
           ))}
         </div>
-        {/* v7-kate: always available, including with AI off. */}
-        <div className="kate-quick-chips">{KATE_QUICK_CHIPS.map((chip) => <button type="button" className="chip" key={chip} disabled={busy} onClick={() => send(chip)}>{chip}</button>)}</div>
         {!busy && messages.length === 0 && suggestions.length > 0 && (
           <div className="chips scrollx">
             {suggestions.map((s) => (
@@ -468,6 +504,7 @@ export function KateSheet({
             </button>
           )}
         </form>
+        </div>
       </section>
     </>
   );

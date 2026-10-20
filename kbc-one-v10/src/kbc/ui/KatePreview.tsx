@@ -5,7 +5,6 @@ import type { Proposal } from "../kate";
 import type { HomeModel, Snapshot } from "../types";
 import { api } from "./api";
 
-export const KATE_QUICK_CHIPS = ["Make text bigger", "Fewer blocks", "Back to KBC style"];
 
 export function KatePreview({ proposal: p, applied, onApply, onChange }: {
   proposal: Proposal; applied: boolean; onApply: () => void | Promise<void>; onChange: () => void;
