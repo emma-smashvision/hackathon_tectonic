@@ -153,16 +153,11 @@ export interface BizProfile {
   id: string;
   /** the job, as KBC knows it */
   job: string;
-  name: string;
-  age: number;
-  city: string;
   headline: string;
-  /** what KBC noticed that points to this road */
+  /** the signals in a customer's transactions that point to this road */
   noticed: string;
   crowd: number;
   forms: LegalForm[];
-  /** phase the profile's example person is in now */
-  now: string;
   phases: BizPhase[];
   fork?: BizFork;
   hue: string;
@@ -210,10 +205,10 @@ const bvSteps = (crowd: number, job: string): BizStep[] => [
 
 export const PROFILES: BizProfile[] = [
   {
-    id: "physio", job: "Physiotherapist", name: "Lotte", age: 27, city: "Gent", hue: "#7FD6C2",
+    id: "physio", job: "Physiotherapist", hue: "#7FD6C2",
     headline: "Side practice → own practice → BV",
-    noticed: "Hospital salary plus practice payments from patients",
-    crowd: 14_300, forms: ["side", "sole", "bv"], now: "side-year",
+    noticed: "A hospital salary and a physiotherapy association membership",
+    crowd: 14_300, forms: ["side", "sole", "bv"],
     phases: [
       {
         id: "side-start", title: "Start on the side", form: "side", when: "Month −3 to 0",
@@ -309,10 +304,10 @@ export const PROFILES: BizProfile[] = [
     },
   },
   {
-    id: "lawyer", job: "Lawyer", name: "Jonas", age: 26, city: "Leuven", hue: "#B7A6F2",
+    id: "lawyer", job: "Lawyer", hue: "#B7A6F2",
     headline: "Trainee → own practice → lawyer's BV",
     noticed: "Fees from a law firm and a bar membership payment",
-    crowd: 6_800, forms: ["sole", "bv"], now: "trainee",
+    crowd: 6_800, forms: ["sole", "bv"],
     phases: [
       {
         id: "trainee-start", title: "Join the bar", form: "sole", when: "Month −2 to 0",
@@ -409,10 +404,10 @@ export const PROFILES: BizProfile[] = [
     },
   },
   {
-    id: "student", job: "Student entrepreneur", name: "Amira", age: 21, city: "Antwerpen", hue: "#F2B880",
+    id: "student", job: "Student entrepreneur", hue: "#F2B880",
     headline: "Student webshop → side business → own company",
     noticed: "Regular webshop payouts on a student account",
-    crowd: 21_500, forms: ["side", "sole"], now: "student",
+    crowd: 21_500, forms: ["side", "sole"],
     phases: [
       {
         id: "test", title: "Test the idea", form: "side", when: "Now",
@@ -506,10 +501,10 @@ export const PROFILES: BizProfile[] = [
     },
   },
   {
-    id: "freelancer", job: "Freelance designer", name: "Karim", age: 45, city: "Antwerpen", hue: "#9FD3B0",
+    id: "freelancer", job: "Freelance designer", hue: "#9FD3B0",
     headline: "Eenmanszaak → BV",
-    noticed: "Client invoices since early 2025 and a growing tax reserve",
-    crowd: 38_900, forms: ["sole", "bv"], now: "sole-years",
+    noticed: "Client invoices on a personal account and a growing tax reserve",
+    crowd: 38_900, forms: ["sole", "bv"],
     phases: [
       {
         id: "start", title: "Start your eenmanszaak", form: "sole", when: "Month 0",
@@ -578,10 +573,10 @@ export const PROFILES: BizProfile[] = [
     },
   },
   {
-    id: "employer", job: "Bakery owner", name: "Wouter", age: 38, city: "Hasselt", hue: "#F29BA6",
+    id: "employer", job: "Bakery owner", hue: "#F29BA6",
     headline: "BV → first employee",
     noticed: "Sales growing 4 quarters in a row and long Saturday hours",
-    crowd: 27_400, forms: ["bv", "employer"], now: "prepare-hire",
+    crowd: 27_400, forms: ["bv", "employer"],
     phases: [
       {
         id: "prepare-hire", title: "Before you hire", form: "bv", when: "Month −3",
@@ -678,9 +673,14 @@ export const PROFILES: BizProfile[] = [
 
 export const profileById = (id: string) => PROFILES.find((p) => p.id === id);
 
-/** KBC knows your job: map a demo customer to the business road their transactions point to. */
-const DETECTED: Record<string, string> = { karim: "freelancer" };
-export const detectedProfile = (personKey?: string) => (personKey ? DETECTED[personKey] : undefined);
+/** KBC knows your job: the demo customers whose transactions point to a business road. */
+export interface BizCustomer { profile: string; /** phase they are in now */ now: string; noticed: string }
+const CUSTOMERS: Record<string, BizCustomer> = {
+  karim: { profile: "freelancer", now: "sole-years", noticed: "Client invoices since early 2025 and a growing tax reserve" },
+  sofie: { profile: "physio", now: "side-start", noticed: "Your salary from AZ Sint-Jan and your physiotherapy association membership" },
+};
+export const customerRoad = (personKey?: string) => (personKey ? CUSTOMERS[personKey] : undefined);
+export const detectedProfile = (personKey?: string) => customerRoad(personKey)?.profile;
 
 export const BUSINESS_QUERY = /\b(business|ondernem\w*|eenmanszaak|bv|company|vennootschap|freelanc\w*|zelfstandig\w*|self[- ]employed|start(?:ing)? (?:a |my )?(?:business|company|practice)|hire|employee|werknemer|personeel|student|physio|kine\w*|lawyer|advoca\w*)\b/i;
 

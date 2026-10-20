@@ -5,6 +5,7 @@ import { euro, int } from "../hindsight/engine/format";
 import { useStore } from "../hindsight/components/store";
 import { EVERYDAY_ONLY_ID, pointersFor, roadViewFor, type PersonPointers } from "./crowd";
 import { LessonCard } from "./learning/LessonCard";
+import { customerRoad, profileById } from "./business/model";
 import { PEOPLE } from "./people";
 import { useVillageProgress } from "./village";
 import { Sheet } from "./yourroad/Sheet";
@@ -38,6 +39,7 @@ export function RoadTab(props: RoadTabProps) {
   const pointers = props.pointers ?? pointersFor(person);
   const activeRoad = props.focus?.roadId ?? pointers.confirmed?.roadId ?? pointers.exploring[0]?.roadId ?? EVERYDAY_ONLY_ID;
   const progress = useVillageProgress(person.key);
+  const business = profileById(customerRoad(person.key)?.profile ?? "");
   const [selected, setSelected] = useState<RoadItem>();
   const [page, setPage] = useState(0);
   const [notice, setNotice] = useState("");
@@ -78,8 +80,8 @@ export function RoadTab(props: RoadTabProps) {
             </div>
           </>}
         </section>
-        {props.onBusiness && activeRoad === "freelance" && <button type="button" className="r2-business" onClick={props.onBusiness}>
-          <small>Your business roadmap</small><strong>Eenmanszaak → BV</strong><span>Steps, partners and what 38,900 freelancers did before you</span><b aria-hidden="true">›</b>
+        {props.onBusiness && business && <button type="button" className="r2-business" onClick={props.onBusiness}>
+          <small>Your business roadmap · {business.job}</small><strong>{business.headline}</strong><span>Steps, partners and what {business.crowd.toLocaleString("en-GB")} people in your job did before you</span><b aria-hidden="true">›</b>
         </button>}
         <section className="r2-timeline" aria-labelledby="r2-timeline-title">
           <div className="r2-section-head"><h2 id="r2-timeline-title">Next 12 months</h2><span>All your areas</span></div>

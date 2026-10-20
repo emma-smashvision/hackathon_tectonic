@@ -4,7 +4,7 @@ import { type CSSProperties, Fragment, useState } from "react";
 import { useStore } from "../../hindsight/components/store";
 import { Sheet } from "../yourroad/Sheet";
 import {
-  type BizPhase, type BizProfile, type BizStep, CROWD_TOTAL, crowdFor, detectedProfile, firstNeed,
+  type BizPhase, type BizProfile, type BizStep, CROWD_TOTAL, crowdFor, customerRoad, firstNeed,
   FORM_ORDER, FORMS, PARTNERS, type PartnerId, partnersOf, PROFILES, profileById, SYNTHETIC,
 } from "./model";
 import "./business.css";
@@ -32,13 +32,15 @@ export function BusinessRoads(props: BusinessRoadsProps) {
 
 function BusinessRoadsContent({ personKey, advisorName, large, onClose, onAskKate }: BusinessRoadsProps) {
   const s = useStore();
-  const detected = detectedProfile(personKey);
+  const customer = customerRoad(personKey);
+  const detected = customer?.profile;
   const [profileId, setProfileId] = useState(detected ?? PROFILES[0].id);
   const [open, setOpen] = useState<Open>(null);
   const [notice, setNotice] = useState("");
   const profile = profileById(profileId) ?? PROFILES[0];
   const mine = profile.id === detected;
-  const nowForm = profile.phases.find((p) => p.id === profile.now)?.form;
+  const now = mine ? customer?.now : undefined;
+  const nowForm = profile.phases.find((p) => p.id === now)?.form;
   const adviser = advisorName ?? s.advisor?.name ?? "your KBC adviser";
 
   const remind = (step: BizStep) => {
@@ -79,9 +81,9 @@ function BusinessRoadsContent({ personKey, advisorName, large, onClose, onAskKat
     </section>
 
     <section className="biz-hero" aria-label={`${profile.job} road`}>
-      <small>{mine ? "Your road · KBC knows your job" : `Example · ${profile.name}, ${profile.age}, ${profile.city}`}</small>
+      <small>{mine ? "Your road · KBC knows your job" : `Explore · ${profile.job} road`}</small>
       <h2>{profile.headline}</h2>
-      <p className="biz-noticed">{mine ? "KBC noticed" : "What KBC would notice"}: {profile.noticed.charAt(0).toLowerCase() + profile.noticed.slice(1)}.</p>
+      <p className="biz-noticed">{mine && customer ? `KBC noticed: ${customer.noticed.charAt(0).toLowerCase() + customer.noticed.slice(1)}.` : `KBC recognises this road from ${profile.noticed.charAt(0).toLowerCase() + profile.noticed.slice(1)}.`}</p>
       <p className="biz-crowd-big"><b>{int(profile.crowd)}</b> people in this job walked this road before you</p>
       <ol className="biz-ladder" aria-label="Legal forms on this road">
         {FORM_ORDER.map((form) => {
@@ -89,7 +91,7 @@ function BusinessRoadsContent({ personKey, advisorName, large, onClose, onAskKat
           return <li key={form} className={`${on ? "biz-on" : ""} ${form === nowForm ? "biz-here" : ""}`} aria-current={form === nowForm ? "step" : undefined}>
             <span className="biz-ladder-dot" aria-hidden="true" />
             <b>{FORMS[form].short}</b>
-            {form === nowForm && <em>{mine ? "You" : profile.name}</em>}
+            {form === nowForm && <em>You</em>}
             {!on && <span className="sr-only"> (not on this road)</span>}
           </li>;
         })}
@@ -100,12 +102,12 @@ function BusinessRoadsContent({ personKey, advisorName, large, onClose, onAskKat
       <div className="biz-title-row"><h2 id="biz-map">The roadmap</h2><small>Tap a step</small></div>
       <ol className="biz-road">
         {profile.phases.map((phase) => <Fragment key={phase.id}>
-          <li className={`biz-phase ${phase.id === profile.now ? "biz-phase-now" : ""}`}>
+          <li className={`biz-phase ${phase.id === now ? "biz-phase-now" : ""}`}>
             <div className="biz-phase-head">
               <span className={`biz-form biz-form-${phase.form}`}>{FORMS[phase.form].label}</span>
               <h3>{phase.title}</h3>
               <small>{phase.when}</small>
-              {phase.id === profile.now && <span className="biz-you">{mine ? "You are here" : `${profile.name} is here`}</span>}
+              {phase.id === now && <span className="biz-you">You are here</span>}
             </div>
             <ol className="biz-steps">
               {phase.steps.map((step) => <li key={step.id}>

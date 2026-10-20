@@ -447,6 +447,7 @@ const sofie: Persona = {
     tx("2026-10-16T20:00:00", "KBC mortgage simulator", "app", 0),
     tx("2026-10-14T18:00:00", "Immoweb Premium", "housing", -9.99),
     tx("2026-10-12T11:00:00", "Colruyt Brugge", "groceries", -96.2),
+    tx("2026-10-07T10:00:00", "Physiotherapy association · yearly membership", "work", -95),
     tx("2026-10-05T09:00:00", "Transfer to house fund", "savings", -500),
     tx("2026-09-28T06:00:00", "AZ Sint-Jan", "salary", 2950),
     ...coffee("10", [3, 10, 17], ["Li O Lait"], 3.4),

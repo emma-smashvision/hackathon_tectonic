@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { BUSINESS_QUERY, detectedProfile, FORM_ORDER, PARTNERS, partnersOf, PROFILES, stepsOf } from "./model";
+import { BUSINESS_QUERY, customerRoad, detectedProfile, FORM_ORDER, PARTNERS, partnersOf, PROFILES, stepsOf } from "./model";
 
 describe("business roadmaps", () => {
   test("covers the requested jobs, from eenmanszaak to BV and first employee", () => {
@@ -12,7 +12,6 @@ describe("business roadmaps", () => {
     for (const profile of PROFILES) {
       const ids = stepsOf(profile).map(({ step }) => step.id);
       expect(new Set(ids).size).toBe(ids.length);
-      expect(profile.phases.some((ph) => ph.id === profile.now)).toBe(true);
       for (const { phase, step } of stepsOf(profile)) {
         expect(profile.forms).toContain(phase.form);
         expect(step.todo.length).toBeGreaterThan(0);
@@ -47,7 +46,12 @@ describe("business roadmaps", () => {
 
   test("KBC recognises Karim's job and search finds business situations", () => {
     expect(detectedProfile("karim")).toBe("freelancer");
-    expect(detectedProfile("tom")).toBeUndefined();
+    expect(detectedProfile("sofie")).toBe("physio");
+    for (const key of ["tom", "lina", "margaret", "nadia"]) expect(detectedProfile(key)).toBeUndefined();
+    for (const key of ["karim", "sofie"]) {
+      const road = customerRoad(key)!;
+      expect(PROFILES.find((p) => p.id === road.profile)!.phases.some((ph) => ph.id === road.now)).toBe(true);
+    }
     for (const q of ["I want to start a business", "eenmanszaak naar bv", "hire my first employee", "physio practice"]) expect(BUSINESS_QUERY.test(q)).toBe(true);
     expect(BUSINESS_QUERY.test("we just bought our first house")).toBe(false);
   });
