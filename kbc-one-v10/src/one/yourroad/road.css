@@ -96,8 +96,3 @@
 .hs.r2-road .r2-event-info, .hs.r2-road .r2-mini small, .hs.r2-road .r2-area-grid p, .hs.r2-road .r2-footer { font-size:11px; }
 .hs.r2-road.r2-calm .r2-event-date, .hs.r2-road.r2-calm .r2-area-grid p { font-size:16px; }
 .hs.r2-road.r2-calm .r2-event-info, .hs.r2-road.r2-calm .r2-mini small, .hs.r2-road.r2-calm .r2-footer { font-size:13px; }
-.hs.r2-road .r2-business { position:relative; display:grid; gap:4px; width:100%; margin:0 0 22px; padding:14px 40px 14px 16px; text-align:left; color:#f1f7fc; background:linear-gradient(135deg,#123326,#102638); border:1px solid #2f6b55; border-radius:18px; cursor:pointer; }
-.hs.r2-road .r2-business small { color:#9FD3B0; font-size:12px; font-weight:600; }
-.hs.r2-road .r2-business strong { font-size:18px; font-weight:600; }
-.hs.r2-road .r2-business span { color:#a3b9ca; font-size:13px; line-height:1.4; }
-.hs.r2-road .r2-business b { position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:24px; color:#9FD3B0; }

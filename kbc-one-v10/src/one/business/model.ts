@@ -1,4 +1,4 @@
-// Business roadmaps: from a side activity to an eenmanszaak, a BV and a first employee.
+// Business roadmaps: from a side activity to a sole proprietorship, a BV and a first employee.
 // Every road is written as what earlier KBC customers in the same job actually did.
 // All crowd numbers are synthetic demo data. Legal steps describe Belgian rules in
 // plain words; amounts that change yearly point to the partner who knows the current figure.
@@ -10,7 +10,7 @@ export const SYNTHETIC = "Synthetic demo crowd · not a forecast or legal advice
 export type LegalForm = "side" | "sole" | "bv" | "employer";
 export const FORMS: Record<LegalForm, { label: string; short: string; line: string }> = {
   side: { label: "Side activity", short: "Side", line: "Self-employed next to a salaried job" },
-  sole: { label: "Eenmanszaak", short: "Eenmanszaak", line: "Self-employed in your own name" },
+  sole: { label: "Sole proprietorship", short: "Sole prop.", line: "Self-employed in your own name (eenmanszaak)" },
   bv: { label: "BV", short: "BV", line: "A company with its own legal personality" },
   employer: { label: "Employer", short: "Employer", line: "Your first employee on the payroll" },
 };
@@ -56,7 +56,7 @@ export const PARTNERS: Record<PartnerId, Partner> = {
     role: "Bookkeeping, VAT returns, tax return and prepayments. For a BV also the financial plan and annual accounts.",
     options: [
       { label: "Local accountancy office", share: 0.46, note: "Face-to-face; most chosen once there is a BV." },
-      { label: "Online fixed-fee accountant", share: 0.31, note: "Cheapest for a simple eenmanszaak." },
+      { label: "Online fixed-fee accountant", share: 0.31, note: "Cheapest for a simple sole proprietorship." },
       { label: "Specialist in your profession", share: 0.23, note: "Knows the sector's tax rules and deductions." },
     ],
   },
@@ -224,7 +224,7 @@ export const PROFILES: BizProfile[] = [
           },
           {
             id: "register", title: "Register as self-employed on the side", when: "Month 0",
-            detail: "Keep your hospital job and start an eenmanszaak as a side activity. Join a social insurance fund before your first patient and get your company number at a business counter.",
+            detail: "Keep your hospital job and start a sole proprietorship as a side activity. Join a social insurance fund before your first patient and get your company number at a business counter.",
             todo: ["Join a social insurance fund", "Get your KBO company number", "Keep your employment contract as your main job"],
             partners: ["social-fund", "counter"],
             crowd: { share: 0.68, label: "started as a side activity next to a salaried job" },
@@ -294,13 +294,13 @@ export const PROFILES: BizProfile[] = [
       { id: "bv", title: "Practice becomes a BV", form: "bv", when: "Around month 54", steps: bvSteps(14_300, "physio") },
     ],
     fork: {
-      after: "main", title: "Stay an eenmanszaak, or start a BV?",
+      after: "main", title: "Stay a sole proprietor, or start a BV?",
       intro: "Asked by almost every physio once profit grows. What the two groups said later.",
       branches: [
-        { id: "sole", label: "Stayed eenmanszaak", share: 0.57, line: "Simple and cheap while profit stays moderate.", quote: "I looked at it twice. For my income the BV wasn't worth the admin yet." },
+        { id: "sole", label: "Stayed sole proprietor", share: 0.57, line: "Simple and cheap while profit stays moderate.", quote: "I looked at it twice. For my income the BV wasn't worth the admin yet." },
         { id: "bv", label: "Started a BV", share: 0.43, line: "Most switched when profit passed about €70,000 a year.", quote: "Lower tax on what I leave in the company, and my house is separate from the practice." },
       ],
-      kate: "Physios who switched did so at a median profit of about €70,000. Below that, most stayed an eenmanszaak and were happy with it. Ask your accountant to compare both for your numbers.",
+      kate: "Physios who switched did so at a median profit of about €70,000. Below that, most stayed a sole proprietorship and were happy with it. Ask your accountant to compare both for your numbers.",
     },
   },
   {
@@ -394,10 +394,10 @@ export const PROFILES: BizProfile[] = [
       ] },
     ],
     fork: {
-      after: "own", title: "Stay an eenmanszaak, or start a lawyer's BV?",
+      after: "own", title: "Stay a sole proprietor, or start a lawyer's BV?",
       intro: "Most lawyers face this once fees grow. What the two groups said later.",
       branches: [
-        { id: "sole", label: "Stayed eenmanszaak", share: 0.48, line: "Simpler, and fine at moderate income.", quote: "My practice is small and stable. The company would only add admin." },
+        { id: "sole", label: "Stayed sole proprietor", share: 0.48, line: "Simpler, and fine at moderate income.", quote: "My practice is small and stable. The company would only add admin." },
         { id: "bv", label: "Started a lawyer's BV", share: 0.52, line: "Most switched in year 5 or 6 of practice.", quote: "Once fees passed a certain level, the BV clearly paid off." },
       ],
       kate: "Slightly more than half of lawyers before you switched to a BV, usually in year 5 or 6. Their accountant compared both options first.",
@@ -502,12 +502,12 @@ export const PROFILES: BizProfile[] = [
   },
   {
     id: "freelancer", job: "Freelance designer", hue: "#9FD3B0",
-    headline: "Eenmanszaak → BV",
+    headline: "Sole proprietorship → BV",
     noticed: "Client invoices on a personal account and a growing tax reserve",
     crowd: 38_900, forms: ["sole", "bv"],
     phases: [
       {
-        id: "start", title: "Start your eenmanszaak", form: "sole", when: "Month 0",
+        id: "start", title: "Found your sole proprietorship", form: "sole", when: "Month 0",
         steps: [
           {
             id: "register", title: "Company number, social insurance fund and VAT", when: "Month 0",
@@ -552,9 +552,9 @@ export const PROFILES: BizProfile[] = [
       { id: "bv", title: "Switch to a BV", form: "bv", when: "Around month 30", steps: [
         ...bvSteps(38_900, "freelancer").slice(0, 3),
         {
-          id: "transfer", title: "Move your eenmanszaak into the BV", when: "Switch day",
-          detail: "Clients, contracts, equipment and subscriptions move to the BV. Your eenmanszaak's activity stops or changes.",
-          todo: ["Contribute or sell your equipment to the BV", "Move client contracts and subscriptions", "Stop or adapt your eenmanszaak in the KBO"],
+          id: "transfer", title: "Move your sole proprietorship into the BV", when: "Switch day",
+          detail: "Clients, contracts, equipment and subscriptions move to the BV. Your sole proprietorship's activity stops or changes.",
+          todo: ["Contribute or sell your equipment to the BV", "Move client contracts and subscriptions", "Stop or adapt your sole proprietorship in the KBO"],
           partners: ["accountant", "counter", "lawyer"],
           crowd: { share: 0.69, label: "moved everything in the same quarter as the deed" },
           kate: "Doing it all in one quarter kept the books simple. The usual stragglers were software subscriptions and the car.",
@@ -563,10 +563,10 @@ export const PROFILES: BizProfile[] = [
       ] },
     ],
     fork: {
-      after: "sole-years", title: "Stay an eenmanszaak, or start a BV?",
+      after: "sole-years", title: "Stay a sole proprietor, or start a BV?",
       intro: "Usually asked when income grows. What the two groups said later.",
       branches: [
-        { id: "sole", label: "Stayed eenmanszaak", share: 0.61, line: "Simple and cheap.", quote: "Simple and cheap. When income jumped, I regretted waiting." },
+        { id: "sole", label: "Stayed sole proprietor", share: 0.61, line: "Simple and cheap.", quote: "Simple and cheap. When income jumped, I regretted waiting." },
         { id: "bv", label: "Started a BV", share: 0.39, line: "Most switched around month 24 to 30.", quote: "Year one was paperwork. By year three it clearly paid off." },
       ],
       kate: "39% of freelancers switched, mostly between month 24 and 30. By year three the BV group was more likely to say they would do it again.",
@@ -677,12 +677,12 @@ export const profileById = (id: string) => PROFILES.find((p) => p.id === id);
 export interface BizCustomer { profile: string; /** phase they are in now */ now: string; noticed: string }
 const CUSTOMERS: Record<string, BizCustomer> = {
   karim: { profile: "freelancer", now: "sole-years", noticed: "Client invoices since early 2025 and a growing tax reserve" },
-  sofie: { profile: "physio", now: "side-start", noticed: "Your salary from AZ Sint-Jan and your physiotherapy association membership" },
+  sofie: { profile: "physio", now: "main", noticed: "Your practice made about €74,200 profit in 2025. That is where most physios start comparing a BV, and you plan to buy a home with Pieter." },
 };
 export const customerRoad = (personKey?: string) => (personKey ? CUSTOMERS[personKey] : undefined);
 export const detectedProfile = (personKey?: string) => customerRoad(personKey)?.profile;
 
-export const BUSINESS_QUERY = /\b(business|ondernem\w*|eenmanszaak|bv|company|vennootschap|freelanc\w*|zelfstandig\w*|self[- ]employed|start(?:ing)? (?:a |my )?(?:business|company|practice)|hire|employee|werknemer|personeel|student|physio|kine\w*|lawyer|advoca\w*)\b/i;
+export const BUSINESS_QUERY = /\b(business|ondernem\w*|eenmanszaak|sole propriet\w*|bv|company|vennootschap|freelanc\w*|zelfstandig\w*|self[- ]employed|start(?:ing)? (?:a |my )?(?:business|company|practice)|hire|employee|werknemer|personeel|student|physio|kine\w*|lawyer|advoca\w*)\b/i;
 
 export const stepsOf = (profile: BizProfile) => profile.phases.flatMap((phase) => phase.steps.map((step) => ({ phase, step })));
 export const partnersOf = (profile: BizProfile): Partner[] => {

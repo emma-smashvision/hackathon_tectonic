@@ -62,7 +62,7 @@ function AllRoadsContent({ person, pointers, large: largeSetting, onOpenRoad, on
   };
   const businessCard = onBusiness && <button type="button" className="a8-road a8-business" onClick={onBusiness} style={{ "--a8-road-color": "#9FD3B0" } as CSSProperties}>
     <span className="a8-line" aria-hidden="true" />
-    <span className="a8-road-copy"><strong>Business roadmaps</strong><small>Eenmanszaak → BV → first employee · {PROFILES.length} jobs · based on {CROWD_TOTAL.toLocaleString("en-GB")} customers</small></span>
+    <span className="a8-road-copy"><strong>Business roadmaps</strong><small>Sole proprietorship → BV → first employee · {PROFILES.length} jobs · based on {CROWD_TOTAL.toLocaleString("en-GB")} customers</small></span>
     <span className="a8-arrow" aria-hidden="true">›</span>
   </button>;
   return <div className={`a8 ${large ? "a8-large" : ""} ${quiet ? "a8-quiet" : ""}`} data-testid="all-roads">
