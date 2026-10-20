@@ -88,12 +88,6 @@ export function MixBubbles({ bubbles, large, editing, onOpen, onRemove, onReorde
           onPointerCancel={() => { drag.current = null; setMoving(null); }}>
           {b.id === "roadmap" ? <>
             <span className="road-ring" aria-hidden="true" />
-            <svg className="road-fork" viewBox="0 0 64 30" aria-hidden="true">
-              <path d="M4 22 H20 C30 22 32 8 44 8 H60" className="road-fork-pick" />
-              <path d="M20 22 H60" className="road-fork-other" />
-              <circle cx="20" cy="22" r="4" className="road-fork-you" />
-            </svg>
-            <span className="road-kicker">Your next level</span>
             <span className="mix-value">{b.value}</span>
             <span className="mix-label">{bubbleLabel(b)}</span>
           </> : <>

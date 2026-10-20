@@ -29,7 +29,7 @@ import { eur } from "../format";
 import { DEMO_BEATS, DEMO_BEAT_MS } from "../demo";
 import { kateRoadAnswer, type Proposal } from "../kate"; // v8-channels
 import { AllRoads } from "../../one/atlas8";
-import { BusinessRoads, chapterTitle, customerRoad, nowNode, profileById } from "../../one/business";
+import { BusinessRoads, chapterTitle, customerRoad, nowNode } from "../../one/business";
 import { useFounderRoad } from "../../one/business/founderState";
 import { catalogueRoad, confirmRoad, previewRoad } from "../../one/crowd";
 import { useRoadPointers } from "../../one/nudge/useRoadPointers";
@@ -149,13 +149,12 @@ function StoreBridge({ bridge }: { bridge: { current: RoadApi | null } }) {
 }
 
 /** KBC One: the Road tab wears the customer's look. Map Kate's theme tokens onto Hindsight's. */
-/** "43% of physios": the share of earlier customers on Kate's pick, for the Home bubble. */
+/** "43% did": the share of earlier customers on Kate's pick, for the Home bubble. */
 function roadmapCrowd(road: NonNullable<ReturnType<typeof useFounderRoad>["road"]>, chosen?: "a" | "b") {
   const fork = road.fork;
-  const job = (profileById(road.profileId)?.job.toLowerCase() ?? "people").replace("physiotherapist", "physio").replace("tech founder", "founder");
   if (!fork || chosen) return "Your business road";
   const side = fork.pick ?? (fork.a.share >= fork.b.share ? "a" : "b");
-  return `${Math.round(fork[side].share * 100)}% of ${job}s did`;
+  return `${Math.round(fork[side].share * 100)}% did`;
 }
 
 function roadVars(t: { style: CSSProperties; light: boolean }, custom: boolean): CSSProperties {
