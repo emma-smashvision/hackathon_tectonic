@@ -1499,7 +1499,7 @@
 
 /* ---------- v7.1 Home mix: the v1 glass bubble field ---------- */
 .ph.mix-phone { background: radial-gradient(120% 60% at 100% 0%, color-mix(in srgb, var(--accent) 17%, transparent), transparent 60%), radial-gradient(80% 50% at 0% 100%, #6d4aff15, transparent 60%), var(--bg); }
-.ph.mix-phone > .scroll { inset: 40px 0 142px; padding: 4px 16px 18px; }
+.ph.mix-phone > .scroll { inset: 40px 0 78px; padding: 4px 16px 18px; }
 .ph .home-mix { min-width: 0; }
 .ph .mix-first { height: var(--mix-height); min-height: 0; display: flex; flex-direction: column; gap: 0; }
 .ph .mix-header { display: flex; align-items: center; justify-content: space-between; flex: none; min-height: 34px; }
