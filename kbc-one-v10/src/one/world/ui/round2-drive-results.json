@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "port": 3813,
+  "ai": "off",
+  "durationSeconds": 42.7,
+  "errors": [],
+  "checks": [
+    "UI world lesson completion",
+    "exact completed city quest replay",
+    "physical convoy collection preparation crossing paving",
+    "optional save",
+    "world return and shield",
+    "reload persistence",
+    "persona isolation",
+    "reset"
+  ],
+  "injectedCompletions": false
+}

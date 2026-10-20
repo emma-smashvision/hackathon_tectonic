@@ -1,0 +1,30 @@
+/* v11-shell: the bank's phone entry and quiet, readable world alternatives. */
+.v11-world-loading { position:absolute; inset:0; display:grid; place-content:center; gap:16px; padding:28px; background:#071725; color:#e4f1fa; font:16px/1.5 'IBM Plex Sans',sans-serif; text-align:center; }
+.v11-world-loading button { min-height:48px; background:#153e50; color:white; border:1px solid #9ad7e1; border-radius:12px; padding:12px 18px; font:inherit; }
+.v11-return-receipt { position:absolute; left:50%; bottom:48px; transform:translateX(-50%); z-index:70; display:flex; align-items:center; gap:16px; width:max-content; max-width:min(560px,80%); padding:12px 16px; border:1px solid #8ed9ce; border-radius:14px; background:#102c39; color:#e4fff7; font:14px/1.5 'IBM Plex Sans',sans-serif; box-shadow:0 8px 30px #020d1bcc; }
+.v11-return-receipt button { flex-shrink:0; width:44px; height:44px; border:0; border-radius:10px; background:#214655; color:white; font-size:24px; cursor:pointer; }
+.v11-return-receipt button:focus-visible,.v11-world-loading button:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+.v11-home-card { border-color:#a27c43; background:var(--surface,#102738); }
+.v11-home-card:not(.v9-card-large):not(.v9-card-care) .v9-entry-primary { background:#ffc06b; color:#162331; }
+.v11-world-postcard { height:150px; position:relative; overflow:hidden; background:radial-gradient(ellipse at 70% 10%,#416486 0,transparent 45%),linear-gradient(#0a1f39,#1a4661 65%,#09273c); }
+.v11-world-postcard > span { position:absolute; top:14px; left:16px; color:#e4f3ff; font:600 15px/1.3 'IBM Plex Sans',sans-serif; z-index:1; }
+.v11-home-card .v11-home-storm { margin:0 0 12px; color:var(--text,#e4f1fa); font-weight:600; }
+.v11-home-storm small { display:block; font-size:11px; line-height:1.5; color:var(--muted,#adc4d7); font-weight:400; }
+.v11-plain-world { background:#f4f8fb; color:#17354d; }
+.v11-plain-world h1 { margin:16px 0; }
+.v11-plain-world h2 { font-size:23px; line-height:1.35; margin:0 0 8px; }
+.v11-plain-area { border-top:1px solid #b9cbd8; padding:24px 0; }
+.v11-plain-area p { margin:8px 0 16px; }
+.v11-plain-area ul { margin:0; padding:0; list-style:none; display:grid; gap:12px; }
+.v11-plain-world button { min-height:48px; }
+.v11-plain-world .v11-lesson-button { width:100%; text-align:left; color:#073d65; background:white; border:1px solid #9aafbf; border-radius:12px; padding:14px 16px; font:inherit; }
+.v11-plain-world button:focus-visible { outline:3px solid #087f9b; outline-offset:3px; }
+.v11-plain-world .v11-lesson-button small { display:block; color:#42627b; font-size:16px; }
+.v11-plain-world [data-lesson] { margin-top:14px; }
+.v11-plain-world footer { margin-top:26px; font-size:13px; }
+.v11-care-garden { border-top:3px solid #75a39b; margin-top:24px; padding-top:18px; }
+/* The turned phone owns the available height, including short landscape screens. */
+.v10-turn [data-testid="world-game"] { min-height:0; }
+
+.v11-world-postcard img { object-position:center 60%; }
+.v11-world-postcard > span { padding:5px 10px; border-radius:20px; background:#081b2bd9; color:#ffc06b; font-size:12px; }

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A stop on the road</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#4cc3f2}a:hover{color:#8fdcfa}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0a1220; color: #e8eef6; font-family: Figtree, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+<div style="padding: 16px 20px 6px; display: flex; flex-direction: column; gap: 6px">
+<a href="V8Road.dc.html" style="font-size: 14px; text-decoration: none; min-height: 40px; display: flex; align-items: center">← Moving house</a>
+<div style="font-size: 12px; color: #fbbf24">Month 1 · Setting up the new place</div>
+<h1 style="margin: 0; font-size: 22px; font-weight: 700; line-height: 1.25">The small things add up in the first month</h1>
+</div>
+<div style="flex: 1; padding: 6px 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+<section style="padding: 14px; border-radius: 16px; background: #111c2e; display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 13px; color: #fbbf24; font-weight: 600">What surprised people</h2>
+<div style="font-size: 15px; line-height: 1.4">1 in 3 spent more than € 800: curtains, lamps, a second set of keys.</div>
+<div style="font-size: 11px; color: #8fa3bb">58.300 movers · amounts rounded · your rent of € 950 is not included</div>
+</section>
+<section style="padding: 14px; border-radius: 16px; background: #10241f; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 13px; color: #34d399; font-weight: 600">What helped (ranked by outcome)</h2>
+<div style="font-size: 14px; line-height: 1.4">1. A budget set before the move · spent about a third less</div>
+<div style="font-size: 14px; line-height: 1.4">2. Second-hand furniture first · no bank product</div>
+<div style="font-size: 11px; color: #8fa3bb">Often seen together with better outcomes; not proof it causes them.</div>
+</section>
+<section style="padding: 14px; border-radius: 16px; background: #111c2e; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 13px; color: #a78bfa; font-weight: 600">Notes from people ahead · 4</h2>
+<div style="font-size: 14px; line-height: 1.45; font-style: italic">“Photograph the meters at handover. It saved me a fight with the old landlord.”</div>
+<div style="font-size: 11px; color: #8fa3bb">Moved in 2025 · reviewed</div>
+</section>
+<div style="display: flex; gap: 8px">
+<button style="flex: 1; height: 48px; border-radius: 14px; border: 0; background: {{accent}}; color: #04121d; font: 600 14px Figtree, sans-serif">Set a € 300 budget</button>
+<button style="flex: 1; height: 48px; border-radius: 14px; border: 0; background: #1a2840; color: #e8eef6; font: 600 14px Figtree, sans-serif">Remind me at handover</button>
+</div>
+<div style="padding: 12px 14px; border-radius: 16px; border: 1px dashed #3b4a60; display: flex; justify-content: space-between; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 14px; font-weight: 600">Been here? Pass it on</div><div style="font-size: 12px; color: #8fa3bb">One line for the next mover · reviewed first</div></div>
+<div style="font-size: 20px">→</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#38bdf8","options":["#38bdf8","#f472b6","#a3e635"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#38bdf8' };
+}
+}
+</script>
+</body>
+</html>

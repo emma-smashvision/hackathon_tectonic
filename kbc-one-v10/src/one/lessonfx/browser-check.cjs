@@ -1,0 +1,67 @@
+/* UI-only headless Chrome check: map autopilot and Drive for me; no game-state mutation. */
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || '/tmp/kbc-game-browser/node_modules/playwright');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+(async () => {
+  const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROMIUM_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
+  const context = await browser.newContext({ viewport: { width: 1512, height: 900 } });
+  const page = await context.newPage(), errors = [];
+  page.on('pageerror', e => { errors.push(e.message); console.error('PAGE ERROR', e.message); });
+  fs.mkdirSync('docs/screenshots', { recursive: true });
+  const shot = async name => { await page.screenshot({ path: `docs/screenshots/r2-lesson-${name}.png` }); console.log('Screenshot', name); };
+  const waitPhase = async name => { await page.waitForSelector(`[data-mission-phase="${name}"]`, { timeout: 90000 }); console.log('Phase', name); };
+  const click = async name => { await page.getByRole('button', { name: name === 'Autopilot there' ? /^Autopilot there/ : name, exact: true }).click(); console.log('Click', name); };
+  async function open(person) {
+    await page.goto(`${process.env.MISSIONS_URL || 'http://localhost:3711/dev/missions'}?p=${person}&debug=1`);
+    await waitPhase('roam'); await page.waitForFunction(() => window.__city10); await page.waitForTimeout(800);
+    assert.equal(await page.getByText('Synthetic demo crowd · not a forecast', { exact: true }).count(), 1);
+    await page.keyboard.press('m'); await page.getByRole('button', {name:'Open map now', exact:true}).or(page.getByRole('button', {name:/^Autopilot there/})).first().waitFor(); if (await page.getByRole('button', {name:'Open map now', exact:true}).isVisible()) await click('Open map now'); await click('Autopilot there');
+    await waitPhase('convoy'); assert.equal(await page.locator('[data-mission-phase]').getAttribute('data-mission-id'), person === 'karim' ? 'karim:company' : 'tom:energy-new-address'); await click('Drive for me'); await waitPhase('prepare');
+    await page.waitForTimeout(1800);
+  }
+  await open('tom');
+  await shot('tom-guess');
+  const slider = page.getByRole('slider', { name: 'Your guess in euros' });
+  await slider.focus(); const before = await slider.inputValue(); await page.keyboard.press('ArrowRight');
+  assert.equal(+await slider.inputValue(), +before + 1);
+  await click('Let the crowd arrive'); await page.waitForTimeout(1700); await shot('tom-median');
+  await click('Meet the crowd'); await page.waitForTimeout(2200); await shot('tom-seven-cars');
+  assert.match(await page.locator('[data-lessonfx-step="reveal"]').innerText(), /1 in 7/);
+  await click('See what helped'); await page.waitForTimeout(1000); await shot('tom-helped');
+  assert.equal(await page.getByText('Associated with these actions, not proof of cause.', { exact: true }).count(), 1);
+  await click('Read the note'); await page.waitForTimeout(2200); await shot('tom-note');
+  await click('Try it yourself'); await page.waitForTimeout(600); await shot('tom-apply');
+  await click('Split the monthly advance in two'); await waitPhase('cross'); await click('Drive for me'); await waitPhase('rewind'); await shot('tom-unprepared');
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('kbcone.v9.village:tom') || '{"done":[]}').done.length), 0);
+  await click('Rewind 5 s'); await click('Drive for me'); await waitPhase('prepare');
+  await click('A dated meter photo on moving-in day'); await waitPhase('cross'); await click('Drive for me');
+  await waitPhase('pave'); await shot('tom-pave'); await waitPhase('passed'); await page.waitForTimeout(1400); await shot('tom-prepared-stamp');
+  await click('Save reminder'); await click('Keep driving');
+  const tom = await page.evaluate(() => JSON.parse(localStorage.getItem('kbcone.v9.village:tom')));
+  assert.deepEqual(tom.done, ['tom:energy-new-address']); assert.equal(tom.saved.length, 1);
+  await page.reload(); await waitPhase('roam');
+  assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem('kbcone.v9.village:tom')).done), tom.done);
+  await open('karim'); await shot('karim-horizons'); await click('Explore both horizons'); await shot('karim-comparison');
+  assert.match(await page.locator('[data-lessonfx-step="reveal"]').innerText(), /Year 1/);
+  assert.match(await page.locator('[data-lessonfx-step="reveal"]').innerText(), /Year 3/);
+  await click('See what helped'); await click('Try it yourself');
+  await click('No. Compare horizons, administration and Sam’s needs'); await waitPhase('cross'); await click('Drive for me'); await waitPhase('passed');
+  await page.waitForTimeout(1200); await shot('karim-stamp');
+  assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem('kbcone.v9.village:karim')).done), ['karim:company']);
+  assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem('kbcone.v9.village:tom')).done), tom.done);
+  // Replay the first Tom lesson via the pause list, now with OS reduced motion.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(`${process.env.MISSIONS_URL || 'http://localhost:3711/dev/missions'}?p=tom&debug=1`); await waitPhase('roam'); await page.waitForFunction(() => window.__city10);
+  await page.keyboard.press('Escape'); await page.getByRole('button', { name: /Passed · replay · First energy bill/ }).click();
+  await page.keyboard.press('m'); await page.getByRole('button', {name:'Open map now', exact:true}).or(page.getByRole('button', {name:/^Autopilot there/})).first().waitFor(); if (await page.getByRole('button', {name:'Open map now', exact:true}).isVisible()) await click('Open map now'); await click('Autopilot there'); await waitPhase('convoy'); await click('Drive for me'); await waitPhase('prepare');
+  assert.equal(await page.locator('[data-lessonfx-step]').getAttribute('data-reduced-motion'), 'true');
+  await shot('tom-reduced-motion'); await click('Plain lessons');
+  await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(400); await shot('tom-plain-mobile');
+  assert.equal(await page.locator('[data-lessonfx-step] canvas').count(), 0);
+  assert.equal(await page.locator('[data-lessonfx-step]').evaluate(el => el.scrollWidth > el.clientWidth + 1), false);
+  await click('A dated meter photo on moving-in day'); await waitPhase('cross'); await click('Drive for me'); await waitPhase('passed');
+  assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem('kbcone.v9.village:tom')).done), tom.done);
+  assert.deepEqual(errors, []);
+  console.log('PASS: Tom prepared/unprepared + rewind + save + reload + idempotent replay; Karim own fork; reduced motion + plain 390px; zero page errors.');
+  await browser.close();
+})().catch(error => { console.error(error); process.exit(1); });

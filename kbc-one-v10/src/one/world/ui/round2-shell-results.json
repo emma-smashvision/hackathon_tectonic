@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "checks": [
+    "Home and Road entry for all six",
+    "plain Margaret lessons",
+    "Nadia care consent",
+    "no Canvas during transform"
+  ],
+  "results": [
+    {
+      "persona": "tom",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "karim",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "sofie",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "lina",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "margaret",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "nadia",
+      "errors": [],
+      "canvasTransformViolations": 0
+    }
+  ]
+}

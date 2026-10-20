@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="600" height="600">
+<!-- Nadia, 47 (synthetic demo character). Drawn for KBC One in the style of the other cast portraits. -->
+<defs>
+<clipPath id="n-c"><circle cx="150" cy="160" r="125"/><rect x="0" y="0" width="300" height="160"/></clipPath>
+<filter id="n-s" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#1B1530" flood-opacity=".18"/></filter>
+</defs>
+<style>
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.blink{transform-box:fill-box;transform-origin:center;animation:blink 6s infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.bob{animation:bob 7s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes steam{0%{opacity:0;transform:translateY(6px)}40%{opacity:.7}100%{opacity:0;transform:translateY(-10px)}}
+.steam{animation:steam 4s ease-in-out infinite}.s2{animation-delay:1.3s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<circle cx="150" cy="160" r="125" fill="#E8E3F4"/>
+<g clip-path="url(#n-c)"><g class="bob">
+  <path d="M56 300 C56 222 98 196 150 196 C202 196 244 222 244 300 Z" fill="#6F8FA8"/>
+  <path d="M150 196 C202 196 244 222 244 300 L198 300 C198 252 184 216 150 208 Z" fill="#000" opacity=".09"/>
+  <path d="M120 200 Q150 226 180 200" stroke="#E9E4D8" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <rect x="139" y="150" width="22" height="46" rx="10" fill="#D9A787"/>
+  <path d="M139 168 Q150 180 161 168 L161 178 Q150 188 139 178 Z" fill="#000" opacity=".1"/>
+  <g>
+    <path d="M98 128 C92 80 120 64 150 64 C182 64 210 82 202 132 C206 160 196 178 188 186 L184 140 C180 116 168 100 150 100 C130 100 118 114 114 140 L112 186 C102 176 94 158 98 128 Z" fill="#3B2A2A"/>
+    <circle cx="106" cy="126" r="8" fill="#D9A787"/><circle cx="194" cy="126" r="8" fill="#D9A787"/>
+    <circle cx="150" cy="122" r="44" fill="#D9A787"/>
+    <path d="M106 118 C104 86 126 72 150 72 C176 72 198 86 194 118 C186 98 170 90 150 92 C132 92 116 100 106 118 Z" fill="#3B2A2A"/>
+    <path d="M150 74 C172 76 188 88 192 106 C182 96 168 92 150 92 Z" fill="#000" opacity=".08"/>
+    <path d="M127 113 Q134 110 141 113 M159 113 Q166 110 173 113" stroke="#3B2A2A" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <ellipse class="blink" cx="134" cy="126" rx="2.8" ry="3.2" fill="#2B2233"/>
+    <ellipse class="blink" cx="166" cy="126" rx="2.8" ry="3.2" fill="#2B2233"/>
+    <path d="M148 132 Q150 137 153 134" stroke="#000" stroke-opacity=".18" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="121" cy="141" r="6" fill="#E88A7A" opacity=".3"/><circle cx="179" cy="141" r="6" fill="#E88A7A" opacity=".3"/>
+    <path d="M141 148 Q150 153 159 148" stroke="#8A4A3E" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  </g>
+</g></g>
+<g class="bob"><g filter="url(#n-s)">
+  <path class="steam" d="M196 214 q-6 -8 0 -16 q6 -8 0 -16" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path class="steam s2" d="M212 214 q-6 -8 0 -16 q6 -8 0 -16" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M182 220 L226 220 L222 266 Q220 276 210 276 L198 276 Q188 276 186 266 Z" fill="#F4EFE6"/>
+  <path d="M226 230 Q242 232 240 246 Q238 258 222 256" stroke="#F4EFE6" stroke-width="6" fill="none"/>
+  <rect x="182" y="218" width="44" height="7" rx="3" fill="#B7B0DA"/>
+  <circle cx="186" cy="262" r="12" fill="#D9A787"/><circle cx="222" cy="262" r="12" fill="#D9A787"/>
+</g></g>
+</svg>

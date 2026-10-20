@@ -1,0 +1,90 @@
+{
+  "sourceRevision": "67623dd9d61797e4ab58c0a52dd53238f9e71003",
+  "results": [
+    {
+      "persona": "tom",
+      "rafFps": 60.023213397446526,
+      "worldFps": "60.0",
+      "worldDpr": "1.5",
+      "worldCalls": "292",
+      "worldTriangles": "45530",
+      "worldCamera": "{\"position\":[207.9968227150687,255.99788181004578,295.9954105884325],\"quaternion\":[-0.2985767208680795,0.28648189256643597,0.0944679222764515,0.9054589326126217]}"
+    },
+    {
+      "persona": "karim",
+      "rafFps": 60.126897651158764,
+      "worldFps": "60.0",
+      "worldDpr": "1.5",
+      "worldCalls": "294",
+      "worldTriangles": "49166",
+      "worldCamera": "{\"position\":[207.9743555535143,255.98290370234287,295.96295802174285],\"quaternion\":[-0.2985763840350707,0.2864821145165918,0.094467884216888,0.90545897743091]}"
+    },
+    {
+      "persona": "sofie",
+      "rafFps": 60.18087511589479,
+      "worldFps": "60.0",
+      "worldDpr": "1.5",
+      "worldCalls": "262",
+      "worldTriangles": "41638",
+      "worldCamera": "{\"position\":[207.97397579576935,255.98265053051315,295.962409482778],\"quaternion\":[-0.29857637834131934,0.2864821182683867,0.09446788357353557,0.9054589781885076]}"
+    },
+    {
+      "persona": "lina",
+      "rafFps": 60.16887175078694,
+      "worldFps": "60.0",
+      "worldDpr": "1.5",
+      "worldCalls": "294",
+      "worldTriangles": "43742",
+      "worldCamera": "{\"position\":[207.97471460296396,255.98314306864262,295.9634766487255],\"quaternion\":[-0.29857638941833026,0.2864821109693899,0.09446788482515715,0.9054589767146255]}"
+    }
+  ],
+  "errors": [],
+  "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+  "checks": [
+    "four game personas + Margaret calm + Nadia ordinary",
+    "own finance districts",
+    "mortgage/rent/insurance",
+    "goal tanks",
+    "contribution tower",
+    "single seven-home storm",
+    "sequential dam",
+    "locked hint + unlock land/fog/build",
+    "no scene persistence",
+    "fly-to + overview",
+    "pointer pan + native touch pinch",
+    "compact reduced motion",
+    "Calm ignores pan/zoom"
+  ],
+  "timestamp": "2026-10-19T00:04:17.805Z",
+  "environment": {
+    "port": 3812,
+    "KBC_AI": "off",
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "deviceScaleFactor": 1.5
+  },
+  "postReview": {
+    "sourceRevision": "f8fadd735860341a1d71bb628284178551cdb493",
+    "changes": [
+      "Preview-only CSS at max-height500px removes review-header overlap; no desktop render change",
+      "Storm caption explicitly labels the seven-home scene as an illustration, not the persona crowd ratio"
+    ],
+    "checks": [
+      "Refreshed compact844x390 reduced-motion capture; all11 labels fit (Care bottom376.14px)",
+      "Refreshed Tom and Karim Home, dam-build and prepared captures; illustrative caption verified"
+    ]
+  },
+  "tests": {
+    "bun": 229,
+    "engine": 48,
+    "failures": 0,
+    "typecheck": "pass",
+    "freshCheckoutTypecheck": {
+      "revision": "8b5cbc0",
+      "generatedNextFiles": false,
+      "result": "pass"
+    }
+  }
+}

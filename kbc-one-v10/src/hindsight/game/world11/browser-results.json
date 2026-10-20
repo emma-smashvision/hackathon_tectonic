@@ -1,0 +1,54 @@
+{
+  "results": [
+    {
+      "persona": "tom",
+      "fps": 60.07798201696203,
+      "worldFps": "60.0",
+      "worldDpr": "1.5",
+      "worldCalls": "228",
+      "worldTriangles": "41200",
+      "worldCamera": "{\"position\":[119.00000000000003,148,165.00000000000003],\"quaternion\":[-0.29434359414939876,0.29228048699398074,0.09506925452452604,0.904928617267642]}"
+    },
+    {
+      "persona": "karim",
+      "fps": 60.35171862509992,
+      "worldFps": "60.0",
+      "worldDpr": "1.5",
+      "worldCalls": "235",
+      "worldTriangles": "43636",
+      "worldCamera": "{\"position\":[119.00000000000001,148,165.00000000000006],\"quaternion\":[-0.2943435941493987,0.2922804869939806,0.09506925452452601,0.9049286172676421]}"
+    },
+    {
+      "persona": "sofie",
+      "fps": 60.32278683314122,
+      "worldFps": "60.0",
+      "worldDpr": "1.5",
+      "worldCalls": "230",
+      "worldTriangles": "43180",
+      "worldCamera": "{\"position\":[119.00000000000001,148,165.00000000000006],\"quaternion\":[-0.2943435941493987,0.2922804869939806,0.09506925452452601,0.9049286172676421]}"
+    },
+    {
+      "persona": "lina",
+      "fps": 60.08993593045558,
+      "worldFps": "60.0",
+      "worldDpr": "1.5",
+      "worldCalls": "229",
+      "worldTriangles": "43180",
+      "worldCamera": "{\"position\":[119.00000000000001,148,165.00000000000006],\"quaternion\":[-0.2943435941493987,0.2922804869939806,0.09506925452452601,0.9049286172676421]}"
+    }
+  ],
+  "errors": [],
+  "checks": [
+    "4 game personas",
+    "plain Margaret",
+    "care consent Nadia",
+    "focus/overview",
+    "prepare dam",
+    "gated ahead",
+    "pan/zoom",
+    "no scene persistence",
+    "compact reduced motion",
+    "growth stage4"
+  ],
+  "timestamp": "2026-10-18T23:13:48.514Z"
+}

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home: three zones</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#4cc3f2}a:hover{color:#8fdcfa}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0a1220; color: #e8eef6; font-family: Figtree, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+<div style="padding: 20px 20px 8px; display: flex; justify-content: space-between; align-items: center">
+<div style="font-size: 18px; font-weight: 600">Hi, Tom</div>
+<button aria-label="Profile" style="width: 36px; height: 36px; border-radius: 18px; border: 0; background: {{accent}}; color: #04121d; font-weight: 700; font-family: inherit">T</button>
+</div>
+<div style="flex: 1; overflow: hidden; padding: 0 16px; display: flex; flex-direction: column; gap: 18px">
+<section aria-label="Fixed" style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 20px; background: #111c2e">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #8fa3bb">Current account</div>
+<div style="font-size: 12px; color: #8fa3bb">Savings € 6.200</div>
+</div>
+<div style="font-size: 36px; font-weight: 600">€ 1.987,40</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<button style="height: 56px; border-radius: 14px; border: 0; background: #1a2840; color: #e8eef6; font: 500 13px Figtree, sans-serif">Transfer</button>
+<button style="height: 56px; border-radius: 14px; border: 0; background: #1a2840; color: #e8eef6; font: 500 13px Figtree, sans-serif">Pay</button>
+<button style="height: 56px; border-radius: 14px; border: 0; background: #1a2840; color: #e8eef6; font: 500 13px Figtree, sans-serif">Scan</button>
+<button style="height: 56px; border-radius: 14px; border: 0; background: #1a2840; color: #e8eef6; font: 500 13px Figtree, sans-serif">Cards</button>
+</div>
+</section>
+<section aria-label="Yours" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600">Yours</h2>
+<button style="border: 0; background: none; color: {{accent}}; font: 500 14px Figtree, sans-serif; min-height: 44px">Edit</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="grid-column: span 2; padding: 14px; border-radius: 16px; background: #111c2e; display: flex; justify-content: space-between; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 12px; color: #8fa3bb">Left until payday · 8 days</div>
+<div style="font-size: 22px; font-weight: 600">€ 1.773</div>
+</div>
+<div style="font-size: 12px; color: #8fa3bb; text-align: right">Lowest € 1.493<br>on 25 Oct</div>
+</div>
+<div style="padding: 14px; border-radius: 16px; background: #111c2e; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; color: #8fa3bb">Gent flat fund</div>
+<div style="font-size: 22px; font-weight: 600">72%</div>
+<div style="height: 6px; border-radius: 3px; background: #1a2840"><div style="width: 72%; height: 6px; border-radius: 3px; background: {{accent}}"></div></div>
+</div>
+<div style="padding: 14px; border-radius: 16px; background: #111c2e; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; color: #8fa3bb">Coming up</div>
+<div style="font-size: 22px; font-weight: 600">4 bills</div>
+<div style="font-size: 12px; color: #8fa3bb">Next: Engie, 22 Oct</div>
+</div>
+</div>
+</section>
+<section aria-label="For you" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600">For you</h2>
+<div style="font-size: 12px; color: #8fa3bb">2 of max 3</div>
+</div>
+<div style="padding: 16px; border-radius: 16px; background: #13243a; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 12px; color: #8fa3bb">Bar Bidon · 4 min ago</div>
+<div style="font-size: 17px; font-weight: 600">Split the € 128,40 with Lien, Arne and Sam?</div>
+<div style="display: flex; gap: 8px">
+<button style="flex: 1; height: 44px; border-radius: 12px; border: 0; background: {{accent}}; color: #04121d; font: 600 14px Figtree, sans-serif">Ask € 32,10 each</button>
+<button style="height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid #2a3b55; background: none; color: #e8eef6; font: 500 14px Figtree, sans-serif">Why?</button>
+</div>
+</div>
+<div style="padding: 16px; border-radius: 16px; background: #13243a; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 12px; color: #8fa3bb">Your road · Moving to Gent · in 5 weeks</div>
+<div style="font-size: 17px; font-weight: 600">Setting up the new place usually costs € 400 to € 800.</div>
+<div style="display: flex; gap: 8px">
+<button style="flex: 1; height: 44px; border-radius: 12px; border: 0; background: #1a2840; color: #e8eef6; font: 600 14px Figtree, sans-serif">Set aside € 150</button>
+<button style="height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid #2a3b55; background: none; color: #e8eef6; font: 500 14px Figtree, sans-serif">Not now</button>
+</div>
+</div>
+</section>
+</div>
+<div style="padding: 10px 16px; display: flex; gap: 10px; align-items: center; border-top: 1px solid #1a2840">
+<div style="flex: 1; height: 44px; border-radius: 22px; background: #111c2e; display: flex; align-items: center; padding: 0 16px; font-size: 14px; color: #8fa3bb">Ask Kate anything…</div>
+</div>
+<nav aria-label="Main" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 6px 8px 18px; background: #0d1626">
+<a href="Main.dc.html" style="text-align: center; font-size: 12px; color: {{accent}}; text-decoration: none; padding: 12px 0">Home</a>
+<a href="Main.dc.html" style="text-align: center; font-size: 12px; color: #8fa3bb; text-decoration: none; padding: 12px 0">Accounts</a>
+<a href="Kate.dc.html" style="text-align: center; font-size: 12px; color: #8fa3bb; text-decoration: none; padding: 12px 0">Kate</a>
+<a href="Road.dc.html" style="text-align: center; font-size: 12px; color: #8fa3bb; text-decoration: none; padding: 12px 0">Your road</a>
+<a href="Main.dc.html" style="text-align: center; font-size: 12px; color: #8fa3bb; text-decoration: none; padding: 12px 0">More</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#38bdf8","options":["#38bdf8","#f472b6","#a3e635"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#38bdf8' };
+}
+}
+</script>
+</body>
+</html>

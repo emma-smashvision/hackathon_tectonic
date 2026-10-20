@@ -1,0 +1,5 @@
+"use client";
+import { useEffect, useMemo } from 'react';
+import * as THREE from 'three';
+/** The v10 environment/post remain in use; this dome extends its night palette into blue hour. */
+export function BlueHour(){const material=useMemo(()=>new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,vertexShader:'varying vec3 p;void main(){p=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:`varying vec3 p;float hash(vec2 v){return fract(sin(dot(v,vec2(127.1,311.7)))*43758.5453);}void main(){vec3 d=normalize(p);float h=max(0.,d.y);vec3 c=mix(vec3(.045,.025,.085),vec3(.002,.008,.025),smoothstep(0.,.5,h));float peach=exp(-pow((d.x+.55)*2.,2.)-pow(d.y*8.,2.));c+=vec3(.015,.008,.025)*peach;vec2 uv=vec2(atan(d.z,d.x),asin(d.y))*430.;float star=step(.9983,hash(floor(uv)))*smoothstep(.14,.55,h);c+=star*.2;gl_FragColor=vec4(c,1.);}`}),[]);useEffect(()=>()=>material.dispose(),[material]);return <mesh material={material}><sphereGeometry args={[1500,32,16]}/></mesh>;}

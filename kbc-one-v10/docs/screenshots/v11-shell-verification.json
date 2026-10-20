@@ -1,0 +1,63 @@
+{
+  "port": 3804,
+  "upstreamHeads": {
+    "v11-model": "24409d94c9b32d26f2a25949ff2ecfa53014a181",
+    "v11-world": "61e97a22d21f35aaa5192738d28a4b7fa311aed1",
+    "v11-ui": "8f4e2aca4b10077767ba00f1919fb6852d488d8a",
+    "v10-shell": "6e13d9e69747e94465238217dcb8c58235e5e837"
+  },
+  "typecheck": "pass",
+  "tests": {
+    "bun": 214,
+    "engine": 48,
+    "failures": 0
+  },
+  "personas": [
+    {
+      "persona": "tom",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "karim",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "sofie",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "lina",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "margaret",
+      "errors": [],
+      "canvasTransformViolations": 0
+    },
+    {
+      "persona": "nadia",
+      "errors": [],
+      "canvasTransformViolations": 0
+    }
+  ],
+  "drive": {
+    "result": "pass",
+    "elapsedSeconds": 38.6,
+    "checks": [
+      "exact lesson GPS",
+      "physical crossing",
+      "saved shield",
+      "return reward",
+      "reload",
+      "persona isolation",
+      "URL reset"
+    ]
+  },
+  "responsive": "portrait plain fallback and compact landscape pass",
+  "signposts": "review, separate reader, useful deduplication, actual lantern and reload pass",
+  "screenshots": 38
+}

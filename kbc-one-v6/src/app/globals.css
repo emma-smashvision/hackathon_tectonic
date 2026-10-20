@@ -1,0 +1,317 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+}
+
+@theme {
+  --color-navy: #003665;
+  --color-navy-600: #0b4a82;
+  --color-navy-50: #eef4fa;
+  --color-azure: #00aeef;
+  /* Darker azure for text and focus rings on white (contrast ≥ 4.5:1). */
+  --color-azure-ink: #006fa0;
+  --color-azure-50: #e6f7fd;
+  --color-ok: #137a45;
+  --color-warn: #9a5b00;
+  --color-bad: #b42318;
+}
+
+body {
+  min-height: 100dvh;
+  background: #03060d;
+  color: #e8f1fb;
+}
+
+/* ---------- Stage: dark, glowing, phone in the middle ---------- */
+.stage-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60rem 40rem at 50% 45%, #0b4a8266, transparent 70%),
+    radial-gradient(30rem 30rem at 85% 15%, #00aeef22, transparent 70%),
+    radial-gradient(35rem 30rem at 10% 90%, #6d4aff1f, transparent 70%), #03060d;
+}
+.stage-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#ffffff0a 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff0a 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+}
+.stage {
+  display: grid;
+  gap: 32px;
+  padding: 24px 16px 40px;
+  max-width: 1400px;
+  margin-inline: auto;
+  grid-template-areas: "brand" "phone" "story" "cast";
+}
+@media (min-width: 1100px) {
+  .stage {
+    min-height: 100dvh;
+    padding: 28px 40px;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "brand brand brand"
+      "story phone cast";
+    align-items: center;
+    column-gap: 56px;
+  }
+}
+.stage-brand {
+  grid-area: brand;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.stage-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7fd6f7;
+}
+.stage-story {
+  grid-area: story;
+  max-width: 26rem;
+  justify-self: end;
+  width: 100%;
+}
+.story-avatar {
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  margin-bottom: 20px;
+  border-radius: 36px;
+  border: 1px solid #7fd6f740;
+  box-shadow: 0 0 60px #00aeef33;
+}
+.story-name {
+  margin-top: 6px;
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(120deg, #ffffff 30%, #7fd6f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.story-role {
+  margin-top: 8px;
+  font-size: 1.15rem;
+  color: #ffffffb3;
+}
+.signal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  color: #fff;
+  background: #ffffff0d;
+  border: 1px solid #7fd6f733;
+  backdrop-filter: blur(8px);
+}
+.signal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00aeef;
+  box-shadow: 0 0 12px #00aeef;
+}
+.story-outcome {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 28px;
+  font-size: 1.3rem;
+  line-height: 1.35;
+  font-weight: 600;
+  color: #fff;
+}
+.stage-phone {
+  grid-area: phone;
+  position: relative;
+  justify-self: center;
+}
+.phone-frame {
+  position: relative;
+  height: min(820px, calc(100dvh - 110px));
+  min-height: 640px;
+  width: min(390px, calc(100vw - 32px));
+  padding: 8px;
+  border-radius: 3rem;
+  background: linear-gradient(160deg, #2a3342, #0a0e16 40%, #1b2230);
+  box-shadow:
+    0 0 0 1px #ffffff1f,
+    0 30px 80px #000000b3,
+    0 0 90px #00aeef40;
+}
+.phone-halo {
+  position: absolute;
+  inset: -3px;
+  border-radius: 3.2rem;
+  background: conic-gradient(
+    from var(--halo-angle, 0deg),
+    #00aeef,
+    #6d4aff,
+    #00aeef00 40%,
+    #00aeef00 60%,
+    #00aeef
+  );
+  filter: blur(14px);
+  opacity: 0.7;
+  animation: halo-spin 8s linear infinite;
+}
+@property --halo-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes halo-spin {
+  to {
+    --halo-angle: 360deg;
+  }
+}
+.stage-cast {
+  grid-area: cast;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-width: 0;
+}
+@media (min-width: 1100px) {
+  .stage-cast {
+    flex-direction: column;
+    justify-self: start;
+    padding: 14px;
+    border-radius: 999px;
+    background: #ffffff08;
+    border: 1px solid #ffffff12;
+    backdrop-filter: blur(12px);
+  }
+}
+.cast-list {
+  display: flex;
+  min-width: 0;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 6px;
+}
+@media (min-width: 1100px) {
+  .cast-list {
+    flex-direction: column;
+    overflow: visible;
+  }
+}
+.cast-avatar {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  color: #bfeaff;
+  background: linear-gradient(145deg, #0b4a82, #1c1f4a);
+  cursor: pointer;
+  opacity: 0.55;
+  filter: saturate(0.6);
+  transition:
+    opacity 250ms,
+    filter 250ms,
+    transform 250ms,
+    box-shadow 250ms;
+}
+.cast-avatar img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+.cast-avatar:hover {
+  opacity: 0.9;
+  filter: none;
+  transform: scale(1.06);
+}
+.cast-avatar[aria-pressed="true"] {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 2px #03060d,
+    0 0 0 4px #00aeef,
+    0 0 28px #00aeef99;
+}
+.cast-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: #fff;
+  background: #00aeef;
+  box-shadow: 0 0 0 3px #03060d;
+}
+.cast-tools {
+  display: flex;
+  gap: 8px;
+}
+@media (min-width: 1100px) {
+  .cast-tools {
+    flex-direction: column;
+    padding-top: 14px;
+    border-top: 1px solid #ffffff14;
+  }
+}
+.cast-tool {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #ffffffb3;
+  cursor: pointer;
+  transition:
+    background 200ms,
+    color 200ms;
+}
+.cast-tool:hover,
+.cast-tool[aria-pressed="true"] {
+  color: #fff;
+  background: #00aeef26;
+}
+.engine-drawer {
+  margin: 0 0 0 auto;
+  height: 100dvh;
+  max-height: none;
+  width: min(560px, 100vw);
+  border: 0;
+  background: #f3f6f9;
+  color: #14213d;
+  overflow-y: auto;
+}
+.engine-drawer::backdrop {
+  background: #03060dcc;
+  backdrop-filter: blur(4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-halo {
+    animation: none;
+  }
+}
+

@@ -1,0 +1,98 @@
+/* r2-road: a continuous night route, shared by every profile. */
+.hs.r2-road { --bg:#091522; --cream:#f1f7fc; --panel:#102638; --muted:#a3b9ca; color:var(--cream); }
+.hs.r2-road .road-phone { background:#091522; }
+.hs.r2-road .r2-body { padding:18px 18px 30px; display:block; overflow-y:auto; }
+.hs.r2-road .r2-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.hs.r2-road .r2-heading h1 { font-family:"Space Grotesk",sans-serif; font-size:28px; font-weight:600; letter-spacing:-1px; }
+.hs.r2-road button { min-height:44px; border:1px solid #39566b; background:#142b3d; color:#ecf7ff; padding:9px 13px; border-radius:12px; font-weight:600; }
+.hs.r2-road button:focus-visible,.r2-city-entry:focus-visible { outline:3px solid #59dcff; outline-offset:3px; }
+.hs.r2-road button:disabled { opacity:.5; }
+.hs.r2-road .r2-heading button { background:transparent; font-size:12px; border-color:#2d4659; }
+.r2-now { padding:17px; border:1px solid #2a495d; border-radius:24px; background:linear-gradient(145deg,#19394caa,#10233488 65%); box-shadow:inset 0 1px #ffffff0c,0 12px 30px #0002; overflow:hidden; }
+.r2-section-label { display:flex; justify-content:space-between; align-items:center; color:#b3c9d8; font-size:12px; margin-bottom:7px; }
+.r2-section-label span:first-child { color:var(--r2-accent); font-weight:700; }
+.hs.r2-road .r2-now h2 { font-family:"Space Grotesk",sans-serif; font-size:23px; font-weight:500; line-height:1.2; letter-spacing:-.5px; }
+.r2-track { margin:0 -18px 4px; height:104px; }
+.r2-track svg { width:100%; height:100%; overflow:visible; }
+.r2-track-bed { fill:none; stroke:#294458; stroke-width:24; }
+.r2-track-line { fill:none; stroke:var(--r2-accent); stroke-width:1.5; stroke-dasharray:5 8; }
+.r2-track circle { fill:var(--r2-accent); }
+.r2-track .r2-you-halo { fill:#59dcff20; stroke:var(--r2-accent); stroke-width:1; }
+.r2-track .r2-you { fill:#fff; filter:drop-shadow(0 0 7px var(--r2-accent)); }
+.r2-track text { fill:#fff; font-size:14px; font-family:inherit; font-weight:700; }
+.r2-stop-pin { stroke:var(--r2-accent); stroke-width:3; }
+.r2-track { animation:r2-track-enter .65s ease-out both; }
+@keyframes r2-track-enter { from { opacity:0; clip-path:inset(0 100% 0 0); } to { opacity:1; clip-path:inset(0); } }
+.r2-next>span { display:flex; justify-content:space-between; color:#a3bdcf; font-size:12px; }
+.r2-next>span b { color:var(--r2-accent); font-weight:500; }
+.hs.r2-road .r2-next h3 { font-size:19px; line-height:1.3; margin:5px 0; font-weight:600; }
+.hs.r2-road .r2-next p { color:#bdd0dd; font-size:13px; line-height:1.45; }
+.r2-entries { display:flex; gap:8px; margin-top:17px; }
+.r2-entries button { flex:1; display:flex; justify-content:space-between; align-items:center; min-height:52px; font-size:15px; text-align:left; }
+.hs.r2-road .r2-entries .r2-drive { background:#c4f3ff; color:#0d2939; border-color:#c4f3ff; }
+.hs.r2-road .r2-mode-note { font-size:12px; color:#b9ccdb; line-height:1.5; margin-top:11px; }
+.r2-section-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:27px 0 15px; }
+.hs.r2-road .r2-section-head h2 { font-size:19px; font-weight:600; letter-spacing:-.3px; }
+.r2-section-head>span { font-size:10px; color:#a3b9ca; text-align:right; }
+.r2-timeline ol { list-style:none; padding:0 0 0 14px; margin:0; }
+.r2-timeline li { position:relative; border-left:1px solid #345063; padding:0 0 22px 19px; }
+.r2-timeline li:last-child { border-color:transparent; padding-bottom:5px; }
+.r2-event-date { display:flex; align-items:center; gap:7px; font-size:11px; color:#a6c0d2; }
+.r2-event-date i { position:absolute; width:9px; height:9px; border-radius:50%; background:var(--area); top:3px; left:-5px; box-shadow:0 0 0 4px #091522,0 0 15px color-mix(in srgb,var(--area),transparent 65%); }
+.r2-event-date span { color:var(--area); margin-left:auto; }
+.hs.r2-road .r2-timeline h3 { font-size:16px; line-height:1.3; font-weight:500; margin:7px 0; }
+.r2-event-info { display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:10px; font-size:10px; }
+.r2-mini { display:flex; align-items:center; gap:7px; color:#a5b9c8; }
+.r2-mini>span { display:flex; gap:3px; }
+.r2-mini i { display:block; width:5px; height:7px; border-radius:3px; background:#647c8e; }
+.r2-mini .r2-hit { background:#ff969c; }
+.r2-mini small { font-size:10px; white-space:nowrap; }
+.r2-private,.r2-not-yet { color:#a2b7c7; }
+.r2-prepared { color:#68e4bb; }
+.hs.r2-road .r2-timeline li>button { width:100%; display:flex; gap:8px; align-items:center; background:#102638; border-color:#233f54; min-height:44px; font-size:12px; }
+.r2-timeline li>button small { color:#b0c7d7; font-weight:400; }
+.r2-timeline li>button>span:last-child { margin-left:auto; color:var(--area); }
+.r2-pagination { display:flex; justify-content:space-between; align-items:center; margin:15px 0; font-size:12px; }
+.r2-pagination span { color:#adc2d1; }
+.r2-area-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 12px; }
+.r2-area-grid article { display:flex; gap:8px; align-items:center; min-width:0; }
+.r2-ring { flex:0 0 48px; width:48px; height:48px; position:relative; display:grid; place-items:center; }
+.r2-ring svg { position:absolute; width:100%; height:100%; transform:rotate(-90deg); }
+.r2-ring circle { fill:none; stroke:#2c4254; stroke-width:3; }
+.r2-ring .r2-ring-value { stroke:var(--area); stroke-linecap:round; }
+.r2-ring b { font-size:12px; font-weight:600; color:var(--area); }
+.hs.r2-road .r2-area-grid h3 { font-size:14px; font-weight:600; }
+.hs.r2-road .r2-area-grid p { font-size:10px; color:#a7bfce; line-height:1.4; margin-top:3px; }
+.hs.r2-road .r2-area-grid button { border:0; padding:6px 0; min-height:44px; font-size:11px; background:none; color:var(--area); text-align:left; }
+.r2-locked .r2-ring svg { stroke-dasharray:3 5; opacity:.6; }
+.r2-locked .r2-ring b { color:#a7b7c4; font-size:22px; }
+.r2-footer { color:#92aaba; text-align:center; font-size:10px; line-height:1.6; margin-top:28px; padding-top:14px; border-top:1px solid #273d4f; }
+.r2-care-copy p { margin:15px 0!important; font-size:15px; line-height:1.55; color:#c8d4e0; }
+.r2-care-copy button { width:100%; margin-top:8px; }
+.hs.r2-road .r2-sheet-drive { width:100%; margin-top:16px; background:#c4f3ff; color:#0d2939; min-height:52px; }
+.hs.r2-road.r2-calm .r2-heading h1 { font-size:30px; }
+.hs.r2-road.r2-calm button,.hs.r2-road.r2-calm .r2-timeline li>button { min-height:54px; font-size:17px; }
+.hs.r2-road.r2-calm .r2-section-label,.hs.r2-road.r2-calm .r2-next>span,.hs.r2-road.r2-calm .r2-next p,.hs.r2-road.r2-calm .r2-mode-note,.hs.r2-road.r2-calm .r2-event-date { font-size:15px; }
+.hs.r2-road.r2-calm .r2-section-head { align-items:start; flex-direction:column; gap:4px; }
+.hs.r2-road.r2-calm .r2-section-head h2,.hs.r2-road.r2-calm .r2-timeline h3 { font-size:22px; }
+.hs.r2-road.r2-calm .r2-section-head>span,.hs.r2-road.r2-calm .r2-event-info,.hs.r2-road.r2-calm .r2-mini small,.hs.r2-road.r2-calm .r2-timeline li>button small { font-size:13px; }
+.hs.r2-road.r2-calm .r2-area-grid { grid-template-columns:1fr; }
+.hs.r2-road.r2-calm .r2-area-grid h3 { font-size:20px; }
+.hs.r2-road.r2-calm .r2-area-grid p,.hs.r2-road.r2-calm .r2-area-grid button { font-size:16px; }
+.hs.r2-road.r2-calm .r2-ring { flex-basis:64px; width:64px; height:64px; }
+.hs.r2-road.r2-calm .r2-ring b { font-size:16px; }
+.hs.r2-road.r2-calm .r2-entries { flex-direction:column; }
+.r2-city-entry { display:block; width:100%; min-height:58px; padding:15px; background:#c4f3ff; color:#102838; border:0; border-radius:16px; font-family:inherit; font-size:18px; font-weight:600; line-height:1.3; margin-top:12px; }
+@media(prefers-reduced-motion:reduce) { .r2-track { animation:none; } }
+/* The older app stylesheet loads last; this tab owns its scroll layout. */
+.hs.yr.r2-road .phone-body.yr-body.r2-body { display:block; padding:18px 18px 30px; }
+.hs.r2-road .r2-now { flex-shrink:0; }
+
+.hs.r2-road.r2-calm { font-size:18px; }
+
+.hs.r2-road.r2-calm button { min-height:54px; }
+
+.hs.r2-road .r2-event-date { font-size:12px; }
+.hs.r2-road .r2-event-info, .hs.r2-road .r2-mini small, .hs.r2-road .r2-area-grid p, .hs.r2-road .r2-footer { font-size:11px; }
+.hs.r2-road.r2-calm .r2-event-date, .hs.r2-road.r2-calm .r2-area-grid p { font-size:16px; }
+.hs.r2-road.r2-calm .r2-event-info, .hs.r2-road.r2-calm .r2-mini small, .hs.r2-road.r2-calm .r2-footer { font-size:13px; }

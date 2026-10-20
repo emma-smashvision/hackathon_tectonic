@@ -1,0 +1,66 @@
+/* Real same-origin Notes API. Uses separate browser profiles for author and reader. */
+const assert = require('node:assert/strict');
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const base = process.env.SHELL_APP_URL || 'http://localhost:3804';
+let browser;
+(async () => {
+  browser = await chromium.launch({ headless: true, executablePath: process.env.CHROMIUM_PATH });
+  const authorContext = await browser.newContext({ viewport: { width: 1512, height: 806 }, reducedMotion: 'reduce' });
+  const readerContext = await browser.newContext({ viewport: { width: 1512, height: 806 }, reducedMotion: 'reduce' });
+  const author = await authorContext.newPage(), reader = await readerContext.newPage();
+  const errors = [];
+  async function enter(page, url) {
+    if (url) await page.goto(url);
+    else await page.reload();
+    await page.locator('[data-world-entry]').waitFor();
+    await page.locator('.kbc-thinking').waitFor({ state: 'hidden' });
+    await page.locator('[data-world-entry]').click();
+    await page.locator('.ls-wrap[data-phase="playing"] canvas').waitFor();
+  }
+  for (const page of [author, reader]) { page.setDefaultNavigationTimeout(90000); page.on('pageerror', e => errors.push(e.message)); }
+  const reset = await author.request.delete(`${new URL(base).origin}/api/notes`, { data: { action: 'reset-demo' } });
+  assert.ok(reset.ok());
+  await enter(author, `${base}/?p=tom&reset=1`);
+  await author.getByRole('button', { name: 'Reset world demo', exact: true }).click();
+  await author.getByRole('button', { name: 'Home · open area', exact: true }).click();
+  await author.getByTestId('world-panel').getByRole('button', { name: 'Start lesson', exact: true }).first().click();
+  const card = author.locator('[data-lesson]');
+  await card.getByRole('button').first().click();
+  await card.getByRole('button', { name: 'See what helped', exact: true }).click();
+  await card.getByRole('button', { name: 'Pave this bump', exact: true }).click();
+  await card.getByRole('button').first().click();
+  await card.getByRole('button', { name: 'Keep this lesson', exact: true }).click();
+  await card.getByRole('button', { name: 'Not now', exact: true }).click();
+  await author.getByRole('button', { name: 'See my area grow', exact: true }).click();
+  await author.getByRole('button', { name: 'Signposts & lanterns', exact: true }).click();
+  await author.getByLabel('Your line for the next person').fill('Photograph the meters on the day you get the keys.');
+  await author.getByRole('button', { name: 'Leave it on the road', exact: true }).click();
+  await author.getByText('In review', { exact: true }).waitFor();
+  await author.screenshot({ path: 'docs/screenshots/v11-shell-signpost-review.png' });
+  assert.equal(await author.getByRole('button', { name: 'Mark useful', exact: true }).count(), 0);
+  await author.getByText('Approved', { exact: true }).waitFor({ timeout: 15000 });
+  await enter(reader, `${base}/?p=tom&reset=1`);
+  await reader.getByRole('button', { name: 'Home · open area', exact: true }).click();
+  await reader.getByRole('button', { name: 'Signposts & lanterns', exact: true }).click();
+  await reader.getByRole('button', { name: 'Mark useful', exact: true }).waitFor();
+  assert.equal(await reader.getByLabel('Your line for the next person').count(), 0, 'Reader has not earned a blueprint yet');
+  await reader.getByRole('button', { name: 'Mark useful', exact: true }).click();
+  await reader.getByRole('button', { name: 'Marked useful', exact: true }).waitFor();
+  assert.ok(await reader.getByRole('button', { name: 'Marked useful', exact: true }).isDisabled());
+  await reader.screenshot({ path: 'docs/screenshots/v11-shell-signpost-useful.png' });
+  await author.getByText('1 found this useful', { exact: true }).waitFor({ timeout: 10000 });
+  await author.screenshot({ path: 'docs/screenshots/v11-shell-lantern.png' });
+  await author.getByRole('button', { name: 'Close area panel', exact: true }).click();
+  await author.getByText('1 lantern', { exact: true }).waitFor();
+  await enter(author);
+  await author.getByText('1 lantern', { exact: true }).waitFor();
+  await author.screenshot({ path: 'docs/screenshots/v11-shell-lantern-world.png' });
+  await enter(reader);
+  await reader.getByRole('button', { name: 'Home · open area', exact: true }).click();
+  await reader.getByRole('button', { name: 'Signposts & lanterns', exact: true }).click();
+  assert.ok(await reader.getByRole('button', { name: 'Marked useful', exact: true }).isDisabled());
+  assert.deepEqual(errors, []);
+  await author.request.delete(`${new URL(base).origin}/api/notes`, { data: { action: 'reset-demo' } });
+  await browser.close();
+  console.log('Integrated shell signposts passed: earned eligibility, review, separate-profile useful feedback, deduplication, actual lantern count and reload persistence.');
+})().catch(async error => { console.error(error); await browser?.close(); process.exitCode = 1; });

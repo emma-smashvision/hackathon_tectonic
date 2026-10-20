@@ -1,0 +1,60 @@
+{
+  "results": [
+    {
+      "persona": "tom",
+      "sourceAccount": "savings",
+      "firstPercent": 72,
+      "afterPercent": 74,
+      "map": true,
+      "physicalPad": true,
+      "escape": true,
+      "localOnly": true,
+      "reset": true
+    },
+    {
+      "persona": "karim",
+      "sourceAccount": "savings",
+      "firstPercent": 77,
+      "afterPercent": 77,
+      "map": true,
+      "physicalPad": true,
+      "escape": true,
+      "localOnly": true,
+      "reset": true
+    },
+    {
+      "persona": "sofie",
+      "sourceAccount": "current",
+      "firstPercent": 69,
+      "afterPercent": 69,
+      "map": true,
+      "physicalPad": true,
+      "escape": true,
+      "localOnly": true,
+      "reset": true
+    },
+    {
+      "persona": "lina",
+      "sourceAccount": "savings",
+      "firstPercent": 45,
+      "afterPercent": 49,
+      "map": true,
+      "physicalPad": true,
+      "escape": true,
+      "localOnly": true,
+      "reset": true
+    }
+  ],
+  "checks": [
+    "all own destinations",
+    "real keyboard pad arrival",
+    "real building click",
+    "map Go there",
+    "park/freeze/camera",
+    "Escape and no retrigger",
+    "goal validation and reload reset",
+    "existing mission GPS handoff",
+    "narrow/reduced-motion and compact"
+  ],
+  "errors": []
+}

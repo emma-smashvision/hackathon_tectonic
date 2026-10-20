@@ -1,0 +1,576 @@
+/* v8: one crowd road, read downwards. All selectors stay inside the Road tab. */
+.hs.road8 {
+  --r8-line: #2a3c53;
+  --r8-amber: #f7bb36;
+  --r8-amber-bg: #302916;
+  --r8-mint: #56d8b0;
+  --r8-help-bg: #102c27;
+  --r8-soft: #a9bbd0;
+}
+.hs.road8 .road-phone {
+  background: var(--bg);
+}
+.hs.road8 .road8-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 12px 17px 24px;
+  overflow-y: auto;
+}
+.hs.road8 :is(h1, h2, h3, p, figure, blockquote) {
+  margin: 0;
+}
+.hs.road8 button {
+  cursor: pointer;
+  font: inherit;
+  line-height: 1.35;
+}
+.hs.road8 button:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 3px;
+}
+.hs.road8 button:disabled {
+  cursor: default;
+  opacity: 0.8;
+}
+.hs.road8 .road8-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hs.road8 .road8-header h1 {
+  font-size: 28px;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+}
+.hs.road8 .road8-switches {
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.hs.road8 .road8-switches button {
+  border: 1px solid transparent;
+  border-radius: 22px;
+  background: var(--panel);
+  color: var(--cream);
+  padding: 8px 10px;
+  min-height: 44px;
+  font-size: 12px;
+  font-weight: 600;
+  flex: 1;
+}
+.hs.road8 .road8-switches button[aria-pressed="true"] {
+  background: var(--cyan);
+  color: #082133;
+}
+.hs.road8 .road8-switches .road8-all {
+  flex: 0 0 auto;
+  border-color: var(--r8-line);
+  color: var(--cyan);
+  background: transparent;
+}
+.hs.road8 .road8-provenance {
+  color: var(--r8-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.hs.road8 .road8-provenance button {
+  color: inherit;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  padding: 3px 0;
+}
+.hs.road8 .road8-crowd {
+  font-size: 14px;
+  line-height: 1.45;
+}
+.hs.road8 .road8-exploring {
+  color: var(--lilac);
+  font-size: 12px;
+}
+.hs.road8 .road8-timeline {
+  position: relative;
+  padding-bottom: 10px;
+}
+.hs.road8 .road8-timeline:before {
+  content: "";
+  position: absolute;
+  top: 23px;
+  bottom: 0;
+  left: 25px;
+  width: 5px;
+  border-radius: 5px;
+  background: var(--r8-line);
+}
+.hs.road8 .road8-you {
+  display: flex;
+  gap: 17px;
+  align-items: center;
+  position: relative;
+}
+.hs.road8 .road8-you-dot {
+  width: 55px;
+  height: 55px;
+  flex-shrink: 0;
+  border: 6px solid color-mix(in srgb, var(--cyan) 25%, var(--bg));
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  background: var(--bg);
+  color: var(--cyan);
+  font-size: 12px;
+  font-weight: 700;
+}
+.hs.road8 .road8-you strong {
+  display: block;
+  font-size: 16px;
+}
+.hs.road8 .road8-you div > span {
+  display: block;
+  color: var(--r8-soft);
+  font-size: 12px;
+  margin-top: 4px;
+}
+.hs.road8 .road8-ghosts {
+  display: flex;
+  gap: 17px;
+  align-items: center;
+  min-height: 83px;
+  position: relative;
+}
+.hs.road8 .road8-ghost-dots {
+  width: 55px;
+  height: 55px;
+  position: relative;
+  flex-shrink: 0;
+  animation: road8-drift 5s ease-in-out infinite;
+}
+.hs.road8 .road8-ghost-dots i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  position: absolute;
+  background: #a9bfd5;
+  opacity: 0.42;
+  left: 20px;
+  top: 10px;
+}
+.hs.road8 .road8-ghost-dots i:nth-child(2) {
+  left: 40px;
+  top: 24px;
+  width: 10px;
+  height: 10px;
+  opacity: 0.25;
+}
+.hs.road8 .road8-ghost-dots i:nth-child(3) {
+  left: 7px;
+  top: 36px;
+  width: 9px;
+  height: 9px;
+  opacity: 0.2;
+}
+.hs.road8 .road8-ghosts p {
+  color: var(--r8-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.hs.road8 .road8-ghosts p span {
+  font-size: 11px;
+}
+.hs.road8 .road8-stops {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 21px;
+}
+.hs.road8 .road8-stop {
+  position: relative;
+  display: flex;
+  gap: 25px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  color: var(--cream);
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 18px;
+  padding: 9px 0;
+  min-height: 80px;
+}
+.hs.road8 .road8-stop-dot {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #546980;
+  border-radius: 7px;
+  margin-left: 17px;
+  background: var(--bg);
+  text-align: center;
+  font-size: 14px;
+}
+.hs.road8 .road8-stop-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-right: 8px;
+}
+.hs.road8 .road8-when {
+  color: var(--r8-soft);
+  font-size: 12px;
+}
+.hs.road8 .road8-stop strong {
+  font-size: 16px;
+  line-height: 1.35;
+}
+.hs.road8 .road8-stop-evidence {
+  color: var(--r8-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.hs.road8 .road8-next .road8-stop {
+  padding: 15px;
+  background: var(--r8-amber-bg);
+  border-color: var(--r8-amber);
+}
+.hs.road8 .road8-next .road8-stop-dot {
+  display: none;
+}
+.hs.road8 .road8-next .road8-when,
+.hs.road8 .road8-open {
+  color: var(--r8-amber);
+}
+.hs.road8 .road8-open {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  padding-top: 6px;
+}
+.hs.road8 :is(.road8-primary, .road8-secondary) {
+  padding: 12px 14px;
+  border-radius: 14px;
+  min-height: 48px;
+  border: 1px solid var(--r8-line);
+  font-weight: 600;
+  font-size: 14px;
+}
+.hs.road8 .road8-primary {
+  background: var(--cream);
+  color: var(--bg);
+  border-color: var(--cream);
+}
+.hs.road8 .road8-secondary {
+  background: var(--panel);
+  color: var(--cream);
+}
+.hs.road8 .road8-actions {
+  display: flex;
+  gap: 9px;
+  margin-top: auto;
+}
+.hs.road8 .road8-actions button {
+  flex: 1;
+}
+.hs.road8 .road8-footer {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--r8-soft);
+}
+.hs.road8 .road8-person {
+  padding: 22px 18px;
+  background: var(--panel);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.hs.road8 .road8-person > span {
+  color: var(--lilac);
+  font-size: 38px;
+}
+.hs.road8 .road8-person h2 {
+  font-size: 24px;
+  line-height: 1.25;
+}
+.hs.road8 .road8-person p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--r8-soft);
+}
+.hs.road8 .yr-sheet {
+  gap: 16px;
+  max-height: 97%;
+  padding: 18px 16px 24px;
+}
+.hs.road8 .yr-sheet h2 {
+  font-size: 24px;
+  line-height: 1.2;
+}
+.hs.road8 .yr-sheet .yr-close {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+}
+.hs.road8 .road8-sheet-context {
+  color: var(--r8-soft);
+  font-size: 12px;
+}
+.hs.road8 .road8-panel {
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hs.road8 .road8-panel h3 {
+  font-size: 16px;
+}
+.hs.road8 .road8-surprise h3 {
+  color: var(--r8-amber);
+}
+.hs.road8 .road8-panel .road8-stat {
+  font-size: 18px;
+  line-height: 1.5;
+}
+.hs.road8 .road8-helped {
+  background: var(--r8-help-bg);
+}
+.hs.road8 .road8-helped h3 {
+  color: var(--r8-mint);
+}
+.hs.road8 .road8-helped ol {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.hs.road8 .road8-helped li strong {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.hs.road8 .road8-helped li p {
+  font-size: 12px;
+  color: var(--r8-soft);
+  margin-top: 5px;
+}
+.hs.road8 .road8-panel .road8-small,
+.hs.road8 .road8-small {
+  color: var(--r8-soft);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.hs.road8 .road8-notes h3 {
+  color: var(--lilac);
+}
+.hs.road8 .road8-notes figure {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.hs.road8 .road8-notes blockquote {
+  font-size: 16px;
+  line-height: 1.5;
+  font-style: italic;
+}
+.hs.road8 .road8-notes figcaption {
+  font-size: 11px;
+  color: var(--r8-soft);
+}
+.hs.road8 .road8-save-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.hs.road8 .road8-save-actions button {
+  flex: 1 1 140px;
+}
+.hs.road8 .road8-segment {
+  display: flex;
+  gap: 5px;
+}
+.hs.road8 .road8-segment button {
+  flex: 1;
+  min-height: 44px;
+  border: 1px solid var(--r8-line);
+  border-radius: 12px;
+  padding: 8px;
+  color: var(--cream);
+  background: var(--panel);
+  font-size: 12px;
+}
+.hs.road8 .road8-segment button[aria-pressed="true"] {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.hs.road8 .road8-fork-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+.hs.road8 .road8-fork-grid .road8-panel {
+  padding: 12px;
+}
+.hs.road8 .road8-fork-grid dl {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+.hs.road8 .road8-fork-grid dt {
+  font-size: 12px;
+  color: var(--r8-soft);
+}
+.hs.road8 .road8-fork-grid dd {
+  margin: 5px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+.hs.road8 .road8-withheld {
+  padding: 14px;
+  border: 1px dashed var(--r8-amber);
+  border-radius: 14px;
+  color: var(--r8-amber);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.hs.road8 .road8-notice {
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  right: 10px;
+  background: var(--panel);
+  padding: 14px;
+  border: 1px solid var(--r8-mint);
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+.hs.road8 .road8-notice button {
+  background: none;
+  border: 0;
+  color: inherit;
+}
+.hs.road8 .road8-cards:before {
+  display: none;
+}
+.hs.road8 .road8-cards .road8-you {
+  margin-bottom: 20px;
+}
+.hs.road8 .road8-cards .road8-stops {
+  gap: 14px;
+}
+.hs.road8 .road8-cards .road8-stop {
+  padding: 18px;
+  background: var(--panel);
+  border-color: var(--r8-line);
+}
+.hs.road8 .road8-cards .road8-stop-dot {
+  display: none;
+}
+.hs.road8.road8-simple .road8-stop strong {
+  font-size: 22px;
+}
+.hs.road8.road8-simple
+  :is(
+    .road8-stop-evidence,
+    .road8-when,
+    .road8-provenance,
+    .road8-crowd,
+    .road8-open
+  ) {
+  font-size: 16px;
+}
+.hs.road8.road8-simple .road8-switches {
+  flex-wrap: wrap;
+}
+.hs.road8.road8-simple .road8-switches button {
+  font-size: 16px;
+  min-height: 52px;
+}
+.hs.road8.road8-simple :is(.road8-primary, .road8-secondary) {
+  font-size: 18px;
+  min-height: 56px;
+}
+.hs.road8.road8-simple .road8-footer {
+  font-size: 12px;
+}
+.hs.road8.light {
+  --r8-line: #c9d7e4;
+  --r8-soft: #4b6177;
+  --r8-amber: #7b5200;
+  --r8-amber-bg: #fff5d8;
+  --r8-mint: #11684c;
+  --r8-help-bg: #e4f4ed;
+}
+.hs.road8.light .road8-notes h3 {
+  color: #65509b;
+}
+@keyframes road8-drift {
+  0%,
+  100% {
+    transform: translateY(-3px);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hs.road8,
+  .hs.road8 .road8-ghost-dots {
+    animation: none;
+  }
+}
+@media (max-width: 360px) {
+  .hs.road8 .road8-switches {
+    flex-wrap: wrap;
+  }
+  .hs.road8 .road8-fork-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.hs.road8 .road8-range {
+  font-size: 12px;
+  color: var(--r8-soft);
+}
+.hs.road8 .road8-range summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  text-decoration: underline;
+}
+.hs.road8 .road8-range ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: grid;
+  gap: 9px;
+}
+.hs.road8 .road8-range li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.hs.road8.road8-simple .yr-sheet :is(p, li strong, blockquote) {
+  font-size: 18px;
+}
+.hs.road8.road8-simple .yr-sheet h3 {
+  font-size: 20px;
+}
+/* Keep the road name and All roads available while looking farther ahead. */
+.hs.road8 .road8-header {
+  position: sticky;
+  top: -12px;
+  z-index: 3;
+  background: var(--bg);
+  padding: 0 0 12px;
+}
+.hs.road8.light .road8-switches button[aria-pressed="true"] {
+  color: #fff;
+}
