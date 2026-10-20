@@ -1,78 +1,78 @@
-# KBC One v7
+# KBC One
 
-> **Roadmap-only build.** This copy of `kbc-one-v10` keeps Home, the **Your road** tab, **All roads** and the 2D roadmap views (housing: first home, moving house; business: going freelance, sole trader or company). The 3D city, driving, missions and three.js dependencies were removed. Run it with `bun install && bun run dev` (port 3700). Kate and the Home composer use the Anthropic API when `ANTHROPIC_API_KEY` is set (for deploys), and the local `claude` CLI otherwise; `KBC_AI=off` uses the built-in rules only.
+**The pitch app for the KBC challenge:** a proactive banking home, Kate, Your road and founder roads built on what 2.3 million earlier customers did. The [main README](../README.md) tells the story and the demo; this file is for running and changing the app.
 
-**1 app for each person · 1 click to the next useful step · 1 road from today to what comes next**
-
-KBC One combines a personal banking Home, Kate customization, and a plain financial overview with Your road. It keeps the dark glass, bubbles, KBC azure and phone-to-landscape transition from v6, while showing fewer things at once.
-
-Start with the [five-minute jury demo](docs/v7-demo-script.md). The [v7 brief](docs/v7-brief.md) describes the design and workstreams.
-
-## What changed from v6
-
-- **Home has three visible zones.** Fixed contains the balance and Transfer, Pay, Scan and Cards. Yours contains up to six chosen blocks. For you contains at most three suggestions, each with Why? and Not now. At most one suggestion is a journey.
-- **Kate previews changes.** A style and Coffee request produces one combined preview with Apply and Change. Apply can be undone for 10 seconds. The fixed essentials and contrast checks remain protected.
-- **Your road is a plain overview.** It shows applicable assets and products, dated next steps, preparation actions and goal progress. Tap an asset for details. Saved actions appear in Your plan.
-- **Journeys start in the app.** Director → Send a journey nudge shows a private simulated lock screen. Opening it shows the journey, the customer's product, cohort hindsight, preparation progress and one-tap plan actions.
-- **Margaret and Nadia do not get the game.** Margaret has large, simple words and two large actions. Nadia gets calm support, her advisor first, and optional next steps.
-
-The rail selects six synthetic customers: Tom, Lina, Margaret, Karim, Sofie and Nadia. The activity icon opens Inside Kate, Behind the glass and Director. The guided rail tour is maintained alongside the [demo script](docs/v7-demo-script.md#guided-rail-tour-handoff).
+This build started from KBC One v10, without its 3D city and driving game, and adds the business roadmaps.
 
 ## Run
 
 ```bash
-cd kbc-one-v7
-bun install
+bun install --frozen-lockfile
 bun run dev
-# http://localhost:3400/?p=tom
+# http://localhost:3700/?p=lina
 ```
 
-Use the stable rules mode for a timed rehearsal:
+| Environment variable | Effect |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Kate and the home composer call the Anthropic API through `@anthropic-ai/sdk` (`claude-opus-5-5`, low effort, server-side fallbacks) |
+| *(not set)* | The local Claude Code CLI (`claude -p`) is used, with your own login |
+| `KBC_AI=off` | Built-in rules only, for stable timed rehearsals |
+| `KBC_KATE_MODEL`, `KBC_COMPOSE_MODEL` | Override the model: `opus`, `sonnet`, `haiku` or a full model ID |
+| `KBC_CLAUDE_TIMEOUT_MS` | Timeout per Claude call (default 90 000) |
 
-```bash
-KBC_AI=off bun run dev
-```
+Slow, refused or failed Claude calls fall back to the built-in rules. Production: `bun run build`, then `bun run start` (port **3700**). Run a single instance, because demo state is kept on disk.
 
-The exact prompt **“I like a pink, calm style and show my coffee spending”** works in this mode. Local customization rules handle the combined preview even when AI is enabled. For model-generated Home suggestions and other Kate replies, run without `KBC_AI=off`, with the `claude` CLI installed and signed in. Slow or unavailable model calls fall back to rules.
+## Demo customers
 
-For an isolated workstream check, use `bunx next dev -p 3403`. Production commands are `bun run build` and `bun run start`; start also uses port **3400**.
+Open `/?p=<id>` or pick a portrait on the rail.
 
-## Demo controls and state
+| Id | Customer | Story |
+| --- | --- | --- |
+| `lina` | Lina, 31 | Weekend in London: pound pocket, trip spending, top-up |
+| `tom` | Tom, 29 | Moving to Gent: split the dinner bill, moving checklist, flat fund |
+| `sofie` | Sofie, 34 | Physiotherapist: sole proprietorship done, **Become a BV?** |
+| `marc` | Marc, 26 | Tech founder: domain bought, **Side activity or BV?** |
+| `karim` | Karim, 45 | Freelance designer: sole proprietorship → BV |
+| `margaret` | Margaret, 74 | Large and simple |
+| `nadia` | Nadia, 47 | Losing a parent: calm, a person first |
 
-- Select a customer on the portrait rail, or open `/?p=tom`, `/?p=margaret`, `/?p=karim` or another seeded persona.
-- The activity icon → Director contains **Send a journey nudge**, an optional auto-nudge switch, reset controls and other rehearsal controls. Nadia's care experience has no journey nudge.
-- Kate customer state is stored locally on the server in `.data/kbc-state.json`. Chats and road plans use browser storage. Road state uses `kbcone.v5.road.<person>`; this is an existing storage key, not the product version.
-- For a clean rehearsal, use a fresh private browser window **and** Director → Reset this customer for any server-side customer state you changed. Do not assume that the Director reset removes every existing plan entry. See the script's preflight.
+For Sofie and Marc, **Your road** and the big Home bubble open their founder road directly.
+
+## State and reset
+
+- **Server state:** Kate looks, layouts and requests are kept in `.data/kbc-state.json`. Reset one customer with `POST /api/kbc/command` and the body `{"persona":"sofie","type":"reset"}`, or with Director → Reset.
+- **Founder road progress** (crossroads choices, finished steps) is kept in memory for the session; a reload starts again.
+- **Plan reminders and chats** use browser storage.
 
 ## Checks
 
-Run these inside `kbc-one-v7/`:
-
 ```bash
 bun run typecheck
-bun run test
-bunx tsx --test src/one/yourroad/model.test.ts
-bunx tsx --test src/hindsight/game/neighbourhood.test.ts
+bun run test    # bun tests in src/ plus tsx tests in tests/
+bun run build
 ```
 
-The last two commands cover workstream helper tests outside the default test command's paths. After changing a `*.src.css` file, run `node scripts/scope-css.mjs` and check the rendered page. Existing persona screenshots are in [docs/screenshots](docs/screenshots/).
+After changing a `*.src.css` file, run `node scripts/scope-css.mjs` to regenerate the scoped CSS. CI runs typecheck, tests and build on every pull request.
 
 ## Code map
 
 | Location | Responsibility |
 | --- | --- |
-| `src/kbc/` | Synthetic personas, transactions, Home composition, actions, Kate and theme validation |
-| `src/kbc/ui/App.tsx`, `Screens.tsx`, `stage.ts` | Phone shell, Home zones, Kate interface and presenter stage |
-| `src/one/RoadTab.tsx`, `yourroad/` | Plain Your road, product sheets, dates, goals and saved plan |
-| `src/one/nudge/` | Journey selection, privacy-safe simulated notification and journey page |
-| `src/one/people.ts`, `road.ts` | The shared household/persona bridge and cohort facts |
-| `src/hindsight/engine/` | Synthetic life/cohort calculations and assets |
-| `src/app/` | Next.js entry point and demo API routes |
+| `src/kbc/personas.ts` | Synthetic customers, transactions and advisors (rail order) |
+| `src/kbc/compose.ts`, `server/service.ts` | Home composition and Kate, with validation and the rules fallback |
+| `src/kbc/server/claude.ts` | Claude access: Anthropic API with a key, `claude -p` without |
+| `src/kbc/ui/App.tsx`, `HomeMix.tsx`, `MixBubbles.tsx`, `stage.ts` | Phone shell, Home bubbles, presenter stage |
+| `src/one/RoadTab.tsx`, `yourroad/`, `atlas8/` | Your road, All roads and plan |
+| `src/one/business/model.ts` | Job roads, Belgian partners and what earlier customers chose |
+| `src/one/business/founder.ts` | Founder roads in seven chapters (Sofie and Marc in full), the crossroads, partner teams and the chapter map |
+| `src/one/business/BusinessRoads.tsx`, `FounderCard.tsx`, `founder.css` | The founder road screens, the crossroads, *What you need now* with Kate's drafts, Home bubble styling and the road-tab card |
+| `public/partners/` | Partner logos used on the *What you need now* cards |
+| `src/hindsight/engine/` | Synthetic cohort roads and life calculations |
+| `src/app/` | Next.js entry and API routes (`/api/kbc/*`, `/api/notes`) |
 
 ## Prototype limits
 
-All customer and cohort data is synthetic. The prototype is not connected to real KBC accounts or 23 million customer records. Hindsight describes cohort experience; it is not a prediction about a person.
-
-A split currently takes **Ask € 32,10 each → Send requests**. The first tap prepares the task; it does not send the requests. Plan actions, bookings and reminders are demo records, not real financial instructions or live notifications. The € 35 monthly insurance step prepares for **next year's renewal**; the imminent bill remains due.
-
-The Home and road share a persona but have separate state stores. Advancing the road's month is not a complete simulation of the Home's transaction history. The [demo script](docs/v7-demo-script.md#rehearsal-findings-and-fallbacks) records the verified sequence and observed issues.
+- **Synthetic data.** All customer, crowd and practice data is synthetic. Percentages describe a synthetic crowd; they are not forecasts.
+- **Not legal advice.** The Belgian rules on the business roads are simplified and are not legal or tax advice.
+- **Example offers.** Partner offers are examples; the named organisations are where people go, not KBC partners.
+- **Demo records only.** Plan actions, bookings and payments are demo records, not real instructions.
