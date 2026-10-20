@@ -14,7 +14,8 @@
       "!dist",
       "!build",
       "!src/lib/supabase/database.types.ts",
-      "!public/characters"
+      "!public/characters",
+      "!kbc-one-v10"
     ]
   },
   "formatter": {
