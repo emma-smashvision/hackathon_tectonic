@@ -4,7 +4,7 @@ import { type CSSProperties, Fragment, type ReactNode, useEffect, useRef, useSta
 import { useStore } from "../../hindsight/components/store";
 import {
   CHAPTERS, chapter, type ChapterId, chapterTitle, type FounderNode, type FounderRoad, formatSaved,
-  MAP_EDGES, MAP_NODES, mapStateFor, nowNode, routeNodes, savedMinutes,
+  MAP_EDGES, MAP_NODES, mapStateFor, nowNode, routeNodes, savedMinutes, type TeamItem,
 } from "./founder";
 import { FIcon } from "./FounderIcon";
 import { useFounderRoad } from "./founderState";
@@ -43,9 +43,13 @@ function BusinessRoadsContent({ personKey, advisorName, large, start, onClose, o
   const [screen, setScreen] = useState<Screen>(start === "road" && customer ? "road" : "start");
   const [mapFrom, setMapFrom] = useState<Screen>("start");
   const [profileId, setProfileId] = useState(customer?.profile ?? "physio");
-  const { road, chosen, choose, complete } = useFounderRoad(personKey, profileId);
+  const { road, chosen, choose, complete, completeStep } = useFounderRoad(personKey, profileId);
   const [open, setOpen] = useState<Open>(null);
   const [notice, setNotice] = useState("");
+  // Team members the customer lined up, by road, side and partner: the organisation they chose.
+  const [lined, setLinedState] = useState<Record<string, TeamState>>(() => ({ ...linedMemory }));
+  // Kept outside the component too, so leaving the road and coming back keeps what was done.
+  const setLined = (fn: (l: Record<string, TeamState>) => Record<string, TeamState>) => setLinedState((l) => { const next = fn(l); Object.assign(linedMemory, next); return next; });
   const scrollRef = useRef<HTMLDivElement>(null);
   const adviser = advisorName ?? s.advisor?.name ?? "your KBC adviser";
   const profile = profileById(profileId) ?? PROFILES[0];
@@ -69,6 +73,17 @@ function BusinessRoadsContent({ personKey, advisorName, large, start, onClose, o
     s.addPlanItem({ id: `biz:${road.id}:adviser`, source: { scope: "road", roadId: `business:${profile.id}`, key: "adviser" }, spec: { kind: "talk", title: `Talk to ${adviser} about your business`, detail: `${profile.headline}. Bring your questions from the road.`, topic: "Starting a business" } });
     setNotice(`Saved to your plan: a talk with ${adviser}.`);
   };
+  const lineUp = (side: "a" | "b", t: TeamItem, name: string, by: "you" | "kate" = "you") => {
+    setLined((l) => ({ ...l, [teamKey(road, side, t)]: { name, by } }));
+    s.addPlanItem({ id: `biz:${road.id}:team:${t.partner}`, source: { scope: "road", roadId: `business:${profile.id}`, key: `team:${t.partner}` }, spec: { kind: "remind", title: `${name}: ${PARTNERS[t.partner].name.toLowerCase()}`, detail: fill(t.then ?? t.why, name) } });
+    setNotice(`${fill("{name}", name)}: done. Kate follows up in your plan.`);
+    // The road step this partner helps with is done, also when it is not the current one.
+    const step = routeNodes(road, side).find((n) => n.status !== "done" && n.partners.includes(t.partner));
+    if (step) completeStep(step.id);
+  };
+  const handToKate = (side: "a" | "b", t: TeamItem, name: string) => {
+    onAskKate?.(`About ${PARTNERS[t.partner].name.toLowerCase()} with ${fill("{name}", name)}: ${t.why.toLowerCase()}. What do you still need from me?`);
+  };
   const node = open?.kind === "node" ? road.nodes.find((n) => n.id === open.id) : undefined;
   const back: Back = (label, to) => <button type="button" className="fr-back" onClick={to}><FIcon name="back" size={18} />{label}</button>;
   const ask = (q: string) => onAskKate && (() => onAskKate(`I am a ${profile.job.toLowerCase()}. ${q}`));
@@ -86,9 +101,14 @@ function BusinessRoadsContent({ personKey, advisorName, large, start, onClose, o
         }} />}
       {screen === "map" && <MapScreen road={road} back={back} onBack={() => setScreen(mapFrom === "map" ? "start" : mapFrom)} onRoad={goRoad} detected={customer?.profile} />}
       {screen === "crossroads" && road.fork && <CrossroadsScreen road={road} chosen={chosen} crowd={profile.crowd} job={profile.job} back={back} onBack={() => setScreen("road")}
-        onTake={(side) => { choose(side); setNotice(`You took road ${side.toUpperCase()}: ${road.fork![side].label}.`); setScreen("road"); if (road.team?.[side]) setOpen({ kind: "team", side }); }}
+        onTake={(side) => { choose(side); setNotice(`You took road ${side.toUpperCase()}: ${road.fork![side].label}.`); setScreen("road"); }}
         onAskKate={ask(`${road.fork.title} What did people in my job choose?`)} />}
       {notice && screen === "road" && <p role="status" aria-live="polite" className="fr-notice">{notice}</p>}
+      {screen === "road" && chosen && road.team?.[chosen] && <button type="button" className="fr-deck-entry" onClick={() => setOpen({ kind: "team", side: chosen })}>
+        <span className="fr-logos">{[...new Set(road.team[chosen]!.map((t) => t.pick ?? t.names[0]))].slice(0, 3).map((n) => <Logo key={n} name={n} size={28} />)}</span>
+        <span><strong>What helps you now</strong><small>{teamDone(road, chosen, lined)} of {road.team[chosen]!.length} done · what people on this road used</small></span>
+        <FIcon name="arrow" size={18} />
+      </button>}
       <p className="fr-footnote">{SYNTHETIC}. Rules and amounts change; your partners confirm what applies to you.</p>
     </div>
 
@@ -101,7 +121,8 @@ function BusinessRoadsContent({ personKey, advisorName, large, start, onClose, o
       }} />}
     {open?.kind === "guide" && <GuideSheet road={road} chosen={chosen} adviser={adviser} onClose={() => setOpen(null)} onPartner={(id) => setOpen({ kind: "partner", id })} onTalk={talk} />}
     {open?.kind === "partner" && <PartnerSheet road={road} id={open.id} adviser={adviser} onClose={() => setOpen(open.back === "team" && chosen ? { kind: "team", side: chosen } : null)} onTalk={talk} />}
-    {open?.kind === "team" && road.team?.[open.side] && <TeamSheet road={road} side={open.side} adviser={adviser} onClose={() => setOpen(null)} onPartner={(id) => setOpen({ kind: "partner", id, back: "team" })} onTalk={() => { talk(); setOpen(null); }} />}
+    {open?.kind === "team" && road.team?.[open.side] && <TeamSheet road={road} side={open.side} lined={lined} onLine={(t, name, by) => lineUp(open.side, t, name, by)}
+      onKate={onAskKate && ((t, name) => handToKate(open.side, t, name))} onClose={() => setOpen(null)} />}
   </div>;
 }
 
@@ -124,7 +145,7 @@ function StartScreen({ customerProfile, customerLine, back, onBack, onRoad, onMa
     <h1 id="fr-start-title">Where does your road start?</h1>
     <p className="fr-lead">Pick what fits. You can change it anytime.</p>
     <div className="fr-kate-card">
-      <div className="fr-kate-head"><span className="fr-kate-dot"><FIcon name="spark2" size={14} /></span><b>{mine ? "Kate noticed something" : "You are not alone"}</b><FIcon name="info" size={18} className="fr-muted" /></div>
+      <div className="fr-kate-head"><img className="fr-kate-dot" src="/kate-logo.png" alt="" /><b>{mine ? "Kate noticed something" : "You are not alone"}</b><FIcon name="info" size={18} className="fr-muted" /></div>
       <p>{mine ? customerLine : `${int(CROWD_TOTAL)} KBC customers walked these roads before you. Pick a start and Kate shows what they did, step by step.`}</p>
       {mine && <button type="button" className="fr-light-button" onClick={() => onRoad(mine.id)}>Open your {mine.job.toLowerCase()} road <FIcon name="arrow" size={20} /></button>}
     </div>
@@ -417,12 +438,19 @@ function CrossroadsScreen({ road, chosen, crowd, job, back, onBack, onTake, onAs
         {(["a", "b"] as const).map((sd) => <button key={sd} type="button" role="radio" aria-checked={sel === sd} onClick={() => setSel(sd)} aria-label={`Road ${sd.toUpperCase()}: ${fork[sd].label}`} />)}
       </div>
     </div>
+    <div className="fr-x-options" role="radiogroup" aria-label="Choose a road">
+      {(["a", "b"] as const).map((sd) => <button key={sd} type="button" role="radio" aria-checked={sel === sd} className={`fr-x-option ${sel === sd ? "fr-x-option-on" : ""}`} onClick={() => setSel(sd)}>
+        <span className="fr-x-option-head"><b>{sd.toUpperCase()} · {fork[sd].label}</b><em>{pct(fork[sd].share)}</em></span>
+        <small>{fork[sd].good}</small>
+        {fork.pick === sd && <span className="fr-x-pick">Kate's pick</span>}
+      </button>)}
+    </div>
     <div className="fr-kate-card fr-kate-compact">
-      <div className="fr-kate-head"><span className="fr-kate-dot"><FIcon name="spark2" size={14} /></span><b>{fork.pick ? `Kate’s pick for you: road ${fork.pick.toUpperCase()}` : `Most people in this job took road ${most.toUpperCase()}`}</b></div>
-      <p>{fork.pick ? fork.pickWhy : `${pct(fork[most].share)} of ${int(crowd)} people chose it.`}</p>
+      <div className="fr-kate-head"><img className="fr-kate-dot" src="/kate-logo.png" alt="" /><b>{fork.pick && sel === fork.pick ? `Kate’s pick for you: road ${fork.pick.toUpperCase()}` : `Road ${sel.toUpperCase()}: ${br.label}`}</b></div>
+      <p>{fork.pick && sel === fork.pick ? fork.pickWhy : `${br.good} ${pct(br.share)} of ${int(crowd)} people before you took this road. You can switch later.`}</p>
     </div>
     <div className="fr-x-actions">
-      <button type="button" className="fr-light-button" onClick={() => onTake(sel)} disabled={chosen === sel}>{chosen === sel ? `You are on road ${sel.toUpperCase()}` : `Take road ${sel.toUpperCase()}`} <FIcon name="arrow" size={20} /></button>
+      <button type="button" className="fr-light-button" onClick={(e) => { if (e.detail <= 1) onTake(sel); }} disabled={chosen === sel}>{chosen === sel ? `You are on road ${sel.toUpperCase()}` : `Take road ${sel.toUpperCase()}`} <FIcon name="arrow" size={20} /></button>
       {onAskKate && <button type="button" className="fr-link fr-center" onClick={onAskKate}>Talk it through with Kate</button>}
     </div>
     <ul className="fr-glance">
@@ -521,23 +549,176 @@ function PartnerSheet({ id, adviser, onClose, onTalk }: { road: FounderRoad; id:
   </SheetFrame>;
 }
 
-function TeamSheet({ road, side, adviser, onClose, onPartner, onTalk }: { road: FounderRoad; side: "a" | "b"; adviser: string; onClose: () => void; onPartner: (id: PartnerId) => void; onTalk: () => void }) {
+const teamKey = (road: FounderRoad, side: "a" | "b", t: TeamItem) => `${road.id}:${side}:${t.partner}`;
+const teamDone = (road: FounderRoad, side: "a" | "b", lined: Record<string, unknown>) => (road.team?.[side] ?? []).filter((t) => lined[teamKey(road, side, t)]).length;
+/** "{name}" in copy: the organisation, without the generic "business counter" suffix */
+const fill = (text: string, name: string) => text.replaceAll("{name}", name.replace(/ business counter$/i, "").replace(/^Choose a notary on notaris\.be$/, "your notary"));
+
+// Partner logos live in /public/partners; logos.json maps the names on the road to files.
+let logoMap: Record<string, string> | null = null;
+let logoLoad: Promise<void> | null = null;
+function useLogos() {
+  const [map, setMap] = useState(logoMap);
+  useEffect(() => {
+    if (logoMap) return;
+    logoLoad ??= fetch("/partners/logos.json").then((r) => (r.ok ? r.json() : {})).then((m: Record<string, string>) => { logoMap = m; }).catch(() => { logoMap = {}; });
+    logoLoad.then(() => setMap(logoMap));
+  }, []);
+  return map ?? {};
+}
+
+/** A partner's logo on a white tile, or its initials when we have no logo. */
+function Logo({ name, size = 32 }: { name: string; size?: number }) {
+  const logos = useLogos();
+  const src = logos[name];
+  // Logos are mostly wide wordmarks: a white plate, wider than it is tall.
+  if (src) return <span className="fr-logo fr-logo-img" style={{ width: Math.round(size * 1.8), height: size }} aria-hidden="true"><img src={src} alt="" onLoad={(e) => {
+    // Square marks (like KBC's) get a square plate.
+    const img = e.currentTarget;
+    if (img.naturalWidth / Math.max(1, img.naturalHeight) < 1.3 && img.parentElement) img.parentElement.style.width = `${size}px`;
+  }} /></span>;
+  return <span className="fr-logo fr-logo-none" style={{ width: size, height: size }} aria-hidden="true"><FIcon name="people" size={Math.round(size * 0.5)} /></span>;
+}
+
+type TeamState = { name: string; by: "you" | "kate" };
+/** What the customer lined up, for this browser session */
+const linedMemory: Record<string, TeamState> = {};
+/** What Kate fills in from the customer's own KBC data (demo). */
+const KBC_WIN: Partial<Record<PartnerId, string>> = {
+  counter: "a business customer from day one", "social-fund": "a tax reserve at KBC", accountant: "a consented data link",
+  kbc: "a business account", vlaio: "a funded starter", notary: "the capital account", insurer: "a protected client",
+};
+const ACTIVITY: Record<string, string> = { founder: "software development (NACE 62.01)", physio: "physiotherapy practice" };
+const firstName = (road: FounderRoad) => road.owner.name.split("'")[0];
+const kateFilled = (road: FounderRoad, hasAccount: boolean) => [
+  { label: "Name and address", value: `${firstName(road)}, from your KBC profile`, ok: true },
+  { label: "National number", value: "From itsme, shared only when you approve", ok: true },
+  { label: "Activity", value: ACTIVITY[road.profileId] ?? "From your road", ok: true },
+  { label: "Business account", value: hasAccount ? "Your new KBC business account" : "Not opened yet: you can add it later", ok: hasAccount },
+];
+
+const NEED_LABEL = { required: "Required", recommended: "Recommended", optional: "Optional" } as const;
+/** Short names for the card tabs */
+const TAB: Partial<Record<PartnerId, string>> = { counter: "KBO", "social-fund": "Social fund", accountant: "Accountant", kbc: "Account", vlaio: "Grants", notary: "Notary", insurer: "Insurance" };
+
+function TeamSheet({ road, side, lined, onLine, onKate, onClose }: {
+  road: FounderRoad; side: "a" | "b"; lined: Record<string, TeamState>;
+  onLine: (t: TeamItem, name: string, by: "you" | "kate") => void; onKate?: (t: TeamItem, name: string) => void; onClose: () => void;
+}) {
   const team = road.team![side]!;
   const label = road.fork?.[side].label ?? "your road";
-  return <SheetFrame title="Your team" onClose={onClose}>
-    <div className="fr-sheet-body fr-team-body">
-      <h2>Your team · {label}</h2>
-      <p className="fr-sheet-meta">Who people on this road worked with. Offers at the moment you need them.</p>
-      <ul className="fr-team-list">{team.map((t) => {
+  const [index, setIndex] = useState(0);
+  const [draft, setDraft] = useState<PartnerId | null>(null);
+  const [start, setStart] = useState<Record<string, string>>({});
+  const [choice, setChoice] = useState<Record<string, string>>({});
+  const [more, setMore] = useState<PartnerId | null>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const page = useRef<HTMLElement>(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    page.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeRef.current();
+      if (e.key !== "Tab" || !page.current) return;
+      const items = [...page.current.querySelectorAll<HTMLElement>("button, input, [href]")].filter((el) => !el.closest("[inert]") && !(el as HTMLButtonElement).disabled);
+      if (!items.length) return;
+      const first = items[0]; const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    window.addEventListener("keydown", key);
+    return () => { window.removeEventListener("keydown", key); previous?.focus(); };
+  }, []);
+  const go = (i: number) => {
+    const next = Math.max(0, Math.min(team.length - 1, i));
+    setIndex(next);
+    setMore(null);
+    setDraft(null);
+    const card = track.current?.children[next] as HTMLElement | undefined;
+    const still = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    track.current?.scrollTo({ left: card ? card.offsetLeft - 16 : 0, behavior: still ? "auto" : "smooth" });
+  };
+  const onScroll = () => {
+    const box = track.current;
+    if (!box) return;
+    const i = Math.round(box.scrollLeft / Math.max(1, box.clientWidth - 24));
+    if (i !== index) setIndex(Math.max(0, Math.min(team.length - 1, i)));
+  };
+  const done = teamDone(road, side, lined);
+  const cur = team[index];
+  const curState = lined[teamKey(road, side, cur)];
+  const curName = choice[cur.partner] ?? cur.pick ?? cur.names[0];
+  const kbcItem = team.find((t) => t.partner === "kbc");
+  const hasAccount = !!kbcItem && !!lined[teamKey(road, side, kbcItem)];
+  return <section className="fr-page" role="dialog" aria-modal="true" aria-labelledby="fr-page-title" ref={page}>
+    <header className="fr-page-top">
+      <button type="button" className="fr-back" onClick={onClose} aria-label="Back to your road"><FIcon name="back" size={18} /></button>
+      <h2 id="fr-page-title">What you need now<small>{label} · {done} of {team.length} sorted</small></h2>
+      <span />
+    </header>
+    <nav className="fr-deck-nav" aria-label="Cards">
+      <button type="button" className="fr-text-btn" onClick={() => go(index - 1)} disabled={index === 0} aria-label="Previous">‹</button>
+      <span className="fr-deck-dots">{team.map((t, i) => <button key={t.partner} type="button" aria-label={`${i + 1}: ${PARTNERS[t.partner].name}`} aria-current={i === index} className={`${i === index ? "on" : ""} ${lined[teamKey(road, side, t)] ? "done" : ""}`} onClick={() => go(i)}>{TAB[t.partner] ?? PARTNERS[t.partner].name}</button>)}</span>
+      <button type="button" className="fr-text-btn" onClick={() => go(index + 1)} disabled={index === team.length - 1} aria-label="Next">›</button>
+    </nav>
+    <div className="fr-deck" ref={track} onScroll={onScroll} role="region" aria-roledescription="carousel" aria-label="What you need now">
+      {team.map((t, i) => {
         const p = PARTNERS[t.partner];
-        return <li key={t.partner}><button type="button" onClick={() => onPartner(t.partner)}>
-          <span className="fr-team-row"><span className={`fr-kind fr-kind-${p.kind}`}>{KIND_LABEL[p.kind]}</span>{p.offer && <span className="fr-offer-mini">KBC offer</span>}</span>
-          <strong>{p.name}</strong>
-          <small>{t.why}</small>
-          <span className="fr-team-names">{t.names.join(" · ")}</span>
-        </button></li>;
-      })}</ul>
-      <button type="button" className="fr-light-button" onClick={onTalk}>Line them up with {adviser} <FIcon name="arrow" size={20} /></button>
+        const state = lined[teamKey(road, side, t)];
+        const name = state?.name ?? choice[t.partner] ?? t.pick ?? t.names[0];
+        const facts = [t.minutes && { icon: "calendar" as const, text: `Takes about ${t.minutes} min` }, t.when && { icon: "calendar" as const, text: t.when }, t.cost && { icon: "euro" as const, text: t.cost }].filter(Boolean) as { icon: "calendar" | "euro"; text: string }[];
+        return <article key={t.partner} ref={(el) => { if (el) el.inert = i !== index; }} className={`fr-deck-card ${state ? "fr-deck-done" : ""}`} aria-roledescription="slide" aria-label={`${i + 1} of ${team.length}: ${p.name}`}>
+          <div className="fr-deck-scroll">
+            <header className="fr-deck-head">
+              <Logo name={name} size={52} />
+              <span><strong>{p.name}</strong><small>{t.why}</small>{t.need && <span className={`fr-need fr-need-${t.need}`}>{NEED_LABEL[t.need]}</span>}</span>
+            </header>
+            {state ? <>
+              <p className="fr-team-then" role="status"><FIcon name="check" size={16} />{state.by === "kate" ? `Approved. Kate sent it to ${fill("{name}", state.name)}. ${fill(t.then ?? "", state.name)}` : fill(t.then ?? "Done.", state.name)}</p>
+              <ul className="fr-win" aria-label="Who gains">
+                <li><b>You</b>{t.minutes ? `${t.minutes * 3} min saved` : "one less worry"}</li>
+                <li><b>{fill("{name}", state.name).replace(/^Choose a notary on /, "")}</b>a ready client</li>
+                <li><b>KBC</b>{KBC_WIN[t.partner] ?? "a closer customer"}</li>
+              </ul>
+            </> : <>
+              {t.because && <section className="fr-deck-sec"><h3>Why you need it</h3><p className="fr-deck-because">{t.because}</p></section>}
+              {facts.length > 0 && <ul className="fr-facts">{facts.map((f) => <li key={f.text}><FIcon name={f.icon} size={14} />{f.text}</li>)}</ul>}
+              <section className="fr-deck-sec">
+                <h3>Who can do it</h3>
+                <div className="fr-who" role="radiogroup" aria-label={`Who to use for ${p.name.toLowerCase()}`}>
+                  {t.names.map((n) => <button key={n} type="button" role="radio" aria-checked={n === name} onClick={() => setChoice({ ...choice, [t.partner]: n })}>
+                    <Logo name={n} size={40} /><span>{n.replace(/ business counter$/i, "")}</span>{n === t.pick && <em>Kate's pick</em>}
+                  </button>)}
+                </div>
+                {t.pickWhy && <p className="fr-deck-pickwhy"><FIcon name="spark2" size={13} />{t.pickWhy}</p>}
+              </section>
+              {t.kbcDoes && <p className="fr-kbc-does"><span className="fr-offer-mini">KBC</span>{t.kbcDoes}</p>}
+              <button type="button" className="fr-text-btn fr-deck-more" aria-expanded={more === t.partner} onClick={() => setMore(more === t.partner ? null : t.partner)}>{more === t.partner ? "Less" : "What people chose"}</button>
+              {more === t.partner && <div className="fr-deck-info">
+                <p>{p.role}</p>
+                {p.options && <ul className="fr-options">{p.options.map((o) => <li key={o.label}><div><strong>{o.label}</strong><b>{pct(o.share)}</b></div><span className="fr-fill-bar"><i style={{ width: pct(o.share) }} /></span></li>)}</ul>}
+              </div>}
+            </>}
+          </div>
+        </article>;
+      })}
     </div>
-  </SheetFrame>;
+    {!curState && <footer className="fr-deck-actions fr-page-actions">
+            {draft === cur.partner ? <div className="fr-kate-draft" role="group" aria-label="Kate prepared this">
+              <b><FIcon name="spark2" size={14} /> Kate prepared this for {fill("{name}", curName)}</b>
+              <span className="fr-fill-bar" aria-hidden="true"><i className="fr-fill-grow" /></span>
+              <ul>{kateFilled(road, hasAccount).map((f, k) => <li key={f.label} className={f.ok ? "" : "fr-needs"} style={{ animationDelay: `${0.25 + k * 0.4}s` }}><FIcon name={f.ok ? "check" : "info"} size={14} /><span><b>{f.label}</b>{f.value}</span></li>)}</ul>
+              <label className="fr-start"><span>Start date <em>needed from you</em></span><input type="date" value={start[cur.partner] ?? ""} onChange={(e) => setStart({ ...start, [cur.partner]: e.target.value })} /></label>
+              <small>Nothing is sent until you approve. Only these fields go to {fill("{name}", curName)}, no transactions.</small>
+              <button type="button" className="fr-light-button" disabled={!start[cur.partner]} onClick={() => { onLine(cur, curName, "kate"); setDraft(null); }}>{start[cur.partner] ? "Approve with itsme (demo)" : "Enter your start date to continue"} <FIcon name="arrow" size={20} /></button>
+              <div className="fr-team-links"><button type="button" className="fr-text-btn" onClick={() => setDraft(null)}>Back</button>{onKate && <button type="button" className="fr-text-btn" onClick={(e) => { if (e.detail <= 1) onKate(cur, curName); }}>Ask Kate a question ›</button>}</div>
+            </div> : <>
+              <button type="button" className="fr-light-button" onClick={() => onLine(cur, curName, "you")}>{fill(cur.cta ?? "Start with {name}", curName)} <FIcon name="arrow" size={20} /></button>
+              <button type="button" className="fr-outline fr-wide fr-kate-do" onClick={(e) => { if (e.detail <= 1) setDraft(cur.partner); }}><FIcon name="spark2" size={16} /> Let Kate do it</button>
+            </>}
+    </footer>}
+    <p className="fr-sr" aria-live="polite">{index + 1} of {team.length}: {PARTNERS[team[index].partner].name}</p>
+  </section>;
 }

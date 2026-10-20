@@ -90,18 +90,80 @@ export interface FounderRoad {
   /** the partners to line up once a road is taken: Belgian organisations people on this road used */
   team?: Partial<Record<"a" | "b", TeamItem[]>>;
 }
-export interface TeamItem { partner: PartnerId; why: string; names: string[] }
+export interface TeamItem {
+  partner: PartnerId;
+  why: string;
+  names: string[];
+  /** Kate's pick among `names`, and the crowd reason for it */
+  pick?: string;
+  pickWhy?: string;
+  /** what KBC does for the customer on this step */
+  kbcDoes?: string;
+  /** the one action; "{name}" is the chosen organisation */
+  cta?: string;
+  minutes?: number;
+  /** the follow-up once the customer acted */
+  then?: string;
+  /** how much the customer needs it, and why, in plain words */
+  need?: "required" | "recommended" | "optional";
+  because?: string;
+  /** when it is due, and what it typically costs */
+  when?: string;
+  cost?: string;
+}
 
 // Belgian organisations people use when they start a BV or a business. KBC does not choose for
 // the customer; offers on the partner cards are example offers for the demo.
 const SOCIAL_FUNDS = ["Liantis", "Acerta", "Xerius", "Partena Professional", "Securex"];
 const BV_TEAM: TeamItem[] = [
-  { partner: "accountant", why: "Financial plan, annual accounts and corporate tax", names: ["ITAA-registered accountants"] },
-  { partner: "notary", why: "Deed of incorporation, filed for publication", names: ["Find one on notaris.be"] },
-  { partner: "kbc", why: "Company account, bank certificate for the capital", names: ["KBC business adviser"] },
-  { partner: "social-fund", why: "Your contributions as a company director", names: SOCIAL_FUNDS },
-  { partner: "insurer", why: "Liability and income cover in the BV's name", names: ["KBC Verzekeringen", "Your broker"] },
-  { partner: "vlaio", why: "Subsidised advice through the KMO-portefeuille", names: ["VLAIO", "UNIZO"] },
+  {
+    partner: "accountant", why: "Financial plan, annual accounts and corporate tax", names: ["ITAA-registered accountants"],
+    pick: "ITAA-registered accountants", pickWhy: "88% had their accountant write the financial plan.",
+    need: "required", because: "A BV needs a financial plan before the notary can sign, and yearly accounts after that.",
+    when: "Before the deed", cost: "Financial plan: ask for a quote before you commit",
+    kbcDoes: "Partner offer: 20% off your BV financial plan", cta: "Book a free intro", minutes: 20,
+    then: "Intro requested. The accountant only sees your KBC figures after you approve.",
+  },
+  {
+    partner: "notary", why: "Deed of incorporation, filed for publication", names: ["Choose a notary on notaris.be"],
+    pick: "Choose a notary on notaris.be", pickWhy: "54% used the notary their accountant works with.",
+    need: "required", because: "Only a notary can create a BV: they write the articles and file the deed.",
+    when: "On switch day", cost: "Notary fee: ask for a quote before booking",
+    kbcDoes: "Fixed-price BV deed with a partner notary", cta: "Request a deed date", minutes: 5,
+    then: "Request sent. Kate adds the signing date to your plan once the notary confirms.",
+  },
+  {
+    partner: "kbc", why: "Company account, bank certificate for the capital", names: ["KBC business adviser"],
+    pick: "KBC business adviser", pickWhy: "The notary needs the bank certificate for your starting capital.",
+    need: "required", because: "The notary needs a bank certificate that your starting capital is on the company's account.",
+    when: "Before the deed", cost: "Example offer: year one free; ask for the year-two price",
+    kbcDoes: "BV account free for the first year", cta: "Open the company account", minutes: 5,
+    then: "Account ready. The capital certificate goes straight to your notary.",
+  },
+  {
+    partner: "social-fund", why: "Your contributions as a company director", names: SOCIAL_FUNDS,
+    pick: "Liantis", pickWhy: "58% chose a large national fund. Keep the one you have.",
+    need: "required", because: "As company director you stay self-employed, so your fund must know about the BV.",
+    when: "When the BV starts", cost: "Depends on your pay",
+    kbcDoes: "Kate keeps your quarterly contributions aside", cta: "Tell {name} about the BV", minutes: 5,
+    then: "{name} updates your status to company director.",
+  },
+  {
+    partner: "insurer", why: "Liability and income cover in the BV's name", names: ["KBC Verzekeringen", "Your broker"],
+    pick: "KBC Verzekeringen", pickWhy: "41% took cover with their business account.",
+    need: "recommended", because: "Cover now has to be in the BV's name: liability towards clients and income if you fall ill.",
+    when: "From switch day", cost: "Premium: ask for a quote",
+    kbcDoes: "First 3 months free on income cover", cta: "Get a quote", minutes: 4,
+    then: "Quote on its way. Nothing changes until you accept it.",
+  },
+  {
+    partner: "vlaio", why: "Subsidised advice through the KMO-portefeuille", names: ["VLAIO", "UNIZO"],
+    pick: "VLAIO", pickWhy: "The KMO-portefeuille subsidises part of the advice costs.",
+    need: "optional", because: "The KMO-portefeuille pays back part of your advice costs, such as the financial plan.",
+    when: "Any time", cost: "Eligibility check: free",
+    kbcDoes: "Kate checks which grants fit your business", cta: "Check my grants", minutes: 2,
+    then: "Kate saved the grants that may fit you in your plan.",
+  },
 ];
 
 // ---------- Sofie: physiotherapy practice next to AZ Sint-Jan ----------
@@ -332,6 +394,15 @@ const SOFIE: FounderRoad = {
   },
 };
 
+// Road B for someone who never had a business: the same team, explained from scratch.
+const FIRST_BV: Partial<Record<PartnerId, Partial<TeamItem>>> = {
+  accountant: { because: "A BV (a Belgian private limited company) needs a financial plan before the notary can create it, and yearly accounts after that." },
+  notary: { why: "The official document that creates your company", because: "Only a notary can create a BV. They write its rules (the articles) and file the document that makes it official.", when: "When you create your company", cta: "Choose a notary" },
+  "social-fund": { why: "Your social contributions as a company director", because: "This fund handles the social contributions for your work as a company director. Join a fund, or update your membership if you already have one.", pickWhy: "58% chose a large national fund. Already a member? Ask your fund to update your status.", cta: "Arrange my membership with {name}" },
+  insurer: { when: "From your company's start date" },
+  vlaio: { why: "Check support for advice costs (KMO-portefeuille)" },
+};
+
 // ---------- Marc: an app on the side, a domain name just bought ----------
 const MARC: FounderRoad = {
   id: "marc-founder",
@@ -382,13 +453,13 @@ const MARC: FounderRoad = {
   fork: {
     after: "start", chapter: "launch",
     title: "Start as a side activity, or a BV from day one?",
-    question: "Both are fine. You can switch later.",
+    question: "Both are fine. You can switch later. A BV is a Belgian private limited company: you arrange a financial plan, a company account and a notary appointment.",
     a: {
       label: "Side activity", short: "A · Side", share: 0.64, good: "Good to test the product while you keep your job.",
       pros: ["Keep your salary and social rights", "Fastest and cheapest start"], cons: ["You are personally liable"], next: "Enterprise number, VAT, first invoice",
     },
     b: {
-      label: "BV from day one", short: "B · BV", share: 0.36, good: "Good with a co-founder or investors on board.",
+      label: "Start a company (BV)", short: "B · BV", share: 0.36, good: "Good with a co-founder or investors on board.",
       pros: ["Shares for you and your co-founder", "Ready for investors"], cons: ["Notary, financial plan and higher costs"], next: "Shareholder agreement, plan, deed",
     },
     pick: "a",
@@ -396,13 +467,48 @@ const MARC: FounderRoad = {
   },
   team: {
     a: [
-      { partner: "counter", why: "Your enterprise number in the KBO", names: SOCIAL_FUNDS.map((n) => `${n} business counter`).slice(0, 3) },
-      { partner: "social-fund", why: "Contributions as a side activity", names: SOCIAL_FUNDS },
-      { partner: "accountant", why: "VAT returns and your tax return", names: ["ITAA-registered accountants", "Online fixed-fee accountants"] },
-      { partner: "kbc", why: "Business account and Start it @KBC", names: ["KBC business adviser", "Start it @KBC"] },
-      { partner: "vlaio", why: "Starter advice and innovation support", names: ["VLAIO", "UNIZO"] },
+      {
+        partner: "counter", why: "Register your business and get its official number", names: SOCIAL_FUNDS.map((n) => `${n} business counter`).slice(0, 3),
+        pick: "Liantis business counter", pickWhy: "52% registered at their social insurance fund's counter: one visit for both.",
+    need: "required", because: "Without an enterprise number you can't send an invoice or sign business contracts. It is the official start of your side activity.",
+    when: "Before your first invoice", cost: "Registration fee: confirm before you submit",
+        kbcDoes: "Kate pre-fills 9 of 12 fields from your KBC data", cta: "Register with {name}", minutes: 10,
+        then: "Sent. {name} confirms your enterprise number within 1 working day.",
+      },
+      {
+        partner: "social-fund", why: "Contributions as a side activity", names: SOCIAL_FUNDS,
+        pick: "Liantis", pickWhy: "58% chose a large national fund. Same partner as your counter: one contact.",
+    need: "required", because: "Every self-employed person must join a social insurance fund before starting, also next to a job. While your side income stays low, so do your contributions.",
+    when: "Before you start", cost: "Quarterly contribution: ask for an income-based estimate",
+        kbcDoes: "Kate keeps your quarterly contributions aside in a tax reserve", cta: "Join {name}", minutes: 5,
+        then: "{name} sends your first contribution notice. Kate puts the amount in your tax reserve.",
+      },
+      {
+        partner: "accountant", why: "VAT returns and your tax return", names: ["Online fixed-fee accountants", "ITAA-registered accountants"],
+        pick: "Online fixed-fee accountants", pickWhy: "31% chose a fixed-fee online accountant: cheapest for a simple start.",
+    need: "recommended", because: "Selling software to businesses means a VAT return every quarter and business income on your tax return. An accountant files them and finds the costs you can deduct.",
+    when: "Before your first VAT return", cost: "Monthly fee: ask at your free intro",
+        kbcDoes: "Share your business account read-only, only when you approve", cta: "Book a free 20-min intro", minutes: 20,
+        then: "Intro booked. Kate reminds you the day before.",
+      },
+      {
+        partner: "kbc", why: "Business account, plus Start it @KBC for founders", names: ["KBC business adviser"],
+        pick: "KBC business adviser", pickWhy: "74% opened a business account before their first invoice.",
+    need: "recommended", because: "Keeps app income and costs apart from your salary. Your accountant only needs this account, and VAT gets simpler.",
+    when: "Before your first invoice", cost: "Example offer: year one free; ask for the year-two price",
+        kbcDoes: "Open it in 5 minutes. Start it @KBC invites tech founders for an intake.", cta: "Open my business account", minutes: 5,
+        then: "Account ready. Your card arrives in 3 days, and Start it @KBC will invite you for an intake.",
+      },
+      {
+        partner: "vlaio", why: "Starter advice and innovation support", names: ["VLAIO", "UNIZO"],
+        pick: "VLAIO", pickWhy: "Innovation support and subsidised advice for starters.",
+    need: "optional", because: "Starters can get part of their advice and training costs paid back. Most founders never claim it.",
+    when: "Any time in year one", cost: "Eligibility check: free",
+        kbcDoes: "Kate checks which grants fit your app", cta: "Check my grants", minutes: 2,
+        then: "Kate saved the grants that may fit you in your plan.",
+      },
     ],
-    b: BV_TEAM,
+    b: BV_TEAM.map((t) => ({ ...t, ...FIRST_BV[t.partner] })),
   },
 };
 
@@ -496,6 +602,14 @@ export function completeNow(road: FounderRoad, chosen?: "a" | "b"): FounderRoad 
     nodes: road.nodes.map((n) => n.id === route[i].id ? { ...n, status: "done", sub: "Done · today" }
       : n.id === nextId ? { ...n, status: "now", sub: n.sub.replace(/^Next/, "Start") } : n),
   };
+}
+
+/** Marks one step done, wherever it is on the route; the current step moves on as usual. */
+export function completeNode(road: FounderRoad, id: string, chosen?: "a" | "b"): FounderRoad {
+  const node = road.nodes.find((n) => n.id === id);
+  if (!node || node.status === "done") return road;
+  if (node.status === "now") return completeNow(road, chosen);
+  return { ...road, nodes: road.nodes.map((n) => (n.id === id ? { ...n, status: "done", sub: "Done · today" } : n)) };
 }
 
 /** The chapter-level map: one row per chapter, the ways in, and where this customer stands. */

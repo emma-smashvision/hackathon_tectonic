@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { chooseBranch, completeNow, type FounderRoad, founderRoadFor } from "./founder";
+import { chooseBranch, completeNode, completeNow, type FounderRoad, founderRoadFor } from "./founder";
 
 // Demo progress on a founder road, shared by the road tab card and the business view.
 // It lives in memory: a reload starts the demo again.
@@ -35,5 +35,6 @@ export function useFounderRoad(personKey: string | undefined, profileId: string 
     chosen: snapshot?.chosen,
     choose: (side: "a" | "b") => profileId && update(personKey, profileId, (e) => ({ road: chooseBranch(e.road, side), chosen: side })),
     complete: () => profileId && update(personKey, profileId, (e) => ({ ...e, road: completeNow(e.road, e.chosen) })),
+    completeStep: (id: string) => profileId && update(personKey, profileId, (e) => ({ ...e, road: completeNode(e.road, id, e.chosen) })),
   };
 }
