@@ -1,0 +1,25 @@
+/* KBC One: Hindsight was written against the browser's defaults, the Kate app against Tailwind's
+   preflight. Inside .hs we give back the browser defaults preflight removed, so Hindsight's screens
+   look as they did in v4. (Unlayered, so it beats preflight; Hindsight's own rules beat these.) */
+.hs {
+  line-height: normal;
+}
+.hs :where(h1, h2, h3, h4, h5, h6) {
+  font-size: revert;
+  font-weight: revert;
+  margin: revert;
+}
+.hs :where(p, ul, ol, dl, figure, blockquote) {
+  margin: revert;
+}
+.hs :where(ul, ol) {
+  list-style: revert;
+  padding: revert;
+}
+.hs :where(b, strong) {
+  font-weight: bolder;
+}
+.hs :where(img, svg, video, canvas) {
+  display: revert;
+  vertical-align: revert;
+}

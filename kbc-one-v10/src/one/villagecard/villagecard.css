@@ -1,0 +1,38 @@
+/* v9-entry: isolated card and plain-path styles; bubble geometry and Kate stay owned by v1. */
+.v9-village-card { margin: 16px 0 0; border: 1px solid #ae8b30; border-radius: 23px; overflow: hidden; background: var(--surface, #122236); color: var(--text, #e8eff8); }
+.v9-thumbnail { position: relative; }
+.v9-village-picture { display: block; width: 100%; height: auto; }
+.v9-thumbnail > span { position: absolute; top: 12px; left: 12px; padding: 5px 10px; border-radius: 20px; background: #10213d; color: #ffcc40; font-size: 11px; text-transform: uppercase; font-weight: 800; letter-spacing: .06em; }
+.v9-card-copy { padding: 15px; }
+.v9-village-card h2 { font-size: 17px; line-height: 1.3; margin: 0; font-weight: 750; }
+.v9-village-card p { font-size: 14px; line-height: 1.45; color: var(--muted, #b4c4d5); margin: 7px 0 12px; }
+.v9-entry-primary, .v9-entry-secondary { display: block; width: 100%; min-height: 48px; padding: 12px 15px; border: 0; border-radius: 15px; background: #ffc52b; color: #112137; font: inherit; font-weight: 750; line-height: 1.4; cursor: pointer; }
+.v9-entry-primary:focus-visible, .v9-entry-secondary:focus-visible, .v9-back:focus-visible, .v9-optional-village summary:focus-visible { outline: 3px solid #35a7c9; outline-offset: 3px; }
+.v9-entry-secondary { background: transparent; border: 2px solid currentColor; }
+.v9-card-copy > small { display: block; font-size: 13px; margin-bottom: 8px; }
+.v9-card-large h2 { font-size: 23px; }
+.v9-card-large p, .v9-card-large button { font-size: 19px; }
+.v9-card-large .v9-entry-primary, .v9-card-care .v9-entry-primary { background: #003665; color: #fff; }
+.v9-card-care { border-color: var(--line, #586a7d); }
+.v9-card-care p { font-size: 16px; }
+.v9-village-card .v9-entry-receipt { margin-bottom: 0; font-weight: 600; color: var(--text, #e8eff8); }
+.v9-plain-path { position: absolute; inset: 8px; z-index: 12; padding: 22px 20px; border-radius: 30px; overflow-y: auto; overscroll-behavior: contain; background: #f8f5ee; color: #1c2938; font: 20px/1.5 var(--font, system-ui, sans-serif); }
+.v9-plain-path h1 { font-size: 29px; line-height: 1.2; }
+.v9-back { min-height: 48px; border: 0; padding: 8px 0; background: transparent; color: #334b64; font: inherit; text-align: left; cursor: pointer; }
+.v9-plain-path .v9-entry-primary { background: #003665; color: white; }
+.v9-plain-path .v9-entry-secondary { color: #003665; margin-top: 16px; }
+.v9-optional-village { margin: 20px 0; border: 1px solid #d5cbb9; background: white; border-radius: 18px; overflow: hidden; }
+.v9-optional-village summary { padding: 18px; font-size: 18px; cursor: pointer; }
+.v9-optional-village p { padding: 0 18px; }
+.v9-plain-path footer { margin-top: 24px; font-size: 13px; color: #566579; }
+.v9-plain-next { display: grid; gap: 12px; }
+.v9-care-symbol { display: block; color: #327c81; margin-top: 30px; font-size: 44px; }
+@media (max-width: 600px) { .v9-plain-path { inset: 0; border-radius: 0; padding-top: 24px; } }
+.ph .v9-entry-primary { color: #112137; }
+.ph .v9-card-large .v9-entry-primary, .ph .v9-card-care .v9-entry-primary { color: #fff; }
+.v9-card-copy footer { margin-top: 10px; font-size: 11px; color: var(--muted, #b4c4d5); text-align: center; }
+.v9-plain-path > [data-lesson] { padding: 12px 0; background: transparent; border-radius: 0; }
+.v9-adviser-question { display: grid; gap: 10px; margin: 24px 0; }
+.v9-adviser-question textarea { width: 100%; box-sizing: border-box; resize: vertical; background: #fff; color: #1c2938; border: 2px solid #60778a; border-radius: 15px; padding: 14px; font: inherit; }
+.v9-entry-primary:disabled { opacity: .65; cursor: default; }
+.v9-plain-path > [data-lesson] { min-height: min(500px, 60dvh); }
