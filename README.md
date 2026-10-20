@@ -6,7 +6,16 @@
 
 Built by **Emma van Doren** ([SmashVision](https://smashvision.ai)) and **Thomas Vrolix** ([SuperiorSwarm](https://superiorswarm.com)).
 
-![Sofie, 34, a physiotherapist. KBC noticed her practice profit passed €70,000, so her home leads with "Become a BV? 43% did".](docs/kbc-one/stage-sofie.jpg)
+<table>
+  <tr>
+    <td width="50%"><img src="docs/kbc-one/stage-sofie.jpg" alt="Sofie, 34, a physiotherapist. KBC noticed her practice profit passed €70,000, so her home leads with &quot;Become a BV? 43% did&quot;."></td>
+    <td width="50%"><img src="docs/kbc-one/stage-sofie-road.jpg" alt="Sofie's road at the crossroads: stay a sole proprietor (57% took this road) or become a BV (43%), with Kate's pick on the BV."></td>
+  </tr>
+  <tr>
+    <td><sub><b>Home:</b> what matters now comes to the front. Sofie's home leads with "Become a BV? 43% did".</sub></td>
+    <td><sub><b>Your road:</b> one tap later she is at the crossroads, with what earlier customers chose and Kate's pick.</sub></td>
+  </tr>
+</table>
 
 <sub>The demo stage: pick a customer on the right, see what KBC noticed on the left, and watch the phone in the middle.</sub>
 
