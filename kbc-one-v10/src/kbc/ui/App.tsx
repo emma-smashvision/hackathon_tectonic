@@ -262,6 +262,7 @@ export function KbcApp() {
   const [business, setBusiness] = useState<false | "start" | "road">(false);
   const founder = useFounderRoad(persona, customerRoad(persona)?.profile);
   const founderNow = founder.road && nowNode(founder.road);
+  const openBusinessRoad = () => { setKateOpen(false); setAllRoads(false); setView("road"); setBusiness("road"); };
   const [home, setHome] = useState<HomeModel | null>(null);
   const [snap, setSnap] = useState<Snapshot | null>(null);
   const [composing, setComposing] = useState(false);
@@ -788,8 +789,10 @@ export function KbcApp() {
               </div>
               <div className="scroll">
                 <HomeMix key={persona} home={home} snapshot={snap} card={null}
-                  roadmap={founder.road && founderNow ? { title: roadmapCrowd(founder.road, founder.chosen), value: chapterTitle(founder.road, founderNow.chapter), onOpen: () => { setKateOpen(false); setAllRoads(false); setView("road"); setBusiness("road"); } } : undefined}
-                  villageCard={<VillageCard personaId={persona} large={st === "large"} receipt={villageReceipt} onOpen={() => openVillage()} />}
+                  roadmap={founder.road && founderNow ? { title: roadmapCrowd(founder.road, founder.chosen), value: chapterTitle(founder.road, founderNow.chapter), onOpen: openBusinessRoad, headline: customerRoad(persona)?.home?.headline } : undefined}
+                  villageCard={customerRoad(persona)?.home
+                    ? <button type="button" className="biz-home-note" onClick={openBusinessRoad}><span aria-hidden="true">✦</span><span><small>Kate noticed</small>{customerRoad(persona)!.home!.insight}</span><b aria-hidden="true">›</b></button>
+                    : <VillageCard personaId={persona} large={st === "large"} receipt={villageReceipt} onOpen={() => openVillage()} />}
                   looks={<KateLooksCard compact snapshot={snap} onCommand={kateCustomization.command} />}
                   onSave={async (layout) => {
                     const ok = await run({ type: "layout", ...layout }, false);

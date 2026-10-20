@@ -731,11 +731,24 @@ export const PROFILES: BizProfile[] = [
 export const profileById = (id: string) => PROFILES.find((p) => p.id === id);
 
 /** KBC knows your job: the demo customers whose transactions point to a business road. */
-export interface BizCustomer { profile: string; /** phase they are in now */ now: string; noticed: string; /** "Your road" opens the business road first */ roadFirst?: boolean }
+export interface BizCustomer {
+  profile: string;
+  /** phase they are in now */
+  now: string;
+  noticed: string;
+  /** "Your road" opens the business road first */
+  roadFirst?: boolean;
+  /** Home: the line under the balance, and Kate's short note under the bubbles */
+  home?: { headline: string; insight: string };
+}
 const CUSTOMERS: Record<string, BizCustomer> = {
   karim: { profile: "freelancer", now: "sole-years", noticed: "Client invoices since early 2025 and a growing tax reserve" },
-  marc: { profile: "founder", now: "idea", roadFirst: true, noticed: "You paid Combell for a domain name and joined the Apple Developer Program. 6 in 10 founders who did this registered a business within three months." },
-  sofie: { profile: "physio", now: "main", roadFirst: true, noticed: "Your practice made about €74,200 profit in 2025. That is where most physios start comparing a BV, and you plan to buy a home with Pieter." },
+  marc: { profile: "founder", now: "idea", roadFirst: true,
+    home: { headline: "Your side project is turning into a business.", insight: "You bought a domain at Combell. 6 in 10 founders registered a business within 3 months." },
+    noticed: "You paid Combell for a domain name and joined the Apple Developer Program. 6 in 10 founders who did this registered a business within three months." },
+  sofie: { profile: "physio", now: "main", roadFirst: true,
+    home: { headline: "Your practice is ready for its next step.", insight: "Your practice profit passed €74,000. Most physios switch to a BV around €70,000." },
+    noticed: "Your practice made about €74,200 profit in 2025. That is where most physios start comparing a BV, and you plan to buy a home with Pieter." },
 };
 export const customerRoad = (personKey?: string) => (personKey ? CUSTOMERS[personKey] : undefined);
 export const detectedProfile = (personKey?: string) => customerRoad(personKey)?.profile;
