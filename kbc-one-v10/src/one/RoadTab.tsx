@@ -17,6 +17,8 @@ export interface RoadFocus { roadId: string; stopId?: string }
 export interface RoadTabProps {
   themeStyle: CSSProperties; light: boolean; large: boolean;
   onAllRoads?: () => void;
+  /** opens the business roadmaps; shown on business roads */
+  onBusiness?: () => void;
   focus?: RoadFocus; pointers?: PersonPointers;
   onFocusChange?: (focus: RoadFocus) => void;
   renderPassItOn?: (context: PassItOnContext) => ReactNode;
@@ -76,6 +78,9 @@ export function RoadTab(props: RoadTabProps) {
             </div>
           </>}
         </section>
+        {props.onBusiness && activeRoad === "freelance" && <button type="button" className="r2-business" onClick={props.onBusiness}>
+          <small>Your business roadmap</small><strong>Eenmanszaak → BV</strong><span>Steps, partners and what 38,900 freelancers did before you</span><b aria-hidden="true">›</b>
+        </button>}
         <section className="r2-timeline" aria-labelledby="r2-timeline-title">
           <div className="r2-section-head"><h2 id="r2-timeline-title">Next 12 months</h2><span>All your areas</span></div>
           <ol>{items.slice(Math.min(page, pages - 1) * pageSize, (Math.min(page, pages - 1) + 1) * pageSize).map(item => <li key={item.id} style={{ "--area": AREA[item.area].color } as CSSProperties} data-area={item.area} data-care={item.care || undefined}>

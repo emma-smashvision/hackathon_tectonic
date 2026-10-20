@@ -5,6 +5,7 @@ import type { CSSProperties, FormEvent } from "react";
 import type { PersonRoad } from "../people";
 import { EVERYDAY_ONLY_ID } from "../crowd";
 import type { PersonPointers } from "../crowd";
+import { BUSINESS_QUERY, CROWD_TOTAL, PROFILES } from "../business/model";
 import { atlasCatalogue, GROUPS, matchRoads, roadBadge } from "./model";
 import type { AtlasRoad, OpenRoadMode, RoadStage } from "./model";
 import "./atlas8.css";
@@ -16,12 +17,14 @@ export interface AllRoadsProps {
   large?: boolean;
   onOpenRoad: (roadId: string, mode: OpenRoadMode, stage?: RoadStage) => void;
   onClose: () => void;
+  /** opens the business roadmaps (eenmanszaak, BV, first employee) */
+  onBusiness?: () => void;
 }
 export function AllRoads(props: AllRoadsProps) {
   // A persona switch must discard the previous person's search and care consent.
   return <AllRoadsContent key={props.person.key} {...props} />;
 }
-function AllRoadsContent({ person, pointers, large: largeSetting, onOpenRoad, onClose }: AllRoadsProps) {
+function AllRoadsContent({ person, pointers, large: largeSetting, onOpenRoad, onClose, onBusiness }: AllRoadsProps) {
   const id = useId();
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState("");
@@ -57,6 +60,11 @@ function AllRoadsContent({ person, pointers, large: largeSetting, onOpenRoad, on
       {badge ? <span className={`a8-badge a8-${badge.toLowerCase().replaceAll(" ", "-")}`}>{badge}</span> : <span className="a8-arrow" aria-hidden="true">›</span>}
     </button>;
   };
+  const businessCard = onBusiness && <button type="button" className="a8-road a8-business" onClick={onBusiness} style={{ "--a8-road-color": "#9FD3B0" } as CSSProperties}>
+    <span className="a8-line" aria-hidden="true" />
+    <span className="a8-road-copy"><strong>Business roadmaps</strong><small>Eenmanszaak → BV → first employee · {PROFILES.length} jobs · based on {CROWD_TOTAL.toLocaleString("en-GB")} customers</small></span>
+    <span className="a8-arrow" aria-hidden="true">›</span>
+  </button>;
   return <div className={`a8 ${large ? "a8-large" : ""} ${quiet ? "a8-quiet" : ""}`} data-testid="all-roads">
     <header className="a8-header">
       <div className="a8-top"><button className="a8-back" onClick={onClose} type="button">← Your road</button><small>Synthetic demo data</small></div>
@@ -71,6 +79,7 @@ function AllRoadsContent({ person, pointers, large: largeSetting, onOpenRoad, on
       {submitted && <section className="a8-results" ref={resultsRef} tabIndex={-1} aria-label="Find a road results" aria-live="polite">
         <div className="a8-section-title"><h2>{result.matches.length ? "Does one of these fit?" : "No published road yet"}</h2><button type="button" className="a8-text-button" onClick={() => {setSubmitted(""); setQuery(""); setSelected(null);}}>Clear</button></div>
         <p>{result.matches.length ? "Choose a road, then tell us where you want to start." : "We have no published road for that situation. You can explore these nearby roads."}</p>
+        {BUSINESS_QUERY.test(submitted) && businessCard}
         {(result.matches.length ? result.matches : result.nearby).map(row)}
       </section>}
       {selected && <section ref={selectionRef} tabIndex={-1} className="a8-selection" aria-labelledby={`${id}-selection`}>
@@ -86,6 +95,7 @@ function AllRoadsContent({ person, pointers, large: largeSetting, onOpenRoad, on
         </>}
       </section>}
       <div className="a8-section-title a8-catalogue-title"><h2>Explore the roads</h2>{!large && !quiet && <div className="a8-view-toggle" aria-label="Road view"><button type="button" aria-pressed={!overview} onClick={() => setOverview(false)}>List</button><button type="button" aria-pressed={overview} onClick={() => setOverview(true)}>Metro overview</button></div>}</div>
+      {businessCard && !quiet && <section className="a8-group" aria-label="Business"><h3>Business</h3><div>{businessCard}</div></section>}
       <div className={overview && !large && !quiet ? "a8-groups a8-metro" : "a8-groups"}>
         {GROUPS.map(group => <section className="a8-group" key={group} aria-label={group}><h3>{group}</h3><div>{atlasCatalogue.filter(r => r.group === group).sort((a,b) => Number(roadBadge(b, person, pointers) === "On now") - Number(roadBadge(a, person, pointers) === "On now")).map(row)}</div></section>)}
       </div>

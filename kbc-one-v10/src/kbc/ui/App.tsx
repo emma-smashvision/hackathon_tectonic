@@ -29,6 +29,7 @@ import { eur } from "../format";
 import { DEMO_BEATS, DEMO_BEAT_MS } from "../demo";
 import { kateRoadAnswer, type Proposal } from "../kate"; // v8-channels
 import { AllRoads } from "../../one/atlas8";
+import { BusinessRoads } from "../../one/business";
 import { catalogueRoad, confirmRoad, previewRoad } from "../../one/crowd";
 import { useRoadPointers } from "../../one/nudge/useRoadPointers";
 import type {
@@ -249,6 +250,7 @@ export function KbcApp() {
   const [persona, setPersona] = useState<string>("tom");
   const { pointers, updatePointers, resetPointers } = useRoadPointers(persona); // v8-channels
   const [allRoads, setAllRoads] = useState(false);
+  const [business, setBusiness] = useState(false);
   const [home, setHome] = useState<HomeModel | null>(null);
   const [snap, setSnap] = useState<Snapshot | null>(null);
   const [composing, setComposing] = useState(false);
@@ -373,6 +375,7 @@ export function KbcApp() {
     setKateOpen(false);
     setKateContext(null);
     setAllRoads(false);
+    setBusiness(false);
     setVillageEntry(undefined);
     setVillageReceipt(undefined);
     setRoadFocus(undefined); // v8-channels: never carry a stop across people.
@@ -663,6 +666,7 @@ export function KbcApp() {
   const openRoad = (focus: RoadFocus) => {
     setRoadFocus({ ...focus });
     setAllRoads(false);
+    setBusiness(false);
     setKateOpen(false);
     setEngineOpen(false);
     setView("road");
@@ -686,6 +690,7 @@ export function KbcApp() {
     setVillageEntry(undefined);
     setView("home");
     setAllRoads(false);
+    setBusiness(false);
     setRoadFocus(undefined);
     requestAnimationFrame(() => {
       const trigger = entryTrigger.current?.isConnected && entryTrigger.current.closest(".home-mix") ? entryTrigger.current : frameRef.current?.querySelector<HTMLElement>("[data-village-entry]");
@@ -962,8 +967,10 @@ export function KbcApp() {
                 </div>
               )}
             </div>
-            {view === "road" && allRoads && person ? <div className="hs road-layer yr" style={roadVars(theme, Boolean(snap.theme))}><div className="phone road-phone"><div className="v8-atlas-host">
-              <AllRoads person={person} pointers={pointers} large={st === "large"} onClose={() => setAllRoads(false)} onOpenRoad={(roadId, mode, stage) => {
+            {view === "road" && business ? <div className="hs road-layer yr" style={roadVars(theme, Boolean(snap.theme))}><div className="phone road-phone"><div className="v8-atlas-host">
+              <BusinessRoads personKey={persona} advisorName={p.advisor.name} large={st === "large"} onClose={() => setBusiness(false)} onAskKate={(text) => { openKate(null); void sendKate(text); }} />
+            </div></div></div> : view === "road" && allRoads && person ? <div className="hs road-layer yr" style={roadVars(theme, Boolean(snap.theme))}><div className="phone road-phone"><div className="v8-atlas-host">
+              <AllRoads person={person} pointers={pointers} large={st === "large"} onClose={() => setAllRoads(false)} onBusiness={() => setBusiness(true)} onOpenRoad={(roadId, mode, stage) => {
                 updatePointers(mode === "confirmed" && stage ? confirmRoad(pointers, roadId, stage) : previewRoad(pointers, roadId, stage));
                 if (catalogueRoad(roadId)?.care) road.current?.optInCareFor(roadId);
                 openRoad({ roadId });
@@ -971,7 +978,7 @@ export function KbcApp() {
             </div></div></div> : view === "road" && (
               <RoadTab
                 {...{ focus: roadFocus, onFocusChange: setRoadFocus }} // v8-channels
-                pointers={pointers} onAllRoads={() => setAllRoads(true)}
+                pointers={pointers} onAllRoads={() => setAllRoads(true)} onBusiness={() => setBusiness(true)}
                 themeStyle={roadVars(theme, Boolean(snap.theme))}
                 light={theme.light}
                 large={st === "large"}
