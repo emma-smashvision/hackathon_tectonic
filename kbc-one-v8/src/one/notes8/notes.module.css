@@ -1,0 +1,28 @@
+.panel { --note-ink: #183847; --note-muted: #4d6470; color: var(--note-ink); background: #f5fafb; border: 1px solid #cddfe5; border-radius: 18px; padding: 18px; margin-block: 14px; font-size: 14px; line-height: 1.5; text-align: left; }
+.heading { font: inherit; font-size: 18px; font-weight: 700; margin: 0 0 6px; color: var(--note-ink); }
+.muted { color: var(--note-muted); margin: 6px 0; font-size: .94em; }
+.disclosure { color: var(--note-muted); font-size: .86em; margin: 10px 0 0; }
+.toggle { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 0; font-weight: 600; cursor: pointer; }
+.toggle input { accent-color: #006b80; width: 20px; height: 20px; flex: 0 0 auto; }
+.form { display: grid; gap: 8px; margin-top: 12px; }
+.form label { font-weight: 600; }
+.input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 48px; border: 1px solid #69818d; border-radius: 10px; background: #fff; color: var(--note-ink); font: inherit; padding: 12px; }
+.primary, .secondary { min-height: 44px; padding: 10px 16px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid #006b80; }
+.primary { background: #006b80; color: #fff; }
+.secondary { background: #fff; color: #00576a; margin-top: 8px; }
+.primary:disabled, .secondary:disabled { opacity: .6; cursor: default; }
+.panel :is(input, button):focus-visible { outline: 3px solid #007c98; outline-offset: 3px; }
+.status { margin-top: 10px; }
+.chip, .review, .approved { display: inline-block; border-radius: 20px; padding: 3px 9px; font-size: .85em; font-weight: 600; }
+.chip { background: #e3edf1; color: #244958; }
+.review { background: #fff0c9; color: #6d4800; }
+.approved { background: #d6f1e7; color: #15553e; }
+.error { color: #9d242a; margin: 10px 0; }
+.list { display: grid; gap: 10px; margin-top: 14px; }
+.note { margin: 0; padding: 14px; background: #fff; border-left: 3px solid #007c98; border-radius: 4px 12px 12px 4px; }
+.note blockquote { margin: 0 0 9px; overflow-wrap: anywhere; }
+.note figcaption { color: var(--note-muted); font-size: .86em; line-height: 1.7; }
+.roadLabel { display: block; }
+.large { font-size: 18px; }
+.large .heading { font-size: 22px; }
+.large :is(.input, .primary, .secondary, .toggle) { min-height: 52px; }

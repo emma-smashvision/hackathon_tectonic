@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kate makes it yours</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#4cc3f2}a:hover{color:#8fdcfa}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0a1220; color: #e8eef6; font-family: Figtree, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+<div style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a2840">
+<a href="Main.dc.html" style="font-size: 14px; text-decoration: none; min-height: 44px; display: flex; align-items: center">Close</a>
+<div style="font-size: 16px; font-weight: 600">Kate</div>
+<div style="width: 44px"></div>
+</div>
+<div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow: hidden">
+<div style="align-self: flex-end; max-width: 80%; padding: 12px 14px; border-radius: 16px 16px 4px 16px; background: #1a2840; font-size: 15px">I like a pink, calm style. And put my coffee spending on my home.</div>
+<div style="max-width: 88%; padding: 12px 14px; border-radius: 16px 16px 16px 4px; background: #111c2e; font-size: 15px; line-height: 1.4">Here is a preview. Nothing changes until you tap Apply.</div>
+<div style="border-radius: 20px; border: 1px solid #2a3b55; padding: 14px; display: flex; flex-direction: column; gap: 12px; background: #0f1828">
+<div style="font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #8fa3bb">Preview · 2 changes</div>
+<div style="display: flex; gap: 12px; align-items: center">
+<div style="width: 64px; height: 110px; border-radius: 12px; background: #2a1422; border: 1px solid #f472b6; display: flex; flex-direction: column; gap: 6px; padding: 8px; box-sizing: border-box">
+<div style="height: 14px; border-radius: 4px; background: #f472b6"></div>
+<div style="height: 22px; border-radius: 6px; background: #3b1d31"></div>
+<div style="height: 22px; border-radius: 6px; background: #3b1d31"></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px">
+<div><strong style="font-weight: 600">Style:</strong> Calm, rose theme</div>
+<div style="color: #8fa3bb; font-size: 13px">Contrast checked · Fixed zone stays the same</div>
+</div>
+</div>
+<div style="padding: 12px; border-radius: 14px; background: #2a1422; display: flex; justify-content: space-between; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 12px; color: #f9c4de">New in Yours · Tracker</div>
+<div style="font-size: 16px; font-weight: 600">Coffee this month · € 38,50</div>
+</div>
+<div style="font-size: 12px; color: #f9c4de">Size M</div>
+</div>
+<div style="display: flex; gap: 8px">
+<button style="flex: 1; height: 48px; border-radius: 14px; border: 0; background: #f472b6; color: #2a0b1c; font: 600 15px Figtree, sans-serif">Apply</button>
+<button style="height: 48px; padding: 0 18px; border-radius: 14px; border: 1px solid #2a3b55; background: none; color: #e8eef6; font: 500 15px Figtree, sans-serif">Change</button>
+</div>
+</div>
+<div style="font-size: 13px; color: #8fa3bb">After Apply: a bar "Style changed · Undo" stays for 10 seconds. Settings › Look keeps every earlier style.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button style="min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid #2a3b55; background: none; color: #e8eef6; font: 500 13px Figtree, sans-serif">Make text bigger</button>
+<button style="min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid #2a3b55; background: none; color: #e8eef6; font: 500 13px Figtree, sans-serif">Fewer blocks</button>
+<button style="min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid #2a3b55; background: none; color: #e8eef6; font: 500 13px Figtree, sans-serif">Back to KBC style</button>
+</div>
+</div>
+<div style="padding: 10px 16px 24px; border-top: 1px solid #1a2840">
+<label for="kate-input" style="position: absolute; left: -9999px">Message Kate</label>
+<input id="kate-input" placeholder="Tell Kate how you want your app…" style="width: 100%; box-sizing: border-box; height: 48px; border-radius: 24px; border: 1px solid #2a3b55; background: #111c2e; color: #e8eef6; padding: 0 18px; font: 400 15px Figtree, sans-serif">
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

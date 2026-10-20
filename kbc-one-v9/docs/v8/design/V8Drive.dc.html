@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Drive this road</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#4cc3f2}a:hover{color:#8fdcfa}
+</style>
+</helmet>
+<div style="width: 1280px; height: 640px; position: relative; overflow: hidden; background: linear-gradient(#0c1626 0%, #0c1626 40%, #101d31 40%, #0a1424 100%); color: #e8eef6; font-family: Figtree, system-ui, sans-serif; border-radius: 32px">
+<div aria-hidden="true" style="position: absolute; left: 470px; top: 256px; width: 340px; height: 384px; background: #1d2b42; clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%)"></div>
+<div aria-hidden="true" style="position: absolute; left: 636px; top: 290px; width: 8px; height: 40px; background: #3b4a60"></div>
+<div aria-hidden="true" style="position: absolute; left: 634px; top: 380px; width: 12px; height: 60px; background: #3b4a60"></div>
+<div aria-hidden="true" style="position: absolute; left: 600px; top: 330px; width: 22px; height: 14px; border-radius: 4px; background: rgba(255,255,255,.22)"></div>
+<div aria-hidden="true" style="position: absolute; left: 662px; top: 310px; width: 18px; height: 11px; border-radius: 3px; background: rgba(255,255,255,.16)"></div>
+<div aria-hidden="true" style="position: absolute; left: 618px; top: 284px; width: 14px; height: 9px; border-radius: 3px; background: rgba(255,255,255,.12)"></div>
+<div style="position: absolute; left: 560px; top: 250px; padding: 6px 10px; border-radius: 10px; background: rgba(42,36,18,.95); border: 1px solid #fbbf24; font-size: 12px; color: #fbbf24">Month 1 · setup costs surprised 1 in 3</div>
+<div style="position: absolute; left: 430px; top: 330px; padding: 4px 8px; border-radius: 8px; background: #111c2e; font-size: 11px; color: #8fa3bb">Month 3</div>
+<div style="position: absolute; left: 790px; top: 300px; padding: 6px 10px; border-radius: 10px; background: #10241f; border: 1px solid #34d399; font-size: 12px; color: #34d399">What helped ↗</div>
+<div aria-hidden="true" style="position: absolute; left: 610px; top: 520px; width: 60px; height: 70px; border-radius: 12px; background: {{accent}}"></div>
+<div style="position: absolute; left: 32px; top: 28px; padding: 14px 18px; border-radius: 16px; background: rgba(10, 18, 32, .85); border: 1px solid #22406a; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 12px; color: #8fa3bb">Moving house · you are before your move</div>
+<div style="font-size: 18px; font-weight: 600">Exploring month 1 · ghosts = earlier movers</div>
+</div>
+<a href="V8Road.dc.html" style="position: absolute; right: 32px; top: 28px; height: 44px; padding: 0 18px; border-radius: 22px; background: #13243a; border: 1px solid #2a3b55; display: flex; align-items: center; text-decoration: none; font-size: 14px; font-weight: 600">Map view</a>
+<a href="V8Stop.dc.html" style="position: absolute; right: 32px; bottom: 28px; height: 52px; padding: 0 22px; border-radius: 26px; background: {{accent}}; color: #04121d; display: flex; align-items: center; text-decoration: none; font-size: 15px; font-weight: 700">Show me ahead →</a>
+<div style="position: absolute; left: 32px; bottom: 28px; font-size: 13px; color: #8fa3bb">Same stops and notes as the map · driving never changes your own position</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#38bdf8","options":["#38bdf8","#f472b6","#a3e635"]},"$preview":{"width":1280,"height":640}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#38bdf8' };
+}
+}
+</script>
+</body>
+</html>

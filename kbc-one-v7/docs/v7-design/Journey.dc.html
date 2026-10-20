@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A journey starts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#4cc3f2}a:hover{color:#8fdcfa}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0a1220; color: #e8eef6; font-family: Figtree, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+<div style="padding: 16px; background: #0d1626; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #8fa3bb">Lock screen</div>
+<div style="padding: 14px; border-radius: 18px; background: #1a2840; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #8fa3bb"><span>KBC</span><span>now</span></div>
+<div style="font-size: 15px; font-weight: 600">Something on your road starts soon</div>
+<div style="font-size: 13px; color: #c6d2e1">Open KBC to see what to prepare.</div>
+</div>
+<div style="font-size: 12px; color: #8fa3bb">No amounts, names or bill types on the lock screen.</div>
+</div>
+<div style="flex: 1; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; overflow: hidden">
+<div style="font-size: 12px; color: #8fa3bb">Your road · Car · in 2 weeks</div>
+<h1 style="margin: 0; font-size: 26px; font-weight: 600; line-height: 1.2">Your car insurance renews on 2 November</h1>
+<div style="font-size: 15px; line-height: 1.5; color: #c6d2e1">Last year you paid € 381. This year it's € 412 (+8%). Most people at your point who compared, changed nothing, but 1 in 4 found the same cover for less.</div>
+<div style="border-radius: 16px; background: #111c2e; display: flex; flex-direction: column">
+<div style="padding: 14px; border-bottom: 1px solid #1a2840; display: flex; justify-content: space-between"><span style="font-size: 14px">Your product</span><span style="font-size: 14px; font-weight: 600">KBC car insurance, omnium</span></div>
+<div style="padding: 14px; display: flex; justify-content: space-between"><span style="font-size: 14px">Prepared</span><span style="font-size: 14px; font-weight: 600">€ 0 of € 412</span></div>
+</div>
+<div style="font-size: 13px; color: #8fa3bb">Pick one. You can change it later.</div>
+<button style="height: 52px; border-radius: 14px; border: 0; background: {{accent}}; color: #04121d; font: 600 15px Figtree, sans-serif">Check my cover</button>
+<button style="height: 52px; border-radius: 14px; border: 0; background: #1a2840; color: #e8eef6; font: 600 15px Figtree, sans-serif">Set aside € 35 a month</button>
+<button style="height: 52px; border-radius: 14px; border: 0; background: #1a2840; color: #e8eef6; font: 600 15px Figtree, sans-serif">Remind me on 25 October</button>
+<a href="City.dc.html" style="display: flex; align-items: center; justify-content: center; height: 48px; font-size: 15px; text-decoration: none">See it in your city</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#38bdf8","options":["#38bdf8","#f472b6","#a3e635"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#38bdf8' };
+}
+}
+</script>
+</body>
+</html>

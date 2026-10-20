@@ -1,0 +1,5 @@
+/* r2-places: arrival UI and map slots; engine/mission styles stay with their owners. */
+.r2-places-map{order:-1;border-bottom:1px solid #416173;padding-bottom:10px;margin-bottom:5px}.r2-places-map h3{margin:6px 0 10px;font-size:15px;font-weight:500}.c10-map .r2-places-map button{display:block;width:100%;margin:5px 0}.r2-places-map strong,.r2-places-map small,.r2-places-map span{display:block}.c10-map .r2-places-map small{font-size:10px;letter-spacing:0;line-height:1.4;margin:4px 0;color:#adcbd3}.r2-places-map span{font-size:11px;color:#9ef1d0}.c10-game:has([data-place-view]) .c10-overlays{visibility:hidden}.c10-game:has([data-place-view])>.c10-top,.c10-game:has([data-place-view])>.c10-speed,.c10-game:has([data-place-view])>.c10-controls,.c10-game:has([data-place-view])>.c10-minimap,.c10-game:has([data-place-view])>.c10-help{visibility:hidden}
+
+/* r2-places: the own-data disclosure replaces the crowd footer while parked. */
+.c10-game:has([data-place-view])>.c10-disclosure,.c10-game:has([data-place-view])+.v10-city-footer{visibility:hidden}

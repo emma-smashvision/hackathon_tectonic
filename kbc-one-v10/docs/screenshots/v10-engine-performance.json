@@ -1,0 +1,77 @@
+{
+  "viewport": "1366x768",
+  "dpr": 1,
+  "samples": [
+    {
+      "label": "night city + 20 moving NPC cars",
+      "fps": 60,
+      "traffic": 20,
+      "peakSmoke": 0,
+      "activeSmokeFrames": 0,
+      "smoke": 0,
+      "skid": 0,
+      "fov": 58
+    },
+    {
+      "label": "driving with traffic, reflections and post",
+      "fps": 60.08,
+      "traffic": 20,
+      "peakSmoke": 0,
+      "activeSmokeFrames": 0,
+      "smoke": 0,
+      "skid": 0,
+      "fov": 64.49999968538843
+    },
+    {
+      "label": "continuous drift and smoke pool",
+      "fps": 60.09,
+      "traffic": 20,
+      "peakSmoke": 52,
+      "activeSmokeFrames": 301,
+      "smoke": 52,
+      "skid": 0,
+      "fov": 64.30000006883624
+    }
+  ],
+  "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+  "errors": [],
+  "behavior": {
+    "trafficYield": {
+      "speed": 0,
+      "gap": 6.816207973357437,
+      "braking": true
+    },
+    "drift": {
+      "telemetry": {
+        "speed": 38.91760000014308,
+        "rpm": 0.7299547586225645,
+        "slip": 0.9294303116106388,
+        "boosting": false,
+        "throttle": 1,
+        "braking": true
+      },
+      "effects": {
+        "skidCount": 16,
+        "smokeCount": 16
+      }
+    },
+    "boosted": {
+      "telemetry": {
+        "speed": 54,
+        "rpm": 0.9275862068965517,
+        "slip": 0,
+        "boosting": true,
+        "throttle": 1,
+        "braking": false
+      },
+      "fov": 75.07300222386553,
+      "boostMs": 901
+    },
+    "telemetrySamples": 24,
+    "telemetryHz": 10.307430312918234,
+    "overview": {
+      "early": 28.48242113346797,
+      "high": 1452.098087403958
+    }
+  }
+}

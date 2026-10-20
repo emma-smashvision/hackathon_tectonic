@@ -1,0 +1,86 @@
+[
+  {
+    "persona": "tom",
+    "size": "phone",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "karim",
+    "size": "phone",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "sofie",
+    "size": "phone",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "lina",
+    "size": "phone",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "margaret",
+    "size": "phone",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "nadia",
+    "size": "phone",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "tom",
+    "size": "stage",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "karim",
+    "size": "stage",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "sofie",
+    "size": "stage",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "lina",
+    "size": "stage",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "margaret",
+    "size": "stage",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  },
+  {
+    "persona": "nadia",
+    "size": "stage",
+    "homeEntry": true,
+    "roadEntry": true,
+    "errors": []
+  }
+]

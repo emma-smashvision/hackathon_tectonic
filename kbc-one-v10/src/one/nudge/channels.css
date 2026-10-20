@@ -1,0 +1,26 @@
+/* v8-channels: one road card; the v7.1 bubble geometry is unchanged. */
+.v8-home-road { display:flex; flex-direction:column; gap:7px; width:100%; padding:16px 18px; margin:4px 0 18px; text-align:left; border:1px solid var(--line); border-radius:20px; background:var(--surface); color:var(--text); font:inherit; cursor:pointer; }
+.v8-home-road small { color:var(--muted); font-size:11px; }
+.v8-home-road strong { font-size:16px; line-height:1.35; }
+.v8-home-road span { font-size:13px; line-height:1.5; }
+.v8-home-road b { color:var(--accent); font-size:13px; }
+.v8-home-road:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+.st-large .v8-home-road { padding:20px; gap:12px; }
+.st-large .v8-home-road :is(strong,span,b) { font-size:18px; }
+.st-large .v8-home-road small { font-size:15px; }
+.v8-adviser { padding:20px; }
+.v8-adviser .desk-grid { grid-template-columns:1fr; }
+.v8-adviser .consent-pill { white-space:normal; line-height:1.6; }
+.v8-adviser .desk-title { font-size:24px; }
+.v8-atlas-host { height:100%; padding-top:40px; padding-bottom:75px; overflow:hidden; }
+.v8-adviser .desk-card h2 { color:#102133; font-size:18px; }
+.v8-adviser .desk-list.plain li { display:block; color:#21384d; margin:12px 0; line-height:1.5; }
+.v8-adviser .desk-list.plain li strong { color:#102133; }
+.v8-adviser .desk-list.plain li p { margin:5px 0 0; }
+@media (max-width:600px) { .kbc-root .phone-halo { display:none; } }
+.ph .v8-road-title { font-size:16px; }
+.ph .v8-road-line { font-size:13px; }
+.ph.st-large .kate-sheet .msg, .ph.st-large .v8-road-title, .ph.st-large .v8-road-line { font-size:18px; line-height:1.5; }
+.ph.st-large .journey-notification strong { font-size:22px; }
+.ph.st-large .journey-notification > span:not(:first-child), .ph.st-large .journey-lock-caption, .ph.st-large .journey-lock-dismiss { font-size:17px; }
+.ph.st-large .journey-notification-top { font-size:15px; }

@@ -1,0 +1,44 @@
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+(async () => {
+  const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROMIUM_PATH, args: ['--enable-webgl', '--ignore-gpu-blocklist'] });
+  const page = await browser.newPage({ viewport: { width: 1512, height: 806 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  try {
+    await page.goto((process.env.SHELL_APP_URL || 'http://localhost:3704') + '/?p=tom&reset=1');
+    await page.locator('[data-village-entry]').waitFor();
+    await page.locator('.kbc-thinking').waitFor({ state: 'hidden' });
+    await page.locator('[data-village-entry]').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: path.resolve('docs/screenshots/v10-shell-tom-home.png') });
+    await page.locator('[data-village-entry]').click();
+    await page.locator('.ls-wrap[data-phase="playing"] canvas').waitFor();
+    await page.getByRole('button', { name: 'Map · M', exact: true }).click();
+    await page.locator('[data-city-map-open="true"]').waitFor();
+    assert.equal(await page.locator('.c10-overlays').isVisible(), false);
+    await page.keyboard.press('Escape');
+    await page.locator('[data-city-map-open="false"]').waitFor();
+    assert.equal(await page.getByRole('dialog', { name: 'City paused', exact: true }).count(), 0);
+    await page.getByRole('button', { name: 'Map · M', exact: true }).click();
+    await page.getByRole('dialog', { name: 'City map', exact: true }).waitFor();
+    assert.equal(await page.locator('.c10-minimap').isVisible(), false);
+    assert.equal(await page.locator('.v10-city-footer').isVisible(), true);
+    const close = page.getByRole('button', { name: 'Close map · M', exact: true });
+    await close.focus(); await page.keyboard.press('Shift+Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.textContent), 'Clear route');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.textContent), 'Close map · M');
+    await page.screenshot({ path: path.resolve('docs/screenshots/v10-shell-tom-map.png') });
+    await page.keyboard.press('Escape');
+    await page.locator('[data-city-map-open="false"]').waitFor();
+    assert.equal(await page.locator('.c10-overlays').isVisible(), true);
+    await page.keyboard.press('Escape');
+    await page.getByRole('dialog', { name: 'City paused', exact: true }).getByRole('button', { name: 'Back to app', exact: true }).click();
+    await page.locator('.ls-wrap').waitFor({ state: 'detached' });
+    assert.equal(await page.locator('canvas').count(), 0);
+    assert.deepEqual(errors, []);
+    console.log('Map/overview Escape priority, hidden driving HUD, footer, focus loop and return PASS');
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exit(1); });

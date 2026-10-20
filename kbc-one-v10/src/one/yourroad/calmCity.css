@@ -1,0 +1,40 @@
+.r2-calm-city { position:fixed; inset:16px; z-index:1000; display:flex; flex-direction:column; overflow:hidden; border:1px solid #385a70; border-radius:25px; background:#091522; color:#f0f7fc; box-shadow:0 0 0 100vmax #020811df; font-family:"IBM Plex Sans",sans-serif; }
+.r2-calm-city>header { display:flex; justify-content:space-between; align-items:center; gap:15px; padding:18px 24px; border-bottom:1px solid #294254; }
+.r2-calm-city header span { color:#a6c8dc; font-size:16px; }
+.r2-calm-city h1 { margin:2px 0 0; font-size:28px; font-family:"Space Grotesk",sans-serif; }
+.r2-calm-city button { min-height:54px; font:600 18px/1.35 "IBM Plex Sans",sans-serif; border:1px solid #3d627a; border-radius:13px; padding:12px 17px; background:#183447; color:#eef8ff; cursor:pointer; }
+.r2-calm-city button:focus-visible,.r2-calm-city select:focus-visible { outline:3px solid #59dcff; outline-offset:3px; }
+.r2-calm-city button:disabled { opacity:.65; }
+.r2-calm-layout { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 390px; }
+.r2-calm-scene { position:relative; min-height:260px; }
+.r2-calm-location { position:absolute; left:20px; bottom:20px; right:20px; padding:14px 18px; background:#091522e8; border:1px solid #3d627a; border-radius:14px; font-size:24px; pointer-events:none; }
+.r2-calm-location small { display:block; color:#bcd5e5; font-size:16px; margin-top:3px; }
+.r2-calm-panel { padding:22px; overflow-y:auto; background:#0e2030; }
+.r2-calm-panel h2 { font-size:23px; line-height:1.3; margin:0 0 8px; }
+.r2-calm-panel p { font-size:18px; line-height:1.55; color:#c5d8e5; margin:8px 0 16px; }
+.r2-calm-panel nav { display:grid; gap:10px; margin:18px 0; }
+.r2-calm-panel nav button { display:flex; justify-content:space-between; text-align:left; }
+.r2-calm-panel nav button[aria-pressed=true] { background:#c4f3ff; color:#102838; }
+.r2-calm-travel { display:flex; gap:8px; }
+.r2-calm-travel button { flex:1; }
+.r2-calm-lesson { border-top:1px solid #365266; margin-top:24px; padding-top:24px; }
+.r2-calm-lesson>span { display:block; color:#68e4bb; margin-bottom:8px; font-size:16px; }
+.r2-calm-lesson button { display:block; width:100%; text-align:left; margin-top:10px; }
+.r2-calm-select { display:block; font-size:18px; }
+.r2-calm-select select { width:100%; margin-top:8px; font:inherit; color:inherit; background:#183447; padding:12px; border:1px solid #3d627a; border-radius:10px; }
+.r2-calm-city>footer { padding:12px; text-align:center; font-size:13px; color:#a9c1d1; border-top:1px solid #294254; }
+.r2-calm-fallback { padding:30px; font-size:20px; }
+@media(max-width:700px) { .r2-calm-city { inset:0; border:0; border-radius:0; } .r2-calm-city>header { padding:13px 16px; } .r2-calm-city h1 { font-size:24px; } .r2-calm-layout { display:block; overflow-y:auto; } .r2-calm-scene { height:290px; } .r2-calm-panel { overflow:visible; padding:20px; } .r2-calm-location { left:14px; right:14px; bottom:14px; } }
+.r2-calm-place { margin-top:22px; }
+.r2-calm-place [data-place-view] { width:100%; }
+.r2-calm-place [data-place-view]>section { max-height:none; overflow:visible; }
+.r2-calm-place header { flex-direction:column; align-items:start; padding:16px; }
+.r2-calm-place h1 { font-size:24px; }
+.r2-calm-place p,.r2-calm-place li,.r2-calm-place dt,.r2-calm-place dd { font-size:17px; }
+.r2-calm-place footer { display:none; }
+/* Embedded places inherit the Calm reading size, including their local controls. */
+.r2-calm-city .r2-calm-place [data-place-view]>section { animation:none; }
+.r2-calm-city .r2-calm-place button { min-height:54px; font-size:18px; padding:12px 16px; }
+.r2-calm-city .r2-calm-place h3 { font-size:20px; }
+.r2-calm-city .r2-calm-place span { font-size:18px; }
+.r2-calm-city .r2-calm-place small { font-size:14px; }

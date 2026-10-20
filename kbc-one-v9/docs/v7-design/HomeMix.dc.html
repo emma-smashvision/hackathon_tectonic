@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home v7.1: bubbles first</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#4cc3f2}a:hover{color:#8fdcfa}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: radial-gradient(120% 60% at 50% 0%, #12345a 0%, #0a1220 60%); color: #e8eef6; font-family: Figtree, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden; position: relative">
+<div style="padding: 18px 20px 0; display: flex; justify-content: space-between; align-items: center">
+<div style="font-size: 15px; font-style: italic; color: #c6d2e1">Hi, Tom</div>
+<button aria-label="Profile" style="width: 34px; height: 34px; border-radius: 17px; border: 0; background: {{accent}}; color: #04121d; font-weight: 700; font-family: inherit">T</button>
+</div>
+<div style="text-align: center; padding: 14px 20px 0; display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 40px; font-weight: 600">€ 1.987,40</div>
+<div style="font-size: 12px; color: #8fa3bb">Current account · savings € 6.200</div>
+<div style="font-size: 13px; font-style: italic; color: #c6d2e1; padding-top: 6px">Moving to Gent in 2 weeks. Your flat fund is on track.</div>
+</div>
+<div style="display: flex; justify-content: center; gap: 22px; padding: 14px 0 10px">
+<button style="width: 52px; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 0; background: none; color: #e8eef6; font: 500 11px Figtree, sans-serif"><span style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14)"></span>Transfer</button>
+<button style="width: 52px; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 0; background: none; color: #e8eef6; font: 500 11px Figtree, sans-serif"><span style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14)"></span>Pay</button>
+<button style="width: 52px; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 0; background: none; color: #e8eef6; font: 500 11px Figtree, sans-serif"><span style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14)"></span>Scan</button>
+<button style="width: 52px; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 0; background: none; color: #e8eef6; font: 500 11px Figtree, sans-serif"><span style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14)"></span>Cards</button>
+</div>
+<div style="margin: 0 16px; padding: 12px 14px; border-radius: 18px; background: rgba(19, 50, 80, .75); border: 1px solid rgba(76, 195, 242, .35); display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 11px; color: #8fa3bb">Bar Bidon · 4 min ago</div>
+<div style="font-size: 15px; font-weight: 600">Split the € 128,40?</div>
+</div>
+<button style="height: 40px; padding: 0 14px; border-radius: 20px; border: 0; background: {{accent}}; color: #04121d; font: 600 13px Figtree, sans-serif">€ 32,10 each</button>
+</div>
+<div style="position: relative; height: 300px; margin-top: 6px">
+<div style="position: absolute; left: 38px; top: 24px; width: 150px; height: 150px; border-radius: 75px; background: radial-gradient(circle at 35% 30%, #2b4466, #15233a); border: 2px solid {{accent}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 0 30px rgba(56,189,248,.25)">
+<div style="font-size: 26px; font-weight: 600">3 of 5</div><div style="font-size: 12px; color: #c6d2e1">Moving to Gent</div>
+</div>
+<div style="position: absolute; left: 206px; top: 10px; width: 118px; height: 118px; border-radius: 59px; background: radial-gradient(circle at 35% 30%, #2b4466, #15233a); border: 1px solid rgba(255,255,255,.14); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px">
+<div style="font-size: 20px; font-weight: 600">€ 1.773</div><div style="font-size: 11px; color: #c6d2e1">Left until payday</div>
+</div>
+<div style="position: absolute; left: 196px; top: 146px; width: 104px; height: 104px; border-radius: 52px; background: radial-gradient(circle at 35% 30%, #2b4466, #15233a); border: 1px solid rgba(255,255,255,.14); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px">
+<div style="font-size: 20px; font-weight: 600">72%</div><div style="font-size: 11px; color: #c6d2e1">Flat fund</div>
+</div>
+<div style="position: absolute; left: 92px; top: 190px; width: 94px; height: 94px; border-radius: 47px; background: radial-gradient(circle at 35% 30%, #3a3320, #1d1a10); border: 1px dashed #fbbf24; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px">
+<div style="font-size: 15px; font-weight: 600">Car</div><div style="font-size: 10px; color: #fbbf24">renews 2 Nov</div>
+</div>
+<div style="position: absolute; left: 300px; top: 230px; width: 60px; height: 60px; border-radius: 30px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #c6d2e1">+ more</div>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column">
+<div style="display: flex; gap: 8px; padding: 0 16px 8px; overflow: hidden">
+<div style="flex: none; padding: 9px 12px; border-radius: 16px; background: rgba(255,255,255,.06); font-size: 12px">What's coming up?</div>
+<div style="flex: none; padding: 9px 12px; border-radius: 16px; background: rgba(255,255,255,.06); font-size: 12px">How much can I spend?</div>
+</div>
+<div style="margin: 0 16px 8px; height: 44px; border-radius: 22px; background: rgba(255,255,255,.07); display: flex; align-items: center; padding: 0 16px; font-size: 14px; color: #8fa3bb">Ask Kate anything…</div>
+<nav aria-label="Main" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 6px 8px 16px; background: rgba(10,18,32,.9)">
+<a href="HomeMix.dc.html" style="text-align: center; font-size: 11px; color: {{accent}}; text-decoration: none; padding: 10px 0">Home</a>
+<a href="HomeMix.dc.html" style="text-align: center; font-size: 11px; color: #8fa3bb; text-decoration: none; padding: 10px 0">Accounts</a>
+<a href="Kate.dc.html" style="text-align: center; font-size: 11px; color: #8fa3bb; text-decoration: none; padding: 10px 0">Kate</a>
+<a href="RoadMap.dc.html" style="text-align: center; font-size: 11px; color: #8fa3bb; text-decoration: none; padding: 10px 0">Your road</a>
+<a href="HomeMix.dc.html" style="text-align: center; font-size: 11px; color: #8fa3bb; text-decoration: none; padding: 10px 0">More</a>
+</nav>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#38bdf8","options":["#38bdf8","#f472b6","#a3e635"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#38bdf8' };
+}
+}
+</script>
+</body>
+</html>
