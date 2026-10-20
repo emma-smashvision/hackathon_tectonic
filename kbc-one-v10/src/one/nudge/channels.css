@@ -12,7 +12,7 @@
 .v8-adviser .desk-grid { grid-template-columns:1fr; }
 .v8-adviser .consent-pill { white-space:normal; line-height:1.6; }
 .v8-adviser .desk-title { font-size:24px; }
-.v8-atlas-host { height:100%; padding-top:40px; padding-bottom:75px; overflow:hidden; }
+.v8-atlas-host { height:100%; padding-top:40px; padding-bottom:0; overflow:hidden; } /* .road-layer already ends above the tab bar */
 .v8-adviser .desk-card h2 { color:#102133; font-size:18px; }
 .v8-adviser .desk-list.plain li { display:block; color:#21384d; margin:12px 0; line-height:1.5; }
 .v8-adviser .desk-list.plain li strong { color:#102133; }
