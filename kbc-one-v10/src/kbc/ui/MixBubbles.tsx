@@ -86,9 +86,21 @@ export function MixBubbles({ bubbles, large, editing, onOpen, onRemove, onReorde
             drag.current = null; setMoving(null);
           }}
           onPointerCancel={() => { drag.current = null; setMoving(null); }}>
+          {b.id === "roadmap" ? <>
+            <span className="road-ring" aria-hidden="true" />
+            <svg className="road-fork" viewBox="0 0 64 30" aria-hidden="true">
+              <path d="M4 22 H20 C30 22 32 8 44 8 H60" className="road-fork-pick" />
+              <path d="M20 22 H60" className="road-fork-other" />
+              <circle cx="20" cy="22" r="4" className="road-fork-you" />
+            </svg>
+            <span className="road-kicker">Your next level</span>
+            <span className="mix-value">{b.value}</span>
+            <span className="mix-label">{bubbleLabel(b)}</span>
+          </> : <>
           <Icon name={b.icon} size={large ? 23 : 18} />
           <span className="mix-value">{b.value.replace(/^(\d+) payments?$/, "$1")}</span>
           <span className="mix-label">{bubbleLabel(b)}</span>
+          </>}
           {bubble.suggestion && <span className="mix-spark" aria-hidden="true"><Icon name="spark" size={12} /></span>}
         </button>
         {editable && <button type="button" className="mix-remove" aria-label={`Remove ${b.title}`} onClick={() => onRemove(b.id)}>×</button>}

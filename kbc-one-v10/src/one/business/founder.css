@@ -332,10 +332,29 @@
 .fr-team-names { font-size: 12.5px; color: var(--fr-cyan); line-height: 1.4; }
 .fr-offer-mini { font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #052033; background: #f5a524; border-radius: 5px; padding: 2px 6px; }
 
-/* Home: the business road is the biggest, brightest bubble */
-.ph .mix-bubble[data-block="roadmap"] { color: #04121d; border: 0; background: radial-gradient(circle at 30% 25%, #ffffffb0, transparent 55%), linear-gradient(160deg, #7fe3ff, #2aa9cf); box-shadow: 0 0 0 6px #59dcff33, 0 0 44px #59dcff80; }
-.ph .mix-bubble[data-block="roadmap"] .mix-value { font-weight: 750; }
-.ph .mix-bubble[data-block="roadmap"] > svg { opacity: 1; }
-.ph .mix-float:has(.mix-bubble[data-block="roadmap"]) { z-index: 2; }
-.ph .mix-bubble[data-block="roadmap"] .mix-label { color: #063349; opacity: 1; font-weight: 600; }
 .fr-x-t, .fr-x-t-on { font-size: 13px; }
+
+/* Home: the business road bubble, a dark glass core with a turning ring and Kate's route */
+.ph .mix-float:has(.mix-bubble[data-block="roadmap"]) { z-index: 2; }
+.ph .mix-bubble[data-block="roadmap"] { position: relative; isolation: isolate; gap: 2px; padding: 14px; border: 0; color: #eef8ff; overflow: visible;
+  background: radial-gradient(circle at 32% 22%, #59dcff33, transparent 58%), radial-gradient(circle at 50% 120%, #2aa9cf55, transparent 60%), #08213a;
+  box-shadow: inset 0 0 0 1px #59dcff55, inset 0 -10px 24px #00000066, 0 0 38px #59dcff40; }
+.ph .mix-bubble[data-block="roadmap"] .road-ring { position: absolute; inset: -5px; z-index: -1; border-radius: 50%; padding: 3px;
+  background: conic-gradient(from 0deg, #59dcff, #59dcff00 30%, #b9a6ff 55%, #59dcff00 75%, #59dcff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: road-ring-turn 6s linear infinite; }
+.ph .mix-bubble[data-block="roadmap"]::after { content: ""; position: absolute; inset: -14px; z-index: -2; border-radius: 50%; border: 1px solid #59dcff40; animation: road-ring-pulse 2.8s ease-out infinite; }
+.ph .mix-bubble[data-block="roadmap"] .road-fork { width: 58px; height: 26px; margin-bottom: 1px; }
+.ph .road-fork-pick { fill: none; stroke: #59dcff; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 4 5; animation: road-fork-run 1.4s linear infinite; }
+.ph .road-fork-other { fill: none; stroke: #5d7b96; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 3 5; }
+.ph .road-fork-you { fill: #fff; stroke: #59dcff; stroke-width: 2.5; }
+.ph .mix-bubble[data-block="roadmap"] .road-kicker { font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #59dcff; }
+.ph .mix-bubble[data-block="roadmap"] .mix-value { font-weight: 750; font-size: 17px; line-height: 1.1; letter-spacing: -.2px; color: #fff; }
+.ph .mix-bubble[data-block="roadmap"] .mix-label { font-size: 11px; color: #9fd8f0; opacity: 1; }
+.ph .mix-bubble[data-block="roadmap"]:hover { transform: scale(1.04); }
+@keyframes road-ring-turn { to { transform: rotate(360deg); } }
+@keyframes road-ring-pulse { 0% { transform: scale(.94); opacity: .9; } 100% { transform: scale(1.12); opacity: 0; } }
+@keyframes road-fork-run { to { stroke-dashoffset: -18; } }
+@media (prefers-reduced-motion: reduce) {
+  .ph .mix-bubble[data-block="roadmap"] .road-ring, .ph .mix-bubble[data-block="roadmap"]::after, .ph .road-fork-pick { animation: none; }
+}
