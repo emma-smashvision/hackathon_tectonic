@@ -790,9 +790,8 @@ export function KbcApp() {
               <div className="scroll">
                 <HomeMix key={persona} home={home} snapshot={snap} card={null}
                   roadmap={founder.road && founderNow ? { title: roadmapCrowd(founder.road, founder.chosen), value: chapterTitle(founder.road, founderNow.chapter), onOpen: openBusinessRoad, headline: customerRoad(persona)?.home?.headline } : undefined}
-                  villageCard={customerRoad(persona)?.home
-                    ? <button type="button" className="biz-home-note" onClick={openBusinessRoad}><span aria-hidden="true">✦</span><span><small>Kate noticed</small>{customerRoad(persona)!.home!.insight}</span><b aria-hidden="true">›</b></button>
-                    : <VillageCard personaId={persona} large={st === "large"} receipt={villageReceipt} onOpen={() => openVillage()} />}
+                  villageCard={customerRoad(persona)?.home ? undefined : <VillageCard personaId={persona} large={st === "large"} receipt={villageReceipt} onOpen={() => openVillage()} />}
+                  note={customerRoad(persona)?.home && <button type="button" className="biz-home-note" onClick={openBusinessRoad}><span aria-hidden="true">✦</span><span><small>Kate noticed</small>{customerRoad(persona)!.home!.insight}</span><b aria-hidden="true">›</b></button>}
                   looks={<KateLooksCard compact snapshot={snap} onCommand={kateCustomization.command} />}
                   onSave={async (layout) => {
                     const ok = await run({ type: "layout", ...layout }, false);
@@ -804,18 +803,7 @@ export function KbcApp() {
                   onAction={openAction} onFlash={flash} onRoad={(focus) => { if (catalogueRoad(focus.roadId)?.care) road.current?.optInCareFor(focus.roadId); openRoad(focus); }} />
               </div>
 
-              <div className="dock">
-                <span className={`orb ${kateBusy ? "live" : ""}`} />
-                <button
-                  type="button"
-                  className="ask"
-                  onClick={() => openKate(null)}
-                >
-                  {(chat[persona] ?? []).length
-                    ? "Continue with Kate…"
-                    : "Ask Kate anything…"}
-                </button>
-              </div>
+              {/* Pitch build: Kate lives in the nav bar; no extra ask bar on Home. */}
               <nav className="nav" aria-label="Main">
                 {(
                   st === "large" ? [

@@ -12,8 +12,10 @@ import "../../one/nudge/channels.css";
 import { MixBubbles, type MixBubble } from "./MixBubbles";
 import { Icon } from "./icons";
 
-export function HomeMix({ home, snapshot, onSave, onAction, onFlash, onProfile, onAsk, onPrompt, onRoad, card, looks, villageCard, roadmap }: {
+export function HomeMix({ home, snapshot, onSave, onAction, onFlash, onProfile, onAsk, onPrompt, onRoad, card, looks, villageCard, roadmap, note }: {
   home: HomeModel; snapshot: Snapshot; looks: ReactNode; villageCard?: ReactNode;
+  /** a short Kate note shown right above the quick questions */
+  note?: ReactNode;
   /** a business road: shown as the largest bubble and opened in one tap */
   roadmap?: { title: string; value: string; onOpen: () => void; headline?: string };
   onSave: (layout: UserLayout) => Promise<boolean>;
@@ -133,6 +135,7 @@ export function HomeMix({ home, snapshot, onSave, onAction, onFlash, onProfile, 
         <button type="button" className="mix-moment-action" onClick={() => act(momentBubble)}>{momentBubble.block.action?.label.replace(/^Ask /, "")}</button>
       </article>}
       <MixBubbles {...fieldProps} bubbles={first} onVisibleCount={setVisibleCount} onAdd={() => { trigger.current = document.activeElement as HTMLElement; setAdding(true); }} canAdd={owned.length < YOURS_LIMIT} />
+      {!draft && note}
       <div className="mix-chips">
         <button type="button" onClick={() => onPrompt(large ? `How can ${p.advisor.name} help me?` : "What's coming up?")}>{large ? `Ask ${p.advisor.name}` : "What's coming up?"}</button>
         {!large && <button type="button" onClick={() => onPrompt("How much can I spend?")}>How much can I spend?</button>}

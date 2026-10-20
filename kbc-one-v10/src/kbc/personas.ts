@@ -441,7 +441,7 @@ const sofie: Persona = {
   color: "#0369a1",
   now: "2026-10-17T20:45:00",
   city: "Brugge",
-  accounts: { current: 2310.8, savings: 41300 },
+  accounts: { current: 74310.8, savings: 41300 },
   salary: { amount: 2950, day: 28, payer: "AZ Sint-Jan" },
   transactions: [
     tx("2026-10-16T20:00:00", "KBC mortgage simulator", "app", 0),

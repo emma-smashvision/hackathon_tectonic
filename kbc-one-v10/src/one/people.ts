@@ -128,7 +128,7 @@ export const MARGARET_HOUSEHOLD: LifeDef = {
 export const SOFIE_HOUSEHOLD: LifeDef = {
   roadId: EVERYDAY_ONLY_ID,
   household: "Lives with Pieter · rents in Brugge · saving for a first home",
-  balance: 2311,
+  balance: 74311,
   incomes: [{ id: "salary", label: "Salary", amount: 2950, day: 28, salary: true }],
   bills: [
     { id: "rent", label: "Rent, Brugge", amount: 980, day: 1, group: "home" },
