@@ -942,7 +942,7 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: conic-gradient(from 200deg, #00aeef, #6d4aff, #2dd4bf, #00aeef);
+  background: url("/kate-logo.png") center / cover no-repeat;
   flex: none;
 }
 .nav {
@@ -1380,6 +1380,54 @@
   font-size: 11px;
   color: var(--muted);
 }
+.kate-thread-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 10px;
+  flex-shrink: 0;
+  min-width: 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 10px;
+}
+.kate-thread-tabs {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 3px;
+}
+.kate-thread-tab {
+  flex: 0 0 auto;
+  max-width: min(160px, calc((100% - 6px) / 2));
+  min-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 40px;
+}
+.kate-thread-tab[aria-selected="true"] {
+  color: var(--text);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+}
+.kate-new-chat {
+  flex-shrink: 0;
+  min-height: 40px;
+}
+.kate-thread-strip button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.kate-conversation {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
 .kate-sheet .ctx {
   margin: 0 16px 8px;
 }
@@ -1389,6 +1437,7 @@
 }
 .kate-sheet .chat {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 4px 16px 12px;
   scrollbar-width: none;

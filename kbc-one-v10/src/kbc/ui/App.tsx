@@ -52,7 +52,8 @@ import {
 } from "./Screens";
 import { STAGE } from "./stage";
 // v7-kate: atomic preview apply, Undo and theme transition.
-import { useKateCustomization, KatePreviewStyles, KateLooksCard, YourLooks } from "./KatePreview";
+import { useKateCustomization, KatePreviewStyles, KateLooksCard } from "./KatePreview";
+import { activeThread, addThread, CHAT_KEY, LEGACY_CHAT_KEY, restoreChats, threadTitle, updateThread, type KateChats, type KateThread } from "./kateThreads";
 import "./kbc.css";
 
 type View = "home" | "ledger" | "road" | "more" | "look";
@@ -194,25 +195,17 @@ const now = () =>
     second: "2-digit",
   });
 
-const CHAT_KEY = "kbc-kate-chats-v1";
-
-function loadChats(): Record<string, ChatMsg[]> {
+function loadChats(): KateChats {
   try {
-    const raw = window.localStorage.getItem(CHAT_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw) as Record<string, ChatMsg[]>;
-    // A reload mid-answer leaves a half message; mark it finished.
-    for (const k of Object.keys(parsed))
-      parsed[k] = parsed[k].map((m) => ({ ...m, streaming: false }));
-    return parsed;
+    return restoreChats(window.localStorage.getItem(CHAT_KEY) ?? window.localStorage.getItem(LEGACY_CHAT_KEY));
   } catch {
     return {};
   }
 }
 
-function saveChats(c: Record<string, ChatMsg[]>) {
+function saveChats(chats: KateChats) {
   try {
-    window.localStorage.setItem(CHAT_KEY, JSON.stringify(c));
+    window.localStorage.setItem(CHAT_KEY, JSON.stringify(chats));
   } catch {
     /* storage is a convenience only */
   }
@@ -223,32 +216,21 @@ function kateChips(
   home: HomeModel,
   snap: Snapshot,
   ctx: Placed | null,
-  forHome = false,
 ): string[] {
   if (ctx) {
     const out = ["Why am I seeing this?"];
     if (ctx.id === "split_bill") out.push("Only Lien and Arne, not Sam");
     else if (ctx.action) out.push(ctx.action.label);
     if (ctx.id !== "split_bill") out.push("Explain the numbers");
-    if (!ctx.protection && ctx.id !== "split_bill")
-      out.push("Make this block bigger");
     return out;
   }
   const out: string[] = [];
-  if (home.intent?.id === "split_bill" && !forHome)
+  if (home.intent?.id === "split_bill")
     out.push("Split it, but not with Sam");
   out.push("What did I spend most on this month?");
   if (snap.persona.abroad) out.push("How much did I spend on this trip?");
   else out.push("How much can I still spend until payday?");
-  out.push(
-    forHome
-      ? "Change how my home looks"
-      : snap.theme
-        ? "Go back to the normal look"
-        : "Make it pink and playful",
-  );
-  if (!forHome) out.push("Make me a coffee tracker");
-  return out.slice(0, forHome ? 3 : 5);
+  return out;
 }
 
 function clock(iso: string) {
@@ -275,9 +257,16 @@ export function KbcApp() {
   const [toast, setToast] = useState<{ text: string; err?: boolean } | null>(
     null,
   );
-  const [chat, setChat] = useState<Record<string, ChatMsg[]>>({});
-  const [kateBusy, setKateBusy] = useState(false);
-  const [kateContext, setKateContext] = useState<Placed | null>(null);
+  const [chat, setChat] = useState<KateChats>({});
+  const chatRef = useRef<KateChats>({});
+  const changeChats = (update: (current: KateChats) => KateChats) => {
+    const next = update(chatRef.current);
+    chatRef.current = next;
+    setChat(next);
+  };
+  const currentThread = activeThread(chat, persona);
+  const kateContext = currentThread?.context ?? null;
+  const kateBusy = currentThread?.messages.some((message) => message.streaming) ?? false;
   const [log, setLog] = useState<LogItem[]>([]);
   const [engineOpen, setEngineOpen] = useState(false);
   const [drawerTab, setDrawerTab] = useState<"kate" | "glass" | "director" | "adviser">("kate");
@@ -293,7 +282,7 @@ export function KbcApp() {
   const [tourStep, setTourStep] = useState(0);
   const composeSeq = useRef(0);
   const msgSeq = useRef(Date.now());
-  const kateAbort = useRef<AbortController | null>(null);
+  const kateAborts = useRef(new Map<string, AbortController>());
   const toastTimer = useRef<number | undefined>(undefined);
   const engine = useRef<HTMLDialogElement>(null);
 
@@ -358,7 +347,7 @@ export function KbcApp() {
   useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get("p");
     if (fromUrl) setPersona(fromUrl);
-    setChat(loadChats());
+    changeChats(() => loadChats());
     setBooted(true);
   }, []);
   useEffect(() => {
@@ -382,10 +371,9 @@ export function KbcApp() {
   useEffect(() => {
     if (!booted) return;
     let alive = true;
-    kateAbort.current?.abort();
+    kateAborts.current.forEach((controller) => controller.abort());
     setView("home");
     setKateOpen(false);
-    setKateContext(null);
     setAllRoads(false);
     setBusiness(false);
     setVillageEntry(undefined);
@@ -471,12 +459,19 @@ export function KbcApp() {
   );
 
   const patchMsg = (id: number, patch: Partial<ChatMsg>) =>
-    setChat((c) => ({
-      ...c,
-      [persona]: (c[persona] ?? []).map((m) =>
-        m.id === id ? { ...m, ...patch } : m,
-      ),
-    }));
+    changeChats((chats) => {
+      const saved = chats[persona];
+      if (!saved) return chats;
+      return { ...chats, [persona]: { ...saved, threads: saved.threads.map((thread) => ({
+        ...thread, messages: thread.messages.map((message) => message.id === id ? { ...message, ...patch } : message),
+      })) } };
+    });
+
+  const newChat = (context: Placed | null = null): KateThread => {
+    const thread: KateThread = { id: crypto.randomUUID(), title: "Empty chat", messages: [], context };
+    changeChats((chats) => addThread(chats, persona, thread));
+    return thread;
+  };
 
   const openAction = async (
     id: string,
@@ -524,36 +519,35 @@ export function KbcApp() {
   };
 
   const sendKate = async (text: string) => {
-    const history = (chat[persona] ?? [])
+    const thread = activeThread(chatRef.current, persona) ?? newChat();
+    if (thread.messages.some((message) => message.streaming)) return;
+    const history = thread.messages
       .filter((m) => m.text && !m.failed)
       .slice(-10)
       .map(({ role, text: t }) => ({ role, text: t }));
     const userId = ++msgSeq.current;
     const kateId = ++msgSeq.current;
     const who = persona;
-    setChat((c) => ({
-      ...c,
-      [who]: [
-        ...(c[who] ?? []).slice(-40),
+    changeChats((chats) => updateThread(chats, who, thread.id, (saved) => {
+      const messages: ChatMsg[] = [
+        ...saved.messages.slice(-40),
         { id: userId, role: "user", text },
         { id: kateId, role: "kate", text: "", streaming: true },
-      ],
+      ];
+      return { ...saved, title: saved.messages.some((message) => message.role === "user") ? saved.title : threadTitle(messages), messages };
     }));
     const patch = (p: Partial<ChatMsg> | ((m: ChatMsg) => Partial<ChatMsg>)) =>
-      setChat((c) => ({
-        ...c,
-        [who]: (c[who] ?? []).map((m) =>
-          m.id === kateId
-            ? { ...m, ...(typeof p === "function" ? p(m) : p) }
-            : m,
-        ),
-      }));
+      changeChats((chats) => updateThread(chats, who, thread.id, (saved) => ({
+        ...saved,
+        messages: saved.messages.map((message) => message.id === kateId
+          ? { ...message, ...(typeof p === "function" ? p(message) : p) }
+          : message),
+      })));
     // v8-channels: live confirmed/preview pointers also drive Kate, without a network roundtrip.
     const localRoad = snap ? kateRoadAnswer({ persona: snap.persona }, text, pointers) : null;
     if (localRoad) { patch({ text: localRoad.reply, proposal: localRoad.proposal, streaming: false, source: "rules" }); return; }
-    setKateBusy(true);
     const ctrl = new AbortController();
-    kateAbort.current = ctrl;
+    kateAborts.current.set(thread.id, ctrl);
     const t0 = performance.now();
     let first = 0;
     try {
@@ -561,7 +555,7 @@ export function KbcApp() {
         who,
         text,
         history,
-        kateContext?.id,
+        thread.context?.id,
         (d) => {
           if (!first) first = performance.now() - t0;
           patch((m) => ({ text: m.text + d }));
@@ -602,10 +596,7 @@ export function KbcApp() {
             : "Something went wrong.",
       }));
     } finally {
-      if (kateAbort.current === ctrl) {
-        kateAbort.current = null;
-        setKateBusy(false);
-      }
+      kateAborts.current.delete(thread.id);
     }
   };
 
@@ -637,16 +628,16 @@ export function KbcApp() {
     }
   };
 
-  const openKate = (ctx: Placed | null) => {
-    setKateContext(ctx);
+  const openKate = (ctx: Placed | null, fresh = false) => {
+    if (fresh || ctx || !activeThread(chatRef.current, persona)) newChat(ctx);
     setBlockSheet(null);
     setView("home");
     setKateOpen(true);
   };
 
   const askFromHome = (text: string) => {
-    openKate(null);
-    sendKate(text);
+    openKate(null, true);
+    void sendKate(text);
   };
 
   if (!home || !snap) {
@@ -800,7 +791,7 @@ export function KbcApp() {
                     return ok;
                   }}
                   onProfile={() => setView("ledger")} onAsk={openKate}
-                  onPrompt={(text) => { openKate(null); void sendKate(text); }}
+                  onPrompt={askFromHome}
                   onAction={openAction} onFlash={flash} onRoad={(focus) => { if (catalogueRoad(focus.roadId)?.care) road.current?.optInCareFor(focus.roadId); openRoad(focus); }} />
               </div>
 
@@ -873,22 +864,19 @@ export function KbcApp() {
 
               {kateOpen && (
                 <KateSheet
-                  looks={<YourLooks snapshot={snap} onCommand={kateCustomization.command} />}
-                  messages={chat[persona] ?? []}
+                  threadId={currentThread?.id ?? ""}
+                  threads={chat[persona]?.threads ?? []}
+                  onNewChat={() => { newChat(); }}
+                  onSelectThread={(id) => changeChats((chats) => ({ ...chats, [persona]: { ...chats[persona], activeId: id } }))}
+                  messages={currentThread?.messages ?? []}
                   busy={kateBusy}
                   context={kateContext}
                   suggestions={kateChips(home, snap, kateContext)}
                   onSend={sendKate}
                   onApply={applyProposal}
                   onClose={() => setKateOpen(false)}
-                  onStop={() => kateAbort.current?.abort()}
-                  onClear={() => {
-                    setKateContext(null);
-                    resetPointers(); // v8-channels
-              setRoadFocus(undefined);
-              setChat((c) => ({ ...c, [persona]: [] }));
-                  }}
-                  onDropContext={() => setKateContext(null)}
+                  onStop={() => { if (currentThread) kateAborts.current.get(currentThread.id)?.abort(); }}
+                  onDropContext={() => { if (currentThread) changeChats((chats) => updateThread(chats, persona, currentThread.id, (thread) => ({ ...thread, context: null }))); }}
                 />
               )}
 
@@ -935,7 +923,7 @@ export function KbcApp() {
               )}
             </div>
             {view === "road" && business ? <div className="hs road-layer yr" style={roadVars(theme, Boolean(snap.theme))}><div className="phone road-phone"><div className="v8-atlas-host">
-              <BusinessRoads personKey={persona} advisorName={p.advisor.name} large={st === "large"} start={business} onClose={() => setBusiness(false)} onAskKate={(text) => { openKate(null); void sendKate(text); }} />
+              <BusinessRoads personKey={persona} advisorName={p.advisor.name} large={st === "large"} start={business} onClose={() => setBusiness(false)} onAskKate={askFromHome} />
             </div></div></div> : view === "road" && allRoads && person ? <div className="hs road-layer yr" style={roadVars(theme, Boolean(snap.theme))}><div className="phone road-phone"><div className="v8-atlas-host">
               <AllRoads person={person} pointers={pointers} large={st === "large"} onClose={() => setAllRoads(false)} onBusiness={() => setBusiness("start")} onOpenRoad={(roadId, mode, stage) => {
                 updatePointers(mode === "confirmed" && stage ? confirmRoad(pointers, roadId, stage) : previewRoad(pointers, roadId, stage));
@@ -1084,7 +1072,8 @@ export function KbcApp() {
             onReset={async () => {
               resetPointers(); // v8-channels
               setRoadFocus(undefined);
-              setChat((c) => ({ ...c, [persona]: [] }));
+              kateAborts.current.forEach((controller) => controller.abort());
+              changeChats((chats) => ({ ...chats, [persona]: { activeId: "", threads: [] } }));
               await run({ type: "reset" });
             }}
           />

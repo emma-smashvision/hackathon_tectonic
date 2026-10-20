@@ -80,6 +80,8 @@ export function Icon({
   size?: number;
   label?: string;
 }) {
+  // Kate is shown with her own logo, not a line icon.
+  if (name === "kate") return <img src="/kate-logo.png" width={size} height={size} alt={label ?? ""} aria-hidden={label ? undefined : true} style={{ borderRadius: "50%", flex: "none" }} />;
   return (
     <svg
       width={size}
