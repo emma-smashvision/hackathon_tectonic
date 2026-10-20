@@ -12,8 +12,10 @@ import "../../one/nudge/channels.css";
 import { MixBubbles, type MixBubble } from "./MixBubbles";
 import { Icon } from "./icons";
 
-export function HomeMix({ home, snapshot, onSave, onAction, onFlash, onProfile, onAsk, onPrompt, onRoad, card, looks, villageCard }: {
+export function HomeMix({ home, snapshot, onSave, onAction, onFlash, onProfile, onAsk, onPrompt, onRoad, card, looks, villageCard, roadmap }: {
   home: HomeModel; snapshot: Snapshot; looks: ReactNode; villageCard?: ReactNode;
+  /** a business road: shown as the largest bubble and opened in one tap */
+  roadmap?: { title: string; value: string; onOpen: () => void };
   onSave: (layout: UserLayout) => Promise<boolean>;
   onAction: (id: string, params?: Record<string, number>) => void;
   onFlash: (text: string) => void;
@@ -57,14 +59,22 @@ export function HomeMix({ home, snapshot, onSave, onAction, onFlash, onProfile, 
     return { key: item.id, block, suggestion: item.id };
   };
   const momentBubble = moment ? toBubble(moment) : null;
+  const roadmapBubble: MixBubble | null = roadmap && !draft ? { key: "roadmap", block: {
+    id: "roadmap", title: roadmap.title, value: roadmap.value, sentence: roadmap.value, icon: "target", tone: "normal",
+    size: "l", score: "urgent", reason: "Your business road.", facts: [],
+  } } : null;
   const bubbles: MixBubble[] = [
-    ...owned.slice(0, YOURS_LIMIT).map(block => ({ key: `owned:${block.id}`, block })),
+    ...(roadmapBubble ? [roadmapBubble] : []),
+    ...owned.slice(0, YOURS_LIMIT - (roadmapBubble ? 1 : 0)).map(block => ({ key: `owned:${block.id}`, block })),
     ...suggestions.filter(s => s !== moment).map(toBubble).filter(b => !owned.some(o => o.id === b.block.id)),
   ];
   const firstCount = large ? 3 : style === "dense" ? 5 : 4;
   const first = bubbles.slice(0, firstCount), more = bubbles.slice(Math.min(firstCount, visibleCount));
   const close = () => { setDetail(null); setAdding(false); trigger.current?.focus(); };
-  const open = (bubble: MixBubble) => { trigger.current = document.activeElement as HTMLElement; setDetail(bubble); };
+  const open = (bubble: MixBubble) => {
+    if (bubble.key === "roadmap") { roadmap?.onOpen(); return; }
+    trigger.current = document.activeElement as HTMLElement; setDetail(bubble);
+  };
   const dismiss = (bubble: MixBubble) => {
     if (bubble.suggestion) setHidden(old => [...old, bubble.suggestion!]);
     close();

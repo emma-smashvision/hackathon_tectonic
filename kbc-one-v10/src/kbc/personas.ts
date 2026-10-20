@@ -436,9 +436,9 @@ const karim: Persona = {
 const sofie: Persona = {
   id: "sofie",
   name: "Sofie",
-  short: "34 · saving with Pieter for a first home",
+  short: "34 · physiotherapist · practice growing",
   initial: "S",
-  color: "#be185d",
+  color: "#0369a1",
   now: "2026-10-17T20:45:00",
   city: "Brugge",
   accounts: { current: 2310.8, savings: 41300 },
@@ -578,7 +578,47 @@ const nadia: Persona = {
   ],
 };
 
-export const PERSONAS: Persona[] = [tom, lina, margaret, karim, sofie, nadia];
+// ---------- Marc: an app on the side; just bought a domain name ----------
+const marc: Persona = {
+  id: "marc",
+  name: "Marc",
+  short: "26 · building an app · just bought a domain",
+  initial: "M",
+  color: "#0e7490",
+  now: "2026-10-17T18:30:00",
+  city: "Gent",
+  accounts: { current: 3120.4, savings: 12800 },
+  salary: { amount: 2980, day: 25, payer: "Lumen Labs nv" },
+  transactions: [
+    tx("2026-10-16T21:10:00", "Figma", "software", -15),
+    tx("2026-10-14T13:00:00", "Coworking Gent · day pass", "work", -18),
+    tx("2026-10-13T22:40:00", "Apple Developer Program", "software", -99),
+    tx("2026-10-12T20:05:00", "Combell · domain name", "software", -14.99),
+    tx("2026-10-10T18:30:00", "Delhaize Gent", "groceries", -54.6),
+    tx("2026-10-06T09:00:00", "Transfer to startup buffer", "savings", -400),
+    tx("2026-09-25T06:00:00", "Lumen Labs nv", "salary", 2980),
+    ...coffee("10", [2, 7, 9, 14, 16], ["Mokabon", "Barista Gent"], 3.2),
+  ],
+  debits: [
+    { id: "d1", payee: "Rent Gent", amount: 820, due: "2026-11-01", kind: "standing_order" },
+    { id: "d2", payee: "Proximus", amount: 39, due: "2026-10-26", kind: "direct_debit" },
+  ],
+  goals: [{ id: "g1", name: "Startup buffer", target: 15000, saved: 12800, monthly: 400 }],
+  contacts: [{ id: "yara", name: "Yara", kbc: true, color: "#0ea5e9" }],
+  card: { last4: "7742", frozen: false, regions: ["BE", "EU"] },
+  advisor: { name: "Wim", office: "KBC Gent Kouter", nextSlot: "Tue 14:00" },
+  behaviour: { largeText: false, zoomsPerWeek: 0, misTapRate: 0.01, opensPerWeek: 15 },
+  calendar: [
+    { date: "2026-10-25", label: "Salary", amount: 2980 },
+    { date: "2026-10-26", label: "Proximus", amount: -39 },
+  ],
+  beliefs: [
+    { id: "b1", text: "Building an app on the side", source: "Domain name, developer account and software · inferred", status: "inferred" },
+  ],
+};
+
+// Rail order follows the pitch: travel, moving, then the two business roads.
+export const PERSONAS: Persona[] = [lina, tom, sofie, marc, karim, margaret, nadia];
 export const PERSONA_IDS = PERSONAS.map((p) => p.id);
 
 export function seedPersona(id: string): Persona | undefined {

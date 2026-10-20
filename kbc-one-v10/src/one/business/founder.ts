@@ -87,7 +87,22 @@ export interface FounderRoad {
   chapterTitles?: Partial<Record<ChapterId, string>>;
   nodes: FounderNode[];
   fork?: FounderFork;
+  /** the partners to line up once a road is taken: Belgian organisations people on this road used */
+  team?: Partial<Record<"a" | "b", TeamItem[]>>;
 }
+export interface TeamItem { partner: PartnerId; why: string; names: string[] }
+
+// Belgian organisations people use when they start a BV or a business. KBC does not choose for
+// the customer; offers on the partner cards are example offers for the demo.
+const SOCIAL_FUNDS = ["Liantis", "Acerta", "Xerius", "Partena Professional", "Securex"];
+const BV_TEAM: TeamItem[] = [
+  { partner: "accountant", why: "Financial plan, annual accounts and corporate tax", names: ["ITAA-registered accountants"] },
+  { partner: "notary", why: "Deed of incorporation, filed for publication", names: ["Find one on notaris.be"] },
+  { partner: "kbc", why: "Company account, bank certificate for the capital", names: ["KBC business adviser"] },
+  { partner: "social-fund", why: "Your contributions as a company director", names: SOCIAL_FUNDS },
+  { partner: "insurer", why: "Liability and income cover in the BV's name", names: ["KBC Verzekeringen", "Your broker"] },
+  { partner: "vlaio", why: "Subsidised advice through the KMO-portefeuille", names: ["VLAIO", "UNIZO"] },
+];
 
 // ---------- Sofie: physiotherapy practice next to AZ Sint-Jan ----------
 const SOFIE: FounderRoad = {
@@ -308,6 +323,87 @@ const SOFIE: FounderRoad = {
     pick: "b",
     pickWhy: "Your practice profit was €74,200 in 2025, above the €70,000 where most physios switched. And you plan to buy a home with Pieter, which many wanted separate from the practice.",
   },
+  team: {
+    a: [
+      { partner: "accountant", why: "A yearly check of sole proprietorship or BV", names: ["ITAA-registered accountants"] },
+      { partner: "insurer", why: "A higher VAPZ and income cover", names: ["KBC Verzekeringen", "Your broker"] },
+    ],
+    b: BV_TEAM,
+  },
+};
+
+// ---------- Marc: an app on the side, a domain name just bought ----------
+const MARC: FounderRoad = {
+  id: "marc-founder",
+  profileId: "founder",
+  mine: true,
+  owner: { initial: "M", name: "Marc's app", line: "Tech founder · domain bought 12 Oct" },
+  chapterTitles: { launch: "Side activity or BV?" },
+  nodes: [
+    {
+      id: "domain", chapter: "spark", title: "Domain name bought", short: "Domain", sub: "Done · 12 Oct · Combell", icon: "spark", status: "done",
+      why: "You paid for a .be domain name and an Apple developer account. For KBC that is the first signal of a new business.",
+      partners: ["kbc"], crowd: { share: 0.61, label: "registered a business within three months of buying their domain" },
+    },
+    {
+      id: "landing", chapter: "spark", title: "Idea check", short: "Idea", sub: "Done · landing page live", icon: "chart", status: "done",
+      why: "You tested the idea with a landing page before building more.",
+      partners: ["vlaio"], crowd: { share: 0.47, label: "tested demand with a landing page first" },
+    },
+    {
+      id: "start", chapter: "launch", title: "Side activity or BV?", short: "Start", sub: "Start · about 4 min", icon: "scale", status: "now", minutes: 4, online: true,
+      why: "Most founders start as a side activity while they keep their job, and switch to a BV once customers pay or investors join.",
+      partners: ["accountant", "kbc"], crowd: { share: 0.64, label: "started as a side activity" },
+    },
+    // Road A: side activity in your own name
+    { id: "a-kbo", chapter: "launch", branch: "a", title: "Enterprise number (KBO)", short: "KBO", sub: "Next · about 10 min online", icon: "doc", status: "next", minutes: 10, online: true, why: "A business counter registers your activity in the KBO and gives you an enterprise number.", partners: ["counter"], crowd: { share: 0.52, label: "registered through their social insurance fund's counter" } },
+    { id: "a-social", chapter: "launch", branch: "a", title: "Social insurance fund", short: "Social", sub: "Next · before your first invoice", icon: "shield", status: "next", why: "Mandatory before you start, also as a side activity next to your job.", partners: ["social-fund"], crowd: { share: 0.58, label: "chose a large national fund" } },
+    { id: "a-vat", chapter: "launch", branch: "a", title: "VAT number", short: "VAT", sub: "Next · you sell software to businesses", icon: "percent", status: "next", why: "Selling software to businesses usually means a normal VAT registration, so you can also deduct VAT on your costs.", partners: ["vat", "accountant"], crowd: { share: 0.71, label: "chose normal VAT when selling to businesses" } },
+    { id: "a-account", chapter: "launch", branch: "a", title: "Business account", short: "Account", sub: "Next · 5 min", icon: "card", status: "next", minutes: 5, online: true, why: "Keep app income and costs apart from day one.", partners: ["kbc"], crowd: { share: 0.74, label: "opened a business account before their first invoice" } },
+    // Road B: a BV with a co-founder from day one
+    { id: "b-agreement", chapter: "launch", branch: "b", title: "Shareholder agreement", short: "Agreement", sub: "Next · with your co-founder", icon: "people", status: "next", why: "Agree shares, roles, vesting and what happens if one of you leaves.", partners: ["lawyer"], crowd: { share: 0.69, label: "signed a shareholder agreement before the deed" } },
+    { id: "b-plan", chapter: "launch", branch: "b", title: "Financial plan", short: "Plan", sub: "Next · with an accountant", icon: "chart", status: "next", why: "A BV needs a financial plan for the first two years and sufficient starting equity.", partners: ["accountant"], crowd: { share: 0.88, label: "had their accountant write the plan" } },
+    { id: "b-deed", chapter: "launch", branch: "b", title: "Notary deed", short: "Deed", sub: "Next · switch day", icon: "pen", status: "next", why: "The notary draws up the articles and files the deed; the BV gets its own enterprise number.", partners: ["notary", "kbc"], crowd: { share: 0.54, label: "used the notary their accountant works with" } },
+    {
+      id: "terms", chapter: "first-year", title: "Terms, privacy and your brand", short: "Terms", sub: "Later · before your first customer", icon: "scale", status: "next",
+      why: "Terms of service and a privacy policy (GDPR) before the first customer; register your brand name with the Benelux Office for Intellectual Property (BOIP).",
+      partners: ["lawyer"], crowd: { share: 0.44, label: "registered their brand in year one" },
+    },
+    {
+      id: "prepay", chapter: "first-year", title: "Tax prepayments", short: "Prepay", sub: "Later · every quarter", icon: "euro", status: "next",
+      why: "Prepaying tax on your business income avoids a surcharge.", partners: ["accountant"], crowd: { share: 0.38, label: "made tax prepayments in year one" },
+    },
+    {
+      id: "funding", chapter: "grow", title: "Grow on revenue or raise money", short: "Funding", sub: "Later · Start it @KBC, VLAIO", icon: "bank", status: "next",
+      why: "Start it @KBC supports early-stage founders; VLAIO has innovation support. Most founders who raised money switched to a BV first.",
+      partners: ["kbc", "vlaio"], crowd: { share: 0.29, label: "joined an accelerator in their first two years" },
+    },
+  ],
+  fork: {
+    after: "start", chapter: "launch",
+    title: "Start as a side activity, or a BV from day one?",
+    question: "Both are fine. You can switch later.",
+    a: {
+      label: "Side activity", short: "A · Side", share: 0.64, good: "Good to test the product while you keep your job.",
+      pros: ["Keep your salary and social rights", "Fastest and cheapest start"], cons: ["You are personally liable"], next: "Enterprise number, VAT, first invoice",
+    },
+    b: {
+      label: "BV from day one", short: "B · BV", share: 0.36, good: "Good with a co-founder or investors on board.",
+      pros: ["Shares for you and your co-founder", "Ready for investors"], cons: ["Notary, financial plan and higher costs"], next: "Shareholder agreement, plan, deed",
+    },
+    pick: "a",
+    pickWhy: "You still earn a salary and have no revenue yet. 64% of 18,700 founders before you started on the side and switched to a BV once customers paid or investors joined.",
+  },
+  team: {
+    a: [
+      { partner: "counter", why: "Your enterprise number in the KBO", names: SOCIAL_FUNDS.map((n) => `${n} business counter`).slice(0, 3) },
+      { partner: "social-fund", why: "Contributions as a side activity", names: SOCIAL_FUNDS },
+      { partner: "accountant", why: "VAT returns and your tax return", names: ["ITAA-registered accountants", "Online fixed-fee accountants"] },
+      { partner: "kbc", why: "Business account and Start it @KBC", names: ["KBC business adviser", "Start it @KBC"] },
+      { partner: "vlaio", why: "Starter advice and innovation support", names: ["VLAIO", "UNIZO"] },
+    ],
+    b: BV_TEAM,
+  },
 };
 
 // Chapters for the job roads in ./model, phase by phase.
@@ -316,6 +412,7 @@ const PHASE_CHAPTER: Record<string, ChapterId> = {
   "lawyer:trainee-start": "launch", "lawyer:trainee": "first-year", "lawyer:own": "grow", "lawyer:bv": "crossroads",
   "student:test": "spark", "student:student": "launch", "student:graduate": "first-year",
   "freelancer:start": "launch", "freelancer:sole-years": "first-year", "freelancer:bv": "crossroads",
+  "founder:idea": "spark", "founder:launch": "launch",
   "employer:prepare-hire": "grow", "employer:day-one": "grow", "employer:first-year": "grow",
 };
 const ICON_BY_PARTNER: Partial<Record<PartnerId, IconName>> = {
@@ -361,6 +458,7 @@ export function roadFromProfile(profile: BizProfile, personKey?: string): Founde
 /** The road to show: Sofie's full practice road, or a job road adapted to the viewer. */
 export function founderRoadFor(profileId: string, personKey?: string): FounderRoad | undefined {
   if (profileId === "physio" && personKey === "sofie") return SOFIE;
+  if (profileId === "founder" && personKey === "marc") return MARC;
   const profile = profileById(profileId);
   return profile && roadFromProfile(profile, personKey);
 }
@@ -425,6 +523,7 @@ export const MAP_EDGES: [string, string][] = [
 /** Where each road stands on the map: done nodes, the current node and Kate's route ahead. */
 export function mapStateFor(road: FounderRoad): { done: string[]; you?: string; route: string[] } {
   if (road.id === SOFIE.id) return { done: ["idea", "side", "clients", "invest"], you: "invest", route: ["bv", "pension", "pass"] };
+  if (road.id === MARC.id) return { done: ["idea"], you: "idea", route: ["side", "clients", "invest", "bv", "pension", "pass"] };
   if (!road.mine) return { done: [], route: [] };
   const now = nowNode(road);
   const at = now ? chapter(now.chapter).n : 0;

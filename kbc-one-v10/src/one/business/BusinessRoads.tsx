@@ -24,7 +24,7 @@ export interface BusinessRoadsProps {
 }
 
 type Screen = "start" | "road" | "map" | "crossroads";
-type Open = { kind: "node"; id: string } | { kind: "guide" } | { kind: "partner"; id: PartnerId } | null;
+type Open = { kind: "node"; id: string } | { kind: "guide" } | { kind: "partner"; id: PartnerId; back?: "team" } | { kind: "team"; side: "a" | "b" } | null;
 type Back = (label: string, to: () => void) => ReactNode;
 
 const pct = (share: number) => `${Math.round(share * 100)}%`;
@@ -77,10 +77,16 @@ function BusinessRoadsContent({ personKey, advisorName, large, start, onClose, o
     <div className="fr-scroll" ref={scrollRef}>
       {screen === "start" && <StartScreen customerProfile={customer?.profile} customerLine={customer?.noticed} back={back} onBack={onClose} onRoad={goRoad} onMap={goMap} />}
       {screen === "road" && <RoadScreen road={road} chosen={chosen} back={back} backLabel={start === "road" ? "Your road" : "Where to start"} onBack={() => (start === "road" ? onClose() : setScreen("start"))}
-        onMap={goMap} onOpen={setOpen} onCrossroads={() => setScreen("crossroads")} />}
+        onMap={goMap} onCrossroads={() => setScreen("crossroads")}
+        onOpen={(o) => {
+          // The current step that leads to a crossroads opens the choice straight away.
+          const n = o?.kind === "node" ? road.nodes.find((x) => x.id === o.id) : undefined;
+          if (n && n.status === "now" && road.fork?.after === n.id && !chosen) setScreen("crossroads");
+          else setOpen(o);
+        }} />}
       {screen === "map" && <MapScreen road={road} back={back} onBack={() => setScreen(mapFrom === "map" ? "start" : mapFrom)} onRoad={goRoad} detected={customer?.profile} />}
       {screen === "crossroads" && road.fork && <CrossroadsScreen road={road} chosen={chosen} crowd={profile.crowd} job={profile.job} back={back} onBack={() => setScreen("road")}
-        onTake={(side) => { choose(side); setNotice(`You took road ${side.toUpperCase()}: ${road.fork![side].label}.`); setScreen("road"); }}
+        onTake={(side) => { choose(side); setNotice(`You took road ${side.toUpperCase()}: ${road.fork![side].label}.`); setScreen("road"); if (road.team?.[side]) setOpen({ kind: "team", side }); }}
         onAskKate={ask(`${road.fork.title} What did people in my job choose?`)} />}
       {notice && screen === "road" && <p role="status" aria-live="polite" className="fr-notice">{notice}</p>}
       <p className="fr-footnote">{SYNTHETIC}. Rules and amounts change; your partners confirm what applies to you.</p>
@@ -94,7 +100,8 @@ function BusinessRoadsContent({ personKey, advisorName, large, start, onClose, o
         complete(); setOpen(null); setNotice(`Done: ${node.title}. Your road moved on.`);
       }} />}
     {open?.kind === "guide" && <GuideSheet road={road} chosen={chosen} adviser={adviser} onClose={() => setOpen(null)} onPartner={(id) => setOpen({ kind: "partner", id })} onTalk={talk} />}
-    {open?.kind === "partner" && <PartnerSheet road={road} id={open.id} adviser={adviser} onClose={() => setOpen(null)} onTalk={talk} />}
+    {open?.kind === "partner" && <PartnerSheet road={road} id={open.id} adviser={adviser} onClose={() => setOpen(open.back === "team" && chosen ? { kind: "team", side: chosen } : null)} onTalk={talk} />}
+    {open?.kind === "team" && road.team?.[open.side] && <TeamSheet road={road} side={open.side} adviser={adviser} onClose={() => setOpen(null)} onPartner={(id) => setOpen({ kind: "partner", id, back: "team" })} onTalk={() => { talk(); setOpen(null); }} />}
   </div>;
 }
 
@@ -393,16 +400,18 @@ function CrossroadsScreen({ road, chosen, crowd, job, back, onBack, onTake, onAs
   return <section className="fr-screen fr-x" aria-labelledby="fr-x-title">
     <div className="fr-x-top">{back("Your road", onBack)}<span className="fr-x-badge"><FIcon name="fork" size={14} />Crossroads</span></div>
     <h1 id="fr-x-title">Pick your road</h1>
-    <p className="fr-lead">{fork.title}</p>
+    <p className="fr-lead">{fork.title} <span className="fr-x-crowd">What {int(crowd)} people before you chose:</span></p>
     <div className="fr-x-graphic">
       <svg viewBox="0 0 340 130" width="100%" height="104" aria-hidden="true">
         <rect x="0" y="22" width="340" height="30" className="fr-x-lane" /><rect x="0" y="78" width="340" height="30" className="fr-x-lane" />
         <path d="M0 65 H50" className="fr-x-line fr-x-on" />
-        <path d="M50 65 C100 65 110 37 170 37 H186" className={`fr-x-line ${sel === "a" ? "fr-x-on fr-x-dash" : "fr-x-off"}`} />
-        <path d="M50 65 C100 65 110 93 170 93 H186" className={`fr-x-line ${sel === "b" ? "fr-x-on fr-x-dash" : "fr-x-off"}`} />
+        <path d="M50 65 C80 65 90 37 120 37 H136" className={`fr-x-line ${sel === "a" ? "fr-x-on fr-x-dash" : "fr-x-off"}`} />
+        <path d="M50 65 C80 65 90 93 120 93 H136" className={`fr-x-line ${sel === "b" ? "fr-x-on fr-x-dash" : "fr-x-off"}`} />
         <circle cx="50" cy="65" r="13" className="fr-x-you" /><circle cx="50" cy="65" r="6" fill="#fff" />
-        <text x="310" y="41" className={sel === "a" ? "fr-x-t-on" : "fr-x-t"} textAnchor="end">A · {branchTab(fork.a.label)}</text>
-        <text x="310" y="97" className={sel === "b" ? "fr-x-t-on" : "fr-x-t"} textAnchor="end">B · {branchTab(fork.b.label)}</text>
+        <text x="146" y="42" className={sel === "a" ? "fr-x-t-on" : "fr-x-t"}>A · {branchTab(fork.a.label)}</text>
+        <text x="146" y="98" className={sel === "b" ? "fr-x-t-on" : "fr-x-t"}>B · {branchTab(fork.b.label)}</text>
+        <text x="330" y="43" className={sel === "a" ? "fr-x-pct-on" : "fr-x-pct"} textAnchor="end">{pct(fork.a.share)}</text>
+        <text x="330" y="99" className={sel === "b" ? "fr-x-pct-on" : "fr-x-pct"} textAnchor="end">{pct(fork.b.share)}</text>
       </svg>
       <div className="fr-x-lanes" role="radiogroup" aria-label="Roads">
         {(["a", "b"] as const).map((sd) => <button key={sd} type="button" role="radio" aria-checked={sel === sd} onClick={() => setSel(sd)} aria-label={`Road ${sd.toUpperCase()}: ${fork[sd].label}`} />)}
@@ -512,3 +521,23 @@ function PartnerSheet({ id, adviser, onClose, onTalk }: { road: FounderRoad; id:
   </SheetFrame>;
 }
 
+function TeamSheet({ road, side, adviser, onClose, onPartner, onTalk }: { road: FounderRoad; side: "a" | "b"; adviser: string; onClose: () => void; onPartner: (id: PartnerId) => void; onTalk: () => void }) {
+  const team = road.team![side]!;
+  const label = road.fork?.[side].label ?? "your road";
+  return <SheetFrame title="Your team" onClose={onClose}>
+    <div className="fr-sheet-body fr-team-body">
+      <h2>Your team · {label}</h2>
+      <p className="fr-sheet-meta">Who people on this road worked with. Offers at the moment you need them.</p>
+      <ul className="fr-team-list">{team.map((t) => {
+        const p = PARTNERS[t.partner];
+        return <li key={t.partner}><button type="button" onClick={() => onPartner(t.partner)}>
+          <span className="fr-team-row"><span className={`fr-kind fr-kind-${p.kind}`}>{KIND_LABEL[p.kind]}</span>{p.offer && <span className="fr-offer-mini">KBC offer</span>}</span>
+          <strong>{p.name}</strong>
+          <small>{t.why}</small>
+          <span className="fr-team-names">{t.names.join(" · ")}</span>
+        </button></li>;
+      })}</ul>
+      <button type="button" className="fr-light-button" onClick={onTalk}>Line them up with {adviser} <FIcon name="arrow" size={20} /></button>
+    </div>
+  </SheetFrame>;
+}

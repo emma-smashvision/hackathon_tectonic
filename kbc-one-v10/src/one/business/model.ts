@@ -675,6 +675,57 @@ export const PROFILES: BizProfile[] = [
       kate: "Two thirds hired an employee. For daily, fixed work such as a shop, owners preferred an employee; freelancers were used for peaks and specialist work.",
     },
   },
+  {
+    id: "founder", job: "Tech founder", hue: "#7cc7ff",
+    headline: "Side project → company",
+    noticed: "A domain name, a developer account and software tools on a personal account",
+    crowd: 18_700, forms: ["side", "sole"],
+    phases: [
+      {
+        id: "idea", title: "Test the idea", form: "side", when: "Now",
+        steps: [
+          {
+            id: "domain", title: "Domain bought: check your idea", when: "Now",
+            detail: "A domain name and a developer account are often the first signs of a new business. Test demand before you register.",
+            todo: ["Put a landing page on your domain", "Talk to ten possible customers", "Note your first costs"],
+            partners: ["vlaio", "kbc"],
+            crowd: { share: 0.61, label: "registered a business within three months of buying their domain" },
+            kate: "6 in 10 founders who bought a domain registered within three months. The ones who tested demand first had paying customers sooner.",
+          },
+        ],
+      },
+      {
+        id: "launch", title: "Make it official", form: "side", when: "Month 0",
+        steps: [
+          {
+            id: "register", title: "Enterprise number, social insurance fund and VAT", when: "Month 0",
+            detail: "Register in the KBO, join a social insurance fund before your first invoice and activate your VAT number.",
+            todo: ["Join a social insurance fund", "Get your KBO enterprise number", "Activate your VAT number"],
+            partners: ["counter", "social-fund", "vat"],
+            crowd: { share: 0.64, label: "started as a side activity next to a job" },
+            kate: "Most founders started on the side and switched to a BV once customers paid or investors joined.",
+          },
+          {
+            id: "account", title: "Business account and terms", when: "Month 0",
+            detail: "Keep app income apart, and publish terms of service and a privacy policy before the first customer.",
+            todo: ["Open a business account", "Publish terms and a privacy policy", "Register your brand with BOIP"],
+            partners: ["kbc", "lawyer"],
+            crowd: { share: 0.74, label: "opened a business account before their first invoice" },
+            kate: "Founders who separated their money from day one could show investors clean numbers straight away.",
+          },
+        ],
+      },
+    ],
+    fork: {
+      after: "idea", title: "Start as a side activity, or a BV from day one?",
+      intro: "The first choice for most founders. What the two groups said later.",
+      branches: [
+        { id: "side", label: "Side activity", share: 0.64, line: "Keep your job while you test the product.", quote: "My salary paid the bills while the app found its first customers." },
+        { id: "bv", label: "BV from day one", share: 0.36, line: "Most had a co-founder or investors.", quote: "With two founders and an investor, the BV was the only sensible start." },
+      ],
+      kate: "64% of founders started on the side. Those with a co-founder or investors usually started a BV straight away.",
+    },
+  },
 ];
 
 export const profileById = (id: string) => PROFILES.find((p) => p.id === id);
@@ -683,6 +734,7 @@ export const profileById = (id: string) => PROFILES.find((p) => p.id === id);
 export interface BizCustomer { profile: string; /** phase they are in now */ now: string; noticed: string; /** "Your road" opens the business road first */ roadFirst?: boolean }
 const CUSTOMERS: Record<string, BizCustomer> = {
   karim: { profile: "freelancer", now: "sole-years", noticed: "Client invoices since early 2025 and a growing tax reserve" },
+  marc: { profile: "founder", now: "idea", roadFirst: true, noticed: "You paid Combell for a domain name and joined the Apple Developer Program. 6 in 10 founders who did this registered a business within three months." },
   sofie: { profile: "physio", now: "main", roadFirst: true, noticed: "Your practice made about €74,200 profit in 2025. That is where most physios start comparing a BV, and you plan to buy a home with Pieter." },
 };
 export const customerRoad = (personKey?: string) => (personKey ? CUSTOMERS[personKey] : undefined);

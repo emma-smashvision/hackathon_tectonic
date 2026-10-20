@@ -21,7 +21,7 @@ import { useVillageProgress } from "../../one/village";
 import { VillageCard } from "../../one/villagecard/VillageCard";
 import { PlainPath, CareEntry } from "../../one/villagecard/PlainPath";
 import { entryMode, entryReceipt } from "../../one/villagecard/entry";
-import { DirectorPanel, GlassPanel, StoryRoadLine } from "../../one/StagePanels";
+import { DirectorPanel, GlassPanel } from "../../one/StagePanels";
 import "../../hindsight/hs-base.css";
 import "../../hindsight/hindsight.css";
 import "../../one/one.css";
@@ -29,7 +29,8 @@ import { eur } from "../format";
 import { DEMO_BEATS, DEMO_BEAT_MS } from "../demo";
 import { kateRoadAnswer, type Proposal } from "../kate"; // v8-channels
 import { AllRoads } from "../../one/atlas8";
-import { BusinessRoads, customerRoad } from "../../one/business";
+import { BusinessRoads, chapterTitle, customerRoad, nowNode } from "../../one/business";
+import { useFounderRoad } from "../../one/business/founderState";
 import { catalogueRoad, confirmRoad, previewRoad } from "../../one/crowd";
 import { useRoadPointers } from "../../one/nudge/useRoadPointers";
 import type {
@@ -251,6 +252,8 @@ export function KbcApp() {
   const { pointers, updatePointers, resetPointers } = useRoadPointers(persona); // v8-channels
   const [allRoads, setAllRoads] = useState(false);
   const [business, setBusiness] = useState<false | "start" | "road">(false);
+  const founder = useFounderRoad(persona, customerRoad(persona)?.profile);
+  const founderNow = founder.road && nowNode(founder.road);
   const [home, setHome] = useState<HomeModel | null>(null);
   const [snap, setSnap] = useState<Snapshot | null>(null);
   const [composing, setComposing] = useState(false);
@@ -652,14 +655,6 @@ export function KbcApp() {
   const p = snap.persona;
   const st = snap.theme?.base ?? home.style; // v7-kate: theme also controls density/text size
   const story = STAGE[persona];
-  const urgent = [...home.blocks, ...home.forYou].find((b) => b.protection);
-  const outcome = home.intent
-    ? home.intent.title
-    : urgent
-      ? `${urgent.sentence || urgent.title} → ${urgent.action?.label ?? "shown first"}`
-      : home.actions[0]
-        ? `${home.actions[0].title} → ${home.actions[0].button}`
-        : home.headline;
 
   const person = PEOPLE[persona] ?? null;
   // v8-channels: WS-B consumes this exact identity; previews never alter the person's pointer.
@@ -748,37 +743,7 @@ export function KbcApp() {
                   </motion.li>
                 ))}
               </ul>
-              <motion.div
-                className="story-outcome kbc-outcome"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 + (story?.noticed.length ?? 0) * 0.35 }}
-              >
-                <Icon name="spark" size={20} />
-                <span>
-                  {composing ? (
-                    <span className="kbc-thinking">
-                      Kate is arranging {p.name}’s home…
-                    </span>
-                  ) : (
-                    outcome
-                  )}
-                  <small>
-                    {composing
-                      ? `claude -p · ${snap.ai.composeModel}`
-                      : home.source === "claude"
-                        ? `Decided by claude -p · ${home.model} · ${(home.ms / 1000).toFixed(1)} s`
-                        : "Rules fallback (Claude unavailable)"}
-                  </small>
-                </span>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.1 + (story?.noticed.length ?? 0) * 0.35 }}
-              >
-                <StoryRoadLine pointers={pointers} />
-              </motion.div>
+              {/* Pitch build: the presenter panel shows only who this is and what KBC noticed. */}
             </motion.div>
           </AnimatePresence>
         </section>
@@ -815,6 +780,7 @@ export function KbcApp() {
               </div>
               <div className="scroll">
                 <HomeMix key={persona} home={home} snapshot={snap} card={null}
+                  roadmap={founder.road && founderNow ? { title: "Your business road", value: chapterTitle(founder.road, founderNow.chapter), onOpen: () => { setKateOpen(false); setAllRoads(false); setView("road"); setBusiness("road"); } } : undefined}
                   villageCard={<VillageCard personaId={persona} large={st === "large"} receipt={villageReceipt} onOpen={() => openVillage()} />}
                   looks={<KateLooksCard compact snapshot={snap} onCommand={kateCustomization.command} />}
                   onSave={async (layout) => {

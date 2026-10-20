@@ -147,6 +147,28 @@ export const SOFIE_HOUSEHOLD: LifeDef = {
   yearly: Y({ renewals: -260, energy: -160, holidayPay: 2500, holidays: -1300, taxResult: 240, pensionSaving: -1000, bonus: 2400, december: -600 }),
 };
 
+// ---------- Marc: tech founder, app on the side ----------
+export const MARC_HOUSEHOLD: LifeDef = {
+  roadId: EVERYDAY_ONLY_ID,
+  household: "Lives alone · rents in Gent · building an app on the side",
+  balance: 3120,
+  incomes: [{ id: "salary", label: "Salary", amount: 2980, day: 25, salary: true }],
+  bills: [
+    { id: "rent", label: "Rent, Gent", amount: 820, day: 1, group: "home" },
+    { id: "energy", label: "Energy advance", amount: 80, day: 6, group: "energy" },
+    { id: "phone", label: "Proximus", amount: 39, day: 26, group: "phone" },
+    { id: "software", label: "Software for the app", amount: 30, day: 16, group: "work" },
+  ],
+  spend: 900,
+  pots: [{ id: "savings", label: "Startup buffer", balance: 12800, monthly: 400 }],
+  goals: [{ id: "g1", label: "Startup buffer", place: "Startup", target: 15000, saved: 12800, monthly: 400 }],
+  cover: [
+    { id: "hospital", label: "Hospital", state: "ok", note: "Through your employer." },
+    { id: "liability", label: "Liability", state: "check", note: "Professional liability once you sell your app." },
+  ],
+  yearly: Y({ renewals: -120, energy: -90, holidayPay: 2400, holidays: -900, bonus: 2500, december: -500 }),
+};
+
 // ---------- their own worlds (streets inside the ring) ----------
 // Synthetic, and written to agree with the Kate personas and households above: Tom's rent, deposit and
 // car insurance renewal (+8% on 2 Nov), Karim's home loan (€ 1.150 a month), holdings and pension saving,
@@ -247,6 +269,12 @@ export const PEOPLE: Record<string, PersonRoad> = {
       title: "Drive First home before you buy",
       line: "You used the mortgage simulator three times. 41.212 people drove the first two years after the keys; see what they hit.",
     },
+  },
+  marc: {
+    key: "marc",
+    roadId: EVERYDAY_ONLY_ID,
+    persona: ME("Marc", 26, "Gent", 0, "", 2, 1, [{ roadId: "first-job", year: 2022 }]),
+    household: MARC_HOUSEHOLD,
   },
   nadia: {
     key: "nadia",

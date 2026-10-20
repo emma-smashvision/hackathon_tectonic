@@ -313,3 +313,29 @@
 .hs .fr .fr-sheet-body > h2 { font-size: 23px; }
 .fr-sheet-icon { width: 56px; height: 56px; border-radius: 16px; margin-top: 0; }
 .fr-x-actions { margin-bottom: 12px; }
+
+/* Crossroads shares */
+.fr-x-crowd { display: block; margin-top: 2px; font-size: 13px; color: var(--fr-muted); }
+.fr-x-pct, .fr-x-pct-on { font-size: 18px; font-weight: 700; }
+.fr-x-pct { fill: #8aa0b8; }
+.fr-x-pct-on { fill: #fff; }
+
+/* Team sheet */
+.fr-team-body > h2 { text-align: left !important; font-size: 22px !important; }
+.fr-team-body .fr-sheet-meta { justify-content: flex-start; text-align: left; font-size: 13.5px; }
+.fr-team-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fr-team-list button { width: 100%; display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border: 0; border-radius: 14px; background: var(--fr-panel2); text-align: left; }
+.fr-team-list button:hover { background: #18304a; }
+.fr-team-row { display: flex; gap: 6px; }
+.fr-team-list strong { font-size: 15.5px; font-weight: 600; }
+.fr-team-list small { font-size: 13px; color: #c3d2e2; }
+.fr-team-names { font-size: 12.5px; color: var(--fr-cyan); line-height: 1.4; }
+.fr-offer-mini { font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #052033; background: #f5a524; border-radius: 5px; padding: 2px 6px; }
+
+/* Home: the business road is the biggest, brightest bubble */
+.ph .mix-bubble[data-block="roadmap"] { color: #04121d; border: 0; background: radial-gradient(circle at 30% 25%, #ffffffb0, transparent 55%), linear-gradient(160deg, #7fe3ff, #2aa9cf); box-shadow: 0 0 0 6px #59dcff33, 0 0 44px #59dcff80; }
+.ph .mix-bubble[data-block="roadmap"] .mix-value { font-weight: 750; }
+.ph .mix-bubble[data-block="roadmap"] > svg { opacity: 1; }
+.ph .mix-float:has(.mix-bubble[data-block="roadmap"]) { z-index: 2; }
+.ph .mix-bubble[data-block="roadmap"] .mix-label { color: #063349; opacity: 1; font-weight: 600; }
+.fr-x-t, .fr-x-t-on { font-size: 13px; }

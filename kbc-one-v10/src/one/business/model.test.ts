@@ -3,7 +3,7 @@ import { BUSINESS_QUERY, customerRoad, detectedProfile, FORM_ORDER, PARTNERS, pa
 
 describe("business roadmaps", () => {
   test("covers the requested jobs, from eenmanszaak to BV and first employee", () => {
-    expect(PROFILES.map((p) => p.id)).toEqual(["physio", "lawyer", "student", "freelancer", "employer"]);
+    expect(PROFILES.map((p) => p.id)).toEqual(["physio", "lawyer", "student", "freelancer", "employer", "founder"]);
     const forms = new Set(PROFILES.flatMap((p) => p.phases.map((ph) => ph.form)));
     for (const form of FORM_ORDER) expect(forms.has(form)).toBe(true);
   });
@@ -48,7 +48,7 @@ describe("business roadmaps", () => {
     expect(detectedProfile("karim")).toBe("freelancer");
     expect(detectedProfile("sofie")).toBe("physio");
     for (const key of ["tom", "lina", "margaret", "nadia"]) expect(detectedProfile(key)).toBeUndefined();
-    for (const key of ["karim", "sofie"]) {
+    for (const key of ["karim", "sofie", "marc"]) {
       const road = customerRoad(key)!;
       expect(PROFILES.find((p) => p.id === road.profile)!.phases.some((ph) => ph.id === road.now)).toBe(true);
     }
