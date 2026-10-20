@@ -1,6 +1,6 @@
 # KBC One v7
 
-> **Roadmap-only build.** This copy of `kbc-one-v10` keeps Home, the **Your road** tab, **All roads** and the 2D roadmap views (housing: first home, moving house; business: going freelance, sole trader or company). The 3D city, driving, missions and three.js dependencies were removed. Run it with `bun install && bun run dev` (port 3700).
+> **Roadmap-only build.** This copy of `kbc-one-v10` keeps Home, the **Your road** tab, **All roads** and the 2D roadmap views (housing: first home, moving house; business: going freelance, sole trader or company). The 3D city, driving, missions and three.js dependencies were removed. Run it with `bun install && bun run dev` (port 3700). Kate and the Home composer use the Anthropic API when `ANTHROPIC_API_KEY` is set (for deploys), and the local `claude` CLI otherwise; `KBC_AI=off` uses the built-in rules only.
 
 **1 app for each person · 1 click to the next useful step · 1 road from today to what comes next**
 
