@@ -1,3 +1,4 @@
+import Anthropic from "@anthropic-ai/sdk";
 import { spawn } from "node:child_process";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -6,17 +7,20 @@ import { extractJson } from "../json";
 
 export { extractJson };
 
-// Runs the local Claude Code CLI in print mode (`claude -p`) so the whole
-// pipeline is visible in the terminal that runs `bun dev`. No API key in the app:
-// the CLI uses whatever login the developer already has.
+// Two ways to reach Claude, with the same results and the same rules fallback:
+// - with ANTHROPIC_API_KEY set (servers, deploys): the Anthropic API through the official SDK;
+// - without it (local dev): the Claude Code CLI in print mode (`claude -p`), using the
+//   developer's own login, so the whole pipeline is visible in the terminal that runs `bun dev`.
 //
 //   KBC_AI=off                 skip Claude, use the rules fallback
+//   ANTHROPIC_API_KEY=...      use the Anthropic API instead of the CLI
 //   KBC_CLAUDE_BIN=claude      path to the CLI
-//   KBC_COMPOSE_MODEL=haiku    model for composing the home (fast)
-//   KBC_KATE_MODEL=sonnet      model for Kate, layouts, blocks and themes
+//   KBC_COMPOSE_MODEL          model for composing the home (CLI default: haiku)
+//   KBC_KATE_MODEL             model for Kate, layouts, blocks and themes (CLI default: sonnet)
 //   KBC_CLAUDE_TIMEOUT_MS=90000
 
 export const aiEnabled = () => process.env.KBC_AI !== "off";
+const useApi = () => Boolean(process.env.ANTHROPIC_API_KEY);
 
 const BIN = process.env.KBC_CLAUDE_BIN ?? "claude";
 const TIMEOUT = Number(process.env.KBC_CLAUDE_TIMEOUT_MS ?? 90_000);
@@ -96,6 +100,12 @@ export async function askClaude<T = unknown>(opts: {
   system: string;
   prompt: string;
 }): Promise<ClaudeResult<T>> {
+  if (useApi()) {
+    const res = await apiMessage({ ...opts, onText: undefined });
+    const data = extractJson(res.text) as T;
+    console.log(c.dim(indent(JSON.stringify(data, null, 2))));
+    return { data, ms: res.ms, model: res.model };
+  }
   const t0 = Date.now();
   console.log(
     `\n${c.cyan("◆ kate")} ${c.bold(opts.label)} ${c.dim(`→ claude -p --model ${opts.model} (${opts.prompt.length} chars)`)}`,
@@ -146,9 +156,63 @@ function indent(s: string) {
 }
 
 export const MODELS = {
-  compose: process.env.KBC_COMPOSE_MODEL ?? "haiku",
-  kate: process.env.KBC_KATE_MODEL ?? "sonnet",
+  compose: process.env.KBC_COMPOSE_MODEL ?? (useApi() ? "claude-opus-5-5" : "haiku"),
+  kate: process.env.KBC_KATE_MODEL ?? (useApi() ? "claude-opus-5-5" : "sonnet"),
 };
+
+// ---------- Anthropic API ----------
+
+let client: Anthropic | undefined;
+const api = () => (client ??= new Anthropic({ timeout: TIMEOUT, maxRetries: 1 }));
+
+// CLI aliases still work in KBC_*_MODEL; the API needs full model IDs.
+const API_ALIAS: Record<string, string> = { opus: "claude-opus-5-5", sonnet: "claude-sonnet-5-5", haiku: "claude-haiku-5-5" };
+const apiModel = (model: string) => API_ALIAS[model] ?? model;
+
+/**
+ * One Messages API call. Streams so Kate can show typing; `onText` gets each text delta.
+ * Server-side fallbacks re-run a safety-declined request on another model; a remaining
+ * refusal throws, so callers drop to the rules fallback as they do for any other failure.
+ */
+async function apiMessage(opts: {
+  label: string;
+  model: string;
+  system: string;
+  prompt: string;
+  onText?: (delta: string) => void;
+  signal?: AbortSignal;
+}): Promise<{ text: string; ms: number; model: string }> {
+  const t0 = Date.now();
+  const model = apiModel(opts.model);
+  console.log(
+    `\n${c.cyan("◆ kate")} ${c.bold(opts.label)} ${c.dim(`→ Anthropic API · ${model} (${opts.prompt.length} chars)`)}`,
+  );
+  // Server-side fallbacks are available for Opus and Sonnet models, not for Haiku.
+  const fallback = /^claude-(opus|sonnet)/.test(model)
+    ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }
+    : {};
+  const stream = api().beta.messages.stream(
+    {
+      model,
+      max_tokens: 16000,
+      // Short replies and JSON layouts: low effort keeps Home and Kate fast.
+      output_config: { effort: "low" },
+      system: opts.system,
+      messages: [{ role: "user", content: opts.prompt }],
+      ...fallback,
+    },
+    { signal: opts.signal },
+  );
+  if (opts.onText) stream.on("text", opts.onText);
+  const message = await stream.finalMessage();
+  if (message.stop_reason === "refusal")
+    throw new Error(`refused${message.stop_details?.category ? ` (${message.stop_details.category})` : ""}`);
+  const text = message.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
+  if (!text) throw new Error(`no text in the reply (stop: ${message.stop_reason})`);
+  const ms = Date.now() - t0;
+  console.log(`${c.green("  ✓")} ${c.dim(`${ms} ms · ${message.model} · ${message.usage.input_tokens} in / ${message.usage.output_tokens} out`)}`);
+  return { text, ms, model: message.model };
+}
 
 /**
  * Streaming variant for Kate: `claude -p --output-format stream-json --include-partial-messages`.
@@ -162,6 +226,11 @@ export async function streamClaude(opts: {
   onText: (delta: string) => void;
   signal?: AbortSignal;
 }): Promise<{ text: string; ms: number; model: string; costUsd?: number }> {
+  if (useApi()) {
+    const res = await apiMessage(opts);
+    console.log(c.dim(indent(res.text)));
+    return res;
+  }
   const t0 = Date.now();
   console.log(
     `\n${c.cyan("◆ kate")} ${c.bold(opts.label)} ${c.dim(`→ claude -p --model ${opts.model} (stream, ${opts.prompt.length} chars)`)}`,
