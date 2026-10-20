@@ -30,6 +30,8 @@ export interface Partner {
   role: string;
   /** what earlier customers chose, when there is a choice to make */
   options?: PartnerOption[];
+  /** example KBC partner offer at the moment of need (demo) */
+  offer?: string;
 }
 
 export const PARTNERS: Record<PartnerId, Partner> = {
@@ -54,6 +56,7 @@ export const PARTNERS: Record<PartnerId, Partner> = {
   accountant: {
     id: "accountant", name: "Accountant", local: "Boekhouder / accountant", kind: "professional",
     role: "Bookkeeping, VAT returns, tax return and prepayments. For a BV also the financial plan and annual accounts.",
+    offer: "20% off your BV financial plan with a KBC partner accountant",
     options: [
       { label: "Local accountancy office", share: 0.46, note: "Face-to-face; most chosen once there is a BV." },
       { label: "Online fixed-fee accountant", share: 0.31, note: "Cheapest for a simple sole proprietorship." },
@@ -63,6 +66,7 @@ export const PARTNERS: Record<PartnerId, Partner> = {
   notary: {
     id: "notary", name: "Notary", local: "Notaris", kind: "professional",
     role: "Draws up and signs the deed of incorporation of your BV and files it for publication.",
+    offer: "Fixed-price BV deed with a KBC partner notary",
     options: [
       { label: "Notary your accountant works with", share: 0.54, note: "Financial plan and deed in one flow." },
       { label: "Notary near you", share: 0.38, note: "Easy to sign in person." },
@@ -85,6 +89,7 @@ export const PARTNERS: Record<PartnerId, Partner> = {
   insurer: {
     id: "insurer", name: "Insurer", local: "Verzekeraar", kind: "professional",
     role: "Professional liability, guaranteed income when you are ill, and the mandatory workplace accident insurance once you employ someone.",
+    offer: "First 3 months free on income cover when you open your BV account",
     options: [
       { label: "KBC insurance with your business account", share: 0.41, note: "One adviser for bank and cover." },
       { label: "Broker comparing insurers", share: 0.36, note: "Most chosen for income cover." },
@@ -94,6 +99,7 @@ export const PARTNERS: Record<PartnerId, Partner> = {
   kbc: {
     id: "kbc", name: "KBC business adviser", kind: "kbc",
     role: "Business account, card payments, starter and investment credit, and the bank certificate for your BV's capital.",
+    offer: "BV account free for the first year",
   },
   "social-secretariat": {
     id: "social-secretariat", name: "Social secretariat", local: "Sociaal secretariaat", kind: "professional",
@@ -674,10 +680,10 @@ export const PROFILES: BizProfile[] = [
 export const profileById = (id: string) => PROFILES.find((p) => p.id === id);
 
 /** KBC knows your job: the demo customers whose transactions point to a business road. */
-export interface BizCustomer { profile: string; /** phase they are in now */ now: string; noticed: string }
+export interface BizCustomer { profile: string; /** phase they are in now */ now: string; noticed: string; /** "Your road" opens the business road first */ roadFirst?: boolean }
 const CUSTOMERS: Record<string, BizCustomer> = {
   karim: { profile: "freelancer", now: "sole-years", noticed: "Client invoices since early 2025 and a growing tax reserve" },
-  sofie: { profile: "physio", now: "main", noticed: "Your practice made about €74,200 profit in 2025. That is where most physios start comparing a BV, and you plan to buy a home with Pieter." },
+  sofie: { profile: "physio", now: "main", roadFirst: true, noticed: "Your practice made about €74,200 profit in 2025. That is where most physios start comparing a BV, and you plan to buy a home with Pieter." },
 };
 export const customerRoad = (personKey?: string) => (personKey ? CUSTOMERS[personKey] : undefined);
 export const detectedProfile = (personKey?: string) => customerRoad(personKey)?.profile;

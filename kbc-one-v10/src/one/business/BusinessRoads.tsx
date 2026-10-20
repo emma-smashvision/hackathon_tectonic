@@ -31,7 +31,6 @@ const pct = (share: number) => `${Math.round(share * 100)}%`;
 const int = (n: number) => n.toLocaleString("en-GB");
 const KIND_LABEL = { public: "Public", professional: "Professional", kbc: "KBC" } as const;
 const sideOf = (road: FounderRoad, chosen?: "a" | "b") => chosen ?? road.fork?.pick ?? (road.fork && road.fork.a.share >= road.fork.b.share ? "a" : "b");
-const formCount = (n: FounderNode) => n.form ? { filled: n.form.fromKbc.length, total: n.form.fromKbc.length + n.form.needYou.length } : undefined;
 
 export function BusinessRoads(props: BusinessRoadsProps) {
   // A persona switch starts from that person's own road.
@@ -50,7 +49,14 @@ function BusinessRoadsContent({ personKey, advisorName, large, start, onClose, o
   const scrollRef = useRef<HTMLDivElement>(null);
   const adviser = advisorName ?? s.advisor?.name ?? "your KBC adviser";
   const profile = profileById(profileId) ?? PROFILES[0];
-  useEffect(() => { scrollRef.current?.scrollTo({ top: 0 }); }, [screen, profileId]);
+  const nowId = road ? nowNode(road)?.id : undefined;
+  useEffect(() => {
+    const box = scrollRef.current;
+    if (!box) return;
+    // The road opens on the current step, with the next one below it.
+    const target = screen === "road" ? box.querySelector<HTMLElement>(".fr-callout") : null;
+    box.scrollTo({ top: target ? Math.max(0, target.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 44) : 0 });
+  }, [screen, profileId, nowId]);
   if (!road) return null;
 
   const goRoad = (id: string) => { setProfileId(id); setOpen(null); setNotice(""); setScreen("road"); };
@@ -68,7 +74,7 @@ function BusinessRoadsContent({ personKey, advisorName, large, start, onClose, o
   const ask = (q: string) => onAskKate && (() => onAskKate(`I am a ${profile.job.toLowerCase()}. ${q}`));
 
   return <div className={`fr ${large ? "fr-large" : ""}`} data-testid="business-roads">
-    <div className={`fr-scroll ${screen === "road" ? "fr-scroll-bar" : ""}`} ref={scrollRef}>
+    <div className="fr-scroll" ref={scrollRef}>
       {screen === "start" && <StartScreen customerProfile={customer?.profile} customerLine={customer?.noticed} back={back} onBack={onClose} onRoad={goRoad} onMap={goMap} />}
       {screen === "road" && <RoadScreen road={road} chosen={chosen} back={back} backLabel={start === "road" ? "Your road" : "Where to start"} onBack={() => (start === "road" ? onClose() : setScreen("start"))}
         onMap={goMap} onOpen={setOpen} onCrossroads={() => setScreen("crossroads")} />}
@@ -80,7 +86,6 @@ function BusinessRoadsContent({ personKey, advisorName, large, start, onClose, o
       <p className="fr-footnote">{SYNTHETIC}. Rules and amounts change; your partners confirm what applies to you.</p>
     </div>
 
-    {screen === "road" && <NextBar road={road} chosen={chosen} onOpen={(id) => setOpen({ kind: "node", id })} />}
 
     {node && <StepSheet node={node} road={road} crowd={profile.crowd} onClose={() => setOpen(null)} onPartner={(id) => setOpen({ kind: "partner", id })}
       onRemind={() => remind(node)} onAskKate={ask(`What did people in my job do about this step: ${node.title.toLowerCase()}?`)}
@@ -225,7 +230,7 @@ function RoadPath({ road, chosen, rows, expanded, onNode, onToggle, onCrossroads
   let k = 0;
   const placed = rows.map((row) => {
     const now = row.kind === "node" && row.node.status === "now";
-    const h = row.kind === "chapter" ? 46 : row.kind === "fork" ? 214 : row.kind === "summary" ? 76 + Math.ceil(row.nodes.length / 2) * 24 : now ? 178 : 112;
+    const h = row.kind === "chapter" ? 46 : row.kind === "fork" ? 150 : row.kind === "summary" ? 76 + Math.ceil(row.nodes.length / 2) * 24 : now ? 178 : 112;
     const x = row.kind === "node" || row.kind === "summary" ? ZIG[k++ % ZIG.length] : 50;
     const cy = row.kind === "node" ? y + (now ? 110 : 50) : row.kind === "summary" ? y + 52 : row.kind === "fork" ? y + 66 : y;
     const p = { row, y, x, cy };
@@ -297,7 +302,6 @@ function RoadPath({ road, chosen, rows, expanded, onNode, onToggle, onCrossroads
               <span className={`fr-fork-label ${dim ? "fr-node-dim" : ""}`} style={{ left: `${forkX[sd]}%`, top: p.cy + 40 }}><strong>{br.label}</strong><small>{taken ? "Your road" : `${pct(br.share)} took this road`}</small></span>
             </Fragment>;
           })}
-          <button type="button" className="fr-fork-chip" style={{ top: p.cy + 92 }} onClick={onCrossroads}><FIcon name="fork" size={16} />{chosen ? "Your choice" : "Pick your road"}</button>
         </Fragment>;
       }
       if (r.kind === "node") {
@@ -321,17 +325,6 @@ function RoadPath({ road, chosen, rows, expanded, onNode, onToggle, onCrossroads
       }
       return null;
     })}
-  </div>;
-}
-
-function NextBar({ road, chosen, onOpen }: { road: FounderRoad; chosen?: "a" | "b"; onOpen: (id: string) => void }) {
-  const n = nowNode(road) ?? routeNodes(road, chosen).find((x) => x.status === "next");
-  if (!n) return null;
-  const c = formCount(n);
-  return <div className="fr-nextbar">
-    <span className="fr-kate-dot fr-kate-dot-big"><FIcon name="spark2" size={16} /></span>
-    <div><strong>{n.title}</strong><small>{c ? `Kate filled in ${c.filled} of ${c.total}` : n.status === "now" ? "Your next step" : "Start here"}{n.minutes ? ` · ${n.minutes} min` : ""}</small></div>
-    <button type="button" onClick={() => onOpen(n.id)}>Continue</button>
   </div>;
 }
 
@@ -397,12 +390,12 @@ function CrossroadsScreen({ road, chosen, crowd, job, back, onBack, onTake, onAs
   const [sel, setSel] = useState<"a" | "b">(chosen ?? sideOf(road));
   const br = fork[sel];
   const most = fork.a.share >= fork.b.share ? "a" : "b";
-  return <section className="fr-screen" aria-labelledby="fr-x-title">
+  return <section className="fr-screen fr-x" aria-labelledby="fr-x-title">
     <div className="fr-x-top">{back("Your road", onBack)}<span className="fr-x-badge"><FIcon name="fork" size={14} />Crossroads</span></div>
     <h1 id="fr-x-title">Pick your road</h1>
-    <p className="fr-lead">{fork.title} {fork.question}</p>
-    <div className="fr-x-graphic" aria-hidden="true">
-      <svg viewBox="0 0 340 130" width="100%" height="130">
+    <p className="fr-lead">{fork.title}</p>
+    <div className="fr-x-graphic">
+      <svg viewBox="0 0 340 130" width="100%" height="104" aria-hidden="true">
         <rect x="0" y="22" width="340" height="30" className="fr-x-lane" /><rect x="0" y="78" width="340" height="30" className="fr-x-lane" />
         <path d="M0 65 H50" className="fr-x-line fr-x-on" />
         <path d="M50 65 C100 65 110 37 170 37 H186" className={`fr-x-line ${sel === "a" ? "fr-x-on fr-x-dash" : "fr-x-off"}`} />
@@ -411,25 +404,22 @@ function CrossroadsScreen({ road, chosen, crowd, job, back, onBack, onTake, onAs
         <text x="310" y="41" className={sel === "a" ? "fr-x-t-on" : "fr-x-t"} textAnchor="end">A · {branchTab(fork.a.label)}</text>
         <text x="310" y="97" className={sel === "b" ? "fr-x-t-on" : "fr-x-t"} textAnchor="end">B · {branchTab(fork.b.label)}</text>
       </svg>
-    </div>
-    <div className="fr-seg-control" role="tablist" aria-label="Roads">
-      {(["a", "b"] as const).map((sd) => <button key={sd} type="button" role="tab" aria-selected={sel === sd} onClick={() => setSel(sd)}>{sd.toUpperCase()} · {branchTab(fork[sd].label)}</button>)}
+      <div className="fr-x-lanes" role="radiogroup" aria-label="Roads">
+        {(["a", "b"] as const).map((sd) => <button key={sd} type="button" role="radio" aria-checked={sel === sd} onClick={() => setSel(sd)} aria-label={`Road ${sd.toUpperCase()}: ${fork[sd].label}`} />)}
+      </div>
     </div>
     <div className="fr-kate-card fr-kate-compact">
       <div className="fr-kate-head"><span className="fr-kate-dot"><FIcon name="spark2" size={14} /></span><b>{fork.pick ? `Kate’s pick for you: road ${fork.pick.toUpperCase()}` : `Most people in this job took road ${most.toUpperCase()}`}</b></div>
-      <p>{fork.pick ? fork.pickWhy : `${pct(fork[most].share)} of ${int(crowd)} people chose it. Kate can compare both for your own numbers once this is your road.`}</p>
+      <p>{fork.pick ? fork.pickWhy : `${pct(fork[most].share)} of ${int(crowd)} people chose it.`}</p>
     </div>
-    <h2 className="fr-caps">Road {sel.toUpperCase()} at a glance</h2>
+    <div className="fr-x-actions">
+      <button type="button" className="fr-light-button" onClick={() => onTake(sel)} disabled={chosen === sel}>{chosen === sel ? `You are on road ${sel.toUpperCase()}` : `Take road ${sel.toUpperCase()}`} <FIcon name="arrow" size={20} /></button>
+      {onAskKate && <button type="button" className="fr-link fr-center" onClick={onAskKate}>Talk it through with Kate</button>}
+    </div>
     <ul className="fr-glance">
-      <li className="fr-glance-good">{br.good}</li>
-      {br.pros.filter((t) => t !== br.good).map((t) => <li key={t}><i className="fr-plus">+</i>{t}</li>)}
-      {br.cons.map((t) => <li key={t}><i className="fr-minus">−</i>{t}</li>)}
-      <li><i className="fr-crowd-i"><FIcon name="people" size={14} /></i>{pct(br.share)} of {int(crowd)} {job.toLowerCase()}s took this road</li>
-      {br.next && <li className="fr-glance-next"><FIcon name="flag" size={16} /><span>Next stops</span><b>{br.next}</b></li>}
+      {br.pros.filter((t) => t !== br.good).slice(0, 1).map((t) => <li key={t}><i className="fr-plus">+</i>{t}</li>)}
+      {br.cons.slice(0, 1).map((t) => <li key={t}><i className="fr-minus">−</i>{t}</li>)}
     </ul>
-    {br.quote && <blockquote className="fr-quote">“{br.quote}”</blockquote>}
-    <button type="button" className="fr-light-button" onClick={() => onTake(sel)} disabled={chosen === sel}>{chosen === sel ? `You are on road ${sel.toUpperCase()}` : `Take road ${sel.toUpperCase()}`} <FIcon name="arrow" size={20} /></button>
-    {onAskKate && <button type="button" className="fr-link fr-center" onClick={onAskKate}>Talk it through with Kate</button>}
   </section>;
 }
 
@@ -454,29 +444,20 @@ function SheetFrame({ title, onClose, children }: { title: string; onClose: () =
   </div>;
 }
 
-function KateBox({ text, onAskKate }: { text: string; onAskKate?: () => void }) {
-  return <div className="fr-kate-card fr-kate-compact">
-    <div className="fr-kate-head"><span className="fr-kate-dot"><FIcon name="spark2" size={14} /></span><b>Kate · from people before you</b></div>
-    <p>{text}</p>{onAskKate && <button type="button" className="fr-link" onClick={onAskKate}>Ask Kate more <FIcon name="chevron" size={14} /></button>}
-  </div>;
-}
-
 function StepList({ nodes }: { nodes: FounderNode[] }) {
   return <ol className="fr-guide-steps">{nodes.map((n) => <li key={n.id} className={`fr-gs-${n.status}`}><FIcon name={n.status === "done" ? "check" : n.icon} size={16} /><span><strong>{n.title}</strong><small>{n.sub}</small></span></li>)}</ol>;
 }
 
-function StepSheet({ node, road, crowd, onClose, onPartner, onRemind, onAskKate, onFinish }: {
+function StepSheet({ node, road, crowd, onClose, onPartner, onRemind, onFinish }: {
   node: FounderNode; road: FounderRoad; crowd: number; onClose: () => void; onPartner: (id: PartnerId) => void;
   onRemind: () => void; onAskKate?: () => void; onFinish: () => void;
 }) {
   const s = useStore();
-  const [why, setWhy] = useState(!node.form || node.status === "done");
-  const [kbcOpen, setKbcOpen] = useState(false);
-  const [filled, setFilled] = useState<string[]>([]);
+  const [why, setWhy] = useState(false);
   const saved = s.plan.some((p) => p.id === `biz:${road.id}:${node.id}`);
   const form = node.status !== "done" ? node.form : undefined;
-  const need = form ? form.needYou.filter((f) => !filled.includes(f.label)).length : 0;
   const total = form ? form.fromKbc.length + form.needYou.length : 0;
+  const leadsToFork = road.fork?.after === node.id;
   const meta = [node.minutes && `About ${node.minutes} min`, node.fee, node.online && "All online"].filter(Boolean).join(" · ");
   return <SheetFrame title={node.short} onClose={onClose}>
     <div className="fr-sheet-body">
@@ -489,33 +470,14 @@ function StepSheet({ node, road, crowd, onClose, onPartner, onRemind, onAskKate,
         <span className={`fr-wave ${why ? "fr-wave-on" : ""}`} aria-hidden="true"><i /><i /><i /><i /><i /></span>
       </button>
       {why && <p className="fr-why">{node.why}</p>}
-      {form && <>
-        <div className="fr-fill-head"><span>Kate filled in {total - need} of {total}</span>{need > 0 && <b>{need} need you</b>}</div>
-        <span className="fr-fill-bar" aria-hidden="true"><i style={{ width: `${((total - need) / total) * 100}%` }} /></span>
-        <ul className="fr-fields">
-          <li><button type="button" className="fr-field-kbc" aria-expanded={kbcOpen} onClick={() => setKbcOpen(!kbcOpen)}><FIcon name="check" size={18} className="fr-ok" /><span>From your KBC profile</span><small>{form.fromKbc.length} fields</small><FIcon name="chevron" size={16} /></button>
-            {kbcOpen && <dl className="fr-kbc-list">{form.fromKbc.map((f) => <Fragment key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></Fragment>)}</dl>}</li>
-          {form.needYou.map((f) => {
-            const done = filled.includes(f.label);
-            return <li key={f.label} className="fr-field">
-              {done ? <FIcon name="check" size={18} className="fr-ok" /> : <span className="fr-pending" aria-hidden="true" />}
-              <span className="fr-field-copy"><span>{f.label}</span><small>{done ? f.suggestion : f.hint}</small></span>
-              {!done && <button type="button" className="fr-chip" onClick={() => setFilled((all) => [...all, f.label])} aria-label={`${f.label}: use ${f.suggestion}`}>{f.suggestion}?</button>}
-            </li>;
-          })}
-        </ul>
-        <p className="fr-small">Kate sends it to {form.to} and shares only these fields. Every status shows up on your road.</p>
-      </>}
-      {!form && node.todo && <><h3>What to do</h3><ul className="fr-todo">{node.todo.map((t) => <li key={t}>{t}</li>)}</ul></>}
-      <h3>Who helps</h3>
-      <div className="fr-partner-chips">{node.partners.map((id) => <button type="button" key={id} className={`fr-chip fr-chip-${PARTNERS[id].kind}`} onClick={() => onPartner(id)}>{PARTNERS[id].name} ›</button>)}</div>
-      {node.crowd && <div className="fr-evidence"><b>{pct(node.crowd.share)}</b><span>{int(Math.round(crowd * node.crowd.share))} of {int(crowd)} people on this road {node.crowd.label}.</span></div>}
-      {node.kate && <KateBox text={node.kate} onAskKate={onAskKate} />}
-      {form && node.status === "now" ? <>
-        <button type="button" className="fr-light-button" onClick={() => (need ? setFilled(form.needYou.map((f) => f.label)) : onFinish())}>{need ? `Finish the last ${need}` : `Send to ${form.to}`} <FIcon name="arrow" size={20} /></button>
-        <button type="button" className="fr-link fr-center" onClick={() => { onRemind(); onClose(); }}>I’ll do it myself</button>
-      </> : node.status === "now" ? <button type="button" className="fr-light-button" onClick={onFinish}>Mark as done <FIcon name="arrow" size={20} /></button>
-        : node.status !== "done" ? <button type="button" className="fr-outline fr-wide" disabled={saved} onClick={onRemind}>{saved ? "In your plan" : "Remind me in my plan"}</button> : null}
+      {form && <div className="fr-filled">
+        <div className="fr-fill-head"><span>Kate filled in {form.fromKbc.length} of {total}</span><b>From your KBC data</b></div>
+        <span className="fr-fill-bar" aria-hidden="true"><i style={{ width: `${(form.fromKbc.length / total) * 100}%` }} /></span>
+      </div>}
+      {!form && node.status !== "done" && <div className="fr-partner-chips">{node.partners.map((id) => <button type="button" key={id} className={`fr-chip fr-chip-${PARTNERS[id].kind}`} onClick={() => onPartner(id)}>{PARTNERS[id].name}{PARTNERS[id].offer ? " · offer" : ""} ›</button>)}</div>}
+      {node.crowd && <p className="fr-crowd-line"><b>{pct(node.crowd.share)}</b> of {int(crowd)} people on this road {node.crowd.label}.</p>}
+      {node.status === "now" ? <button type="button" className="fr-light-button" onClick={onFinish}>{leadsToFork ? "Compare the two roads" : form ? `Send to ${form.to}` : "Mark as done"} <FIcon name="arrow" size={20} /></button>
+        : node.status === "next" ? <button type="button" className="fr-outline fr-wide" disabled={saved} onClick={onRemind}>{saved ? "In your plan" : "Remind me in my plan"}</button> : null}
     </div>
   </SheetFrame>;
 }
@@ -536,18 +498,17 @@ function GuideSheet({ road, chosen, adviser, onClose, onPartner, onTalk }: { roa
   </SheetFrame>;
 }
 
-function PartnerSheet({ road, id, adviser, onClose, onTalk }: { road: FounderRoad; id: PartnerId; adviser: string; onClose: () => void; onTalk: () => void }) {
+function PartnerSheet({ id, adviser, onClose, onTalk }: { road: FounderRoad; id: PartnerId; adviser: string; onClose: () => void; onTalk: () => void }) {
   const partner = PARTNERS[id];
   return <SheetFrame title={partner.name} onClose={onClose}>
     <div className="fr-sheet-body">
       <p className="fr-sheet-meta"><span className={`fr-kind fr-kind-${partner.kind}`}>{KIND_LABEL[partner.kind]}</span> {partner.local}</p>
       <p className="fr-why">{partner.role}</p>
+      {partner.offer && <div className="fr-offer"><span className="fr-offer-tag">KBC partner offer</span><strong>{partner.offer}</strong></div>}
+      <button type="button" className="fr-light-button" onClick={onTalk}>{partner.offer ? "Use this offer" : `Talk to ${adviser}`} <FIcon name="arrow" size={20} /></button>
       {partner.options && <><h3>What people in your job chose</h3>
-        <ul className="fr-options">{partner.options.map((o) => <li key={o.label}><div><strong>{o.label}</strong><b>{pct(o.share)}</b></div><span className="fr-fill-bar"><i style={{ width: pct(o.share) }} /></span><small>{o.note}</small></li>)}</ul></>}
-      <h3>On your road</h3>
-      <StepList nodes={road.nodes.filter((n) => n.partners.includes(id))} />
-      {partner.kind === "kbc" ? <button type="button" className="fr-light-button" onClick={onTalk}>Talk to {adviser} <FIcon name="arrow" size={20} /></button>
-        : <p className="fr-small">KBC does not choose for you. {adviser} can introduce you to partners others on this road worked with.</p>}
+        <ul className="fr-options">{partner.options.map((o) => <li key={o.label}><div><strong>{o.label}</strong><b>{pct(o.share)}</b></div><span className="fr-fill-bar"><i style={{ width: pct(o.share) }} /></span></li>)}</ul></>}
     </div>
   </SheetFrame>;
 }
+

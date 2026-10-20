@@ -29,7 +29,7 @@ import { eur } from "../format";
 import { DEMO_BEATS, DEMO_BEAT_MS } from "../demo";
 import { kateRoadAnswer, type Proposal } from "../kate"; // v8-channels
 import { AllRoads } from "../../one/atlas8";
-import { BusinessRoads } from "../../one/business";
+import { BusinessRoads, customerRoad } from "../../one/business";
 import { catalogueRoad, confirmRoad, previewRoad } from "../../one/crowd";
 import { useRoadPointers } from "../../one/nudge/useRoadPointers";
 import type {
@@ -870,6 +870,7 @@ export function KbcApp() {
                         setKateOpen(false);
                         setBlockSheet(null);
                         setView("road");
+                        if (customerRoad(persona)?.roadFirst) { setAllRoads(false); setBusiness("road"); }
                       } else if (label === "More") {
                         setKateOpen(false);
                         setView("more");

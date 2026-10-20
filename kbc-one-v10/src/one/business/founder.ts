@@ -189,7 +189,7 @@ const SOFIE: FounderRoad = {
       id: "compare", chapter: "crossroads", title: "Compare sole proprietorship and BV", short: "Compare", sub: "Start · about 6 min", icon: "scale", status: "now", minutes: 6, online: true,
       why: "Your practice profit passed about €74,000 last year. That is where most physios start comparing a BV. Kate prepares the numbers; your accountant confirms them.",
       todo: ["Check the figures Kate filled in", "Add the three answers only you know", "Send the comparison to your accountant"],
-      partners: ["accountant", "kbc"], crowd: { share: 0.43, label: "of physios ended up starting a BV" },
+      partners: ["accountant", "kbc"], crowd: { share: 0.43, label: "ended up starting a BV" },
       kate: "Physios who switched did so at a median profit of about €70,000. You are at €74,200, and you plan to buy a home, which many wanted separate from the practice.",
       form: {
         to: "your accountant",
@@ -208,12 +208,6 @@ const SOFIE: FounderRoad = {
           { label: "Director's salary", hint: "At least €45,000 for the reduced rate", suggestion: "€45,000 a year" },
         ],
       },
-    },
-    {
-      id: "grants", chapter: "crossroads", title: "Grants check", short: "Grants", sub: "Optional · 2 min", icon: "gift", status: "optional", minutes: 2, online: true,
-      why: "The KMO-portefeuille can subsidise part of the advice for your BV switch, such as your accountant's comparison and financial plan.",
-      partners: ["vlaio"], crowd: { share: 0.21, label: "used a subsidy for advice when switching to a BV" },
-      kate: "Only 1 in 5 used a subsidy for the switch. Most didn't know it applied to accountant advice.",
     },
     // Road A: stay a sole proprietor
     {
