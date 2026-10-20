@@ -26,7 +26,7 @@ import "../../hindsight/hs-base.css";
 import "../../hindsight/hindsight.css";
 import "../../one/one.css";
 import { eur } from "../format";
-import { DEMO_BEATS, DEMO_BEAT_MS } from "../demo";
+import { DEMO_BEATS, DEMO_BEAT_MS, OFF_STAGE } from "../demo";
 import { kateRoadAnswer, type Proposal } from "../kate"; // v8-channels
 import { AllRoads } from "../../one/atlas8";
 import { BusinessRoads, chapterTitle, customerRoad, nowNode } from "../../one/business";
@@ -952,7 +952,7 @@ export function KbcApp() {
 
         <nav className="stage-cast" aria-label="Customers">
           <ul className="cast-list">
-            {snap.personas.map((x) => (
+            {snap.personas.filter((x) => !OFF_STAGE.has(x.id)).map((x) => (
               <li key={x.id}>
                 <button
                   type="button"
